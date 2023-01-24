@@ -4,7 +4,7 @@
   "description": "-",
   "main": "main.ts",
   "scripts": {
-    "start": "Deno run main.ts",
+    "start": "Deno run --allow-net --allow-read main.ts",
     "build": "tsc --build ./client_src/"
   },
   "keywords": [
