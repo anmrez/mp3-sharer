@@ -1,0 +1,15 @@
+{
+  "name": "mp3_share",
+  "version": "1.0.0",
+  "description": "-",
+  "main": "main.ts",
+  "scripts": {
+    "start": "Deno run main.ts",
+    "build": "tsc --build ./client_src/"
+  },
+  "keywords": [
+    "Deno"
+  ],
+  "author": "anmrez",
+  "license": "MIT"
+}
