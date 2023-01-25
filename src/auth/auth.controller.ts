@@ -15,14 +15,13 @@ export class AuthController{
     this.authService.login( req, res )
     
   }
-  
-  
-  registration( req: Request, res: any ){
-    
-    this.authService.registration( req, res )
+
+  loginByToken( req: Request, res: any ){
+
+    return this.authService.loginByToken( req, res )
 
   }
-
+  
 
   getAllUsersInConsole(){
 

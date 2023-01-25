@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import { HomeService } from './home.service.ts';
 import { ReaderService } from '../reader/reader.service.ts';
 

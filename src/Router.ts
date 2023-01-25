@@ -1,3 +1,5 @@
+// deno-lint-ignore-file no-explicit-any
+import { AuthController } from "./auth/auth.controller.ts";
 import { HomeController } from "./home/home.controller.ts";
 import { ReaderService } from "./reader/reader.service.ts";
 
@@ -8,7 +10,8 @@ export class Router{
 
   constructor(
     private readonly homeController: HomeController,
-    private readonly readerService: ReaderService
+    private readonly readerService: ReaderService,
+    private readonly authController: AuthController
   ){}
 
 
@@ -29,11 +32,33 @@ export class Router{
       break;
 
 
+      case urlPath === '/getProfile' && req.method === 'POST': 
+        // this.authController.get
+      break;
+
+
+      case urlPath === '/login' && req.method === 'POST':
+        this.authController.login( req, res )
+        break;
+        
+        
+      case new RegExp( '/login/' ).test( urlPath ) && req.method === 'GET':
+        if ( this.authController.loginByToken( req, res ) === '404' ) this.send404( res )
+      break;
+      
+
       case urlPath === '/favicon.ico':
         //1
         res( new Response( undefined, {
           status: 200
         } ) )
+      break;
+
+
+
+      case urlPath === '/getUsers':
+        this.authController.getAllUsersInConsole()
+        await this.send404( res )
       break;
 
 

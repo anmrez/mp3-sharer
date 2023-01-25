@@ -1,22 +1,15 @@
 import { MailerService } from "../mailer/mailer.service.ts";
 import { UserDBServices } from "../userdb/userdb.services.ts";
-
-
-interface IListTokens{
-  token: string
-  dateCreate: number
-}
+import { GeneratorService } from "../generator/generator.service.ts";
 
 
 export class AuthService{
 
 
-  listOfLoginTokens: IListTokens[] = []
-
-
   constructor(
     private readonly userDBService: UserDBServices,
-    private readonly mailerService: MailerService
+    private readonly mailerService: MailerService,
+    private readonly generatorService: GeneratorService,
   ){}
 
 
@@ -31,12 +24,34 @@ export class AuthService{
       return;
     }
 
-    this.mailerService.send( user.email, 'token' )
+    const urlToken = this.generatorService.urlToken()
+    this.userDBService.createLoginToken( username, urlToken )
 
+    this.mailerService.send( user.email, urlToken )
     this.sendOK( res )
     
   }
-  
+
+
+  loginByToken( req: Request, res: any ){
+
+    const urlToken = new URL( req.url ).searchParams.get( 'token' )
+    if ( urlToken === null ) return '404';
+
+    const token = this.userDBService.checkingUrlToken( urlToken )
+    if ( token === null ) return '404';
+
+    res( new Response( undefined, {
+      status: 301,
+      headers: {
+        'Set-cookie': 'token=' + token + '; simesite=strict; Path=/; HttpOnly; max-age=' + 999_999_999 ,
+        'Location': '/'
+      }
+    } ) )
+
+  }
+
+
 
   getAllUsersInConsole(){
 
@@ -67,5 +82,6 @@ export class AuthService{
     } ) )
 
   }
+
 
 }
