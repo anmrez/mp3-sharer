@@ -1,0 +1,35 @@
+/* Cursor */
+
+.cursor_pointer{
+  cursor: pointer;
+}
+
+
+
+.font_20{
+  font-size: 20px;
+}
+
+.font_28{
+  font-size: 28px;
+}
+
+
+
+/* Input */
+
+.input_login{
+
+  margin-left: 24px;
+
+  font-family: FreeMono, monospace;
+
+  background-color: #141414;
+  padding-left: 5px;
+  padding-right: 5px;
+
+  border-radius: 0.2em;
+  border: 0px;
+  outline: 1px solid #cb0637;
+
+}

@@ -4,11 +4,47 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/pc.css">
   <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
   <title> MP3 Share PC </title>
 </head>
-<body class="background-main">
-  <h1> Pc client </h1>
+<body class="height_full background_main color_white relative">
+  <!-- <h1> Pc client </h1> -->
+
+  <header class="height_2 background_main_2 border_bottom_pink padding_x_2 padding_y flex justifu_between" >
+    <h1> MP3 Sharer </h1>
+    <a id="buttonLogin" class="color_white background_pink padding_x_2 radius cursor_pointer flex align_center"> login </a>
+  </header>
+
+  <section class="padding_x_2 " >
+
+    <!-- BODY -->
+
+
+
+  </section>
+
+
+  
+
+
+
+  <section id="loginWindow" style="display: none;" class="position_center background_main_2 border_pink padding_x_2 padding_y_2">
+
+    <section class="flex align-center">
+      <section class="flex justifu_between">
+        <label class="font_28"> Username </label>
+        <input id="loginWindowUsername" type="text" class="input_login font_28 color_white radius">
+        <a id="windowButtonLogin" class="height_2 margin_l_10px color_white background_pink padding_x_2 font_20 radius cursor_pointer flex align_center"> Login </a>
+      </section>
+      <br/>
+    </section>
+    
+    <section class="margin_t_1 flex justifu_center">
+      <span id="statusLogin" class="none padding_x_2 padding_y radius font_20 background_red"> User not found </span>
+    </section>
+    
+  </section>
 
 
   <script type="module" src="/assets/js/main.js"></script>
