@@ -10,15 +10,16 @@ export class AuthController{
 
 
 
-  login( req: Request, res: any ){
+  sendEmail( req: Request, res: any ){
 
-    this.authService.login( req, res )
+    this.authService.sendEmail( req, res )
     
   }
 
-  loginByToken( req: Request, res: any ){
+  
+  login( req: Request, res: any ){
 
-    return this.authService.loginByToken( req, res )
+    return this.authService.login( req, res )
 
   }
   

@@ -1,45 +1,65 @@
 import { MailerService } from "../mailer/mailer.service.ts";
-import { UserDBServices } from "../userdb/userdb.services.ts";
 import { GeneratorService } from "../generator/generator.service.ts";
+import { MySQLService } from '../mysql/mysql.service.ts';
+
+
+interface IListTokens{
+  username: string
+  token: string
+  dateCreate: number
+}
 
 
 export class AuthService{
 
 
+  urlTokens: IListTokens[] = []
+
+
   constructor(
-    private readonly userDBService: UserDBServices,
+    private readonly mysqlService: MySQLService,
     private readonly mailerService: MailerService,
     private readonly generatorService: GeneratorService,
   ){}
 
 
-  async login( req: Request, res: any ){
+  async sendEmail( req: Request, res: any ){
 
     const body: { username: string } = await req.json()
     const username = body.username
 
-    const user = this.userDBService.getUser( username )
+    // ищем пользователя в БД
+    const user = await this.mysqlService.getUser( username )
     if ( user === null ) {
       this.sendNotFound( res )
       return;
     }
 
+    // генерируем токен и сохраняем его 
     const urlToken = this.generatorService.urlToken()
-    this.userDBService.createLoginToken( username, urlToken )
+    const save = this.saveUrlToken( user.username, urlToken )
 
+    // Если письмо уже отправленно то оповещаем пользователя
+    if ( save === false ) return this.alreadyBeenSent( res )
+
+    // Отправляем пользователю на почту ссылку для входа
     this.mailerService.send( user.email, urlToken )
     this.sendOK( res )
     
   }
 
 
-  loginByToken( req: Request, res: any ){
+  async login( req: Request, res: any ){
 
     const urlToken = new URL( req.url ).searchParams.get( 'token' )
     if ( urlToken === null ) return '404';
 
-    const token = this.userDBService.checkingUrlToken( urlToken )
-    if ( token === null ) return '404';
+    const username = this.findUrlToken( urlToken )
+    if ( username === null ) return '404';
+
+    // Сгенерировать токен, записаеть его в БД
+    const token = this.generatorService.token()
+    await this.mysqlService.setToken( username, token )
 
     res( new Response( undefined, {
       status: 301,
@@ -53,15 +73,55 @@ export class AuthService{
 
 
 
-  getAllUsersInConsole(){
+  async getAllUsersInConsole(){
 
-    console.log( this.userDBService.getAll() )
+    console.log( await this.mysqlService.getAllUsers() )
+
+  }
+
+   
+  
+  // PRIVATE === ===
+
+  private saveUrlToken( username: string, token: string ): boolean {
+
+    if ( this.isExistUrlToken( username ) ) return false
+
+    this.urlTokens.push({
+      username: username,
+      token: token,
+      dateCreate: new Date().getTime()
+    })
+
+    return true
 
   }
 
 
+  private findUrlToken( urlToken: string ): string | null {
 
-  // PRIVATE === ===
+    let index = 0
+
+    while( this.urlTokens.length > index ){
+
+      const item = this.urlTokens[index]
+      if ( item.token === urlToken ) {
+
+        if ( this.isUrlTokenNotOutdated( item.dateCreate ) ) return item.username
+
+        this.urlTokens.splice( index, 1 )
+        return null
+        
+      } 
+
+      index++
+
+    }
+
+    return null
+
+  }
+
 
   private sendNotFound( res: any ){
 
@@ -83,5 +143,50 @@ export class AuthService{
 
   }
 
+
+  private alreadyBeenSent( res: any ){
+
+    res( new Response( 'The email has already been sent!', {
+      status: 400,
+      headers: {
+        'content-type': 'text/plain'
+      }
+    } ) )
+
+  }
+
+
+  private isExistUrlToken( username: string ): boolean {
+
+    let index = 0
+
+    while( this.urlTokens.length > index ){
+
+      const item = this.urlTokens[index]
+      if ( item.username === username ) {
+
+
+        return true
+      } 
+
+      index++
+
+    }
+
+    return false
+
+  }
+
+
+  private isUrlTokenNotOutdated( dateCreateToken: number ): boolean {
+
+    const nowDate = new Date().getTime()
+    const fiveMinute = 300000
+
+    if ( nowDate < dateCreateToken + fiveMinute ) return true
+    
+    return false
+
+  }
 
 }

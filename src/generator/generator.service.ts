@@ -3,9 +3,6 @@
 export class GeneratorService{
 
 
-
-
-
   urlToken(): string {
 
 
@@ -32,9 +29,9 @@ export class GeneratorService{
     while( length > index ){
 
       const random = Math.random()
-      if ( random > 0.5 ) result += this.getChar( 'letter' )
-      if ( random <= 0.5 && random >= 0.9 ) result += this.getChar( 'capital' )
-      if ( random < 0.9 ) result += this.getChar( 'number' )
+      if ( random < 0.5 ) result += this.getChar( 'letter' )
+      if ( random >= 0.5 && random <= 0.9 ) result += this.getChar( 'capital' )
+      if ( random > 0.9 ) result += this.getChar( 'number' )
 
       index++
 
