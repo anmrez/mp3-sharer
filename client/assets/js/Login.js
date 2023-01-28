@@ -5,6 +5,9 @@ export class Login{
 
   constructor(){
 
+    const buttonLogin = document.querySelector( '#windowButtonLogin' )
+    this.addEventSend( buttonLogin )
+
   }
   
   

@@ -1,19 +1,18 @@
 "use strict";
 import { WindowLogin } from './WindowLogin.js'
 import { Login } from './Login.js'
-
-// const login = new Login()
-const windowLogin = new WindowLogin()
-const login = new Login()
+import { Profile } from './Profile.js';
+import { GetMusick } from './GetMusick.js'
 
 
 
-const buttonLogin = document.querySelector( '#buttonLogin' )
-windowLogin.addEventView( buttonLogin )
-windowLogin.addEventClose( )
+
+new WindowLogin()
+new Login()
+new Profile()
+new GetMusick()
 
 
-const windowButtonLogin = document.querySelector( '#windowButtonLogin' )
-login.addEventSend( windowButtonLogin )
+
 
 

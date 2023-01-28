@@ -5,47 +5,139 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="stylesheet" href="/assets/css/main.css">
   <link rel="stylesheet" href="/assets/css/pc.css">
-  <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
   <title> MP3 Share PC </title>
 </head>
 <body class="height_full background_main color_white relative">
-  <!-- <h1> Pc client </h1> -->
 
-  <header class="height_2 background_main_2 border_bottom_pink padding_x_2 padding_y flex justifu_between" >
+  <header class="height_2_5 background_main_2 border_bottom_pink padding_x_2 padding_y flex justify_between" >
     <h1> MP3 Sharer </h1>
-    <a id="buttonLogin" class="color_white background_pink padding_x_2 radius cursor_pointer flex align_center"> login </a>
+    <section class="flex">
+      <a class="margin_r_1 color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center"> Upload </a>
+      <a id="buttonLogin" class="color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center"> login </a>
+      <a id="buttonUser" class="none color_white background_pink padding_x_1 radius cursor_pointer flex align_center justify_around" >
+        <img id="userImage" src="" alt="" class="profileImage">
+        <span id="username" class="text_1_25"> username </span>
+      </a>
+    </section>
   </header>
 
-  <section class="padding_x_2 " >
+  <section id='switchButton' class="flex justify_center margin_t_1">
+    <a class="switch_button_active text_center text_1_25" > Music </a>
+    <a class="switch_button text_center text_1_25" > Arhive </a>
+  </section>
 
-    <!-- BODY -->
+  <section class="flex justify_center padding_x_2 margin_t_1" >
 
+    <section class="margin_r_3 background_main_2">
+      <table class="text_1_25">
+        <thead class="height_2 " align="center">
+          <td class="color_dark"> № </td>
+          <td class="min_width_5"> date </td>
+          <td class="min_width_5"> duration </td>
+          <td class="min_width_5">  </td>
+          <td class="min_width_5"> Song title </td>
+          <td class="min_width_5 padding_y"> Author </td>
+          <td class="width_4"> 
+            <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section> 
+          </td>
+          <td class="width_4"> 
+            <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+          </td>
+          <td class="width_4"> 
+            <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+          </td>
+          <td class="width_4"> 
+            <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+          </td>
+          <td class="width_4"> 
+            <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+          </td>
+          <td class="width_4"> 
+            <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+          </td>
 
+        </thead>
+        <tbody id="musickTable">
+          <!-- <tr class="table_row "  align="center">
+            <td class="padding_x_1 text_0_75"> 0001 </td>
+            <td> 01.02 </td>
+            <td> 03:13 </td>
+            <td> ► </td>
+            <td class="padding_x_1"> 
+              Always Wishing You Were Somewhere Else  
+            </td>
+            <td class="padding_x_1"> Hammock </td>
+            <td> 
+              <section class="round_status" style="background: #81818133;"></section>  
+            </td>
+            <td>
+              <section class="round_status" style="background: #81818133;"></section> 
+            </td>
+            <td>
+              <section class="round_status" style="background: #81818133;"></section>
+            </td>
+            <td>
+              <section class="round_status" style="background: #81818133;"></section>
+            </td>
+            <td>
+              <section class="round_status" style="background: #81818133;"></section>
+            </td>
+            <td>
+              <section class="round_status" style="background: #81818133;"></section>
+            </td>
+          </tr> -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- <section>
+      <ul>
+        <li> Music #1 </li>
+        <li> Music #2 </li>
+        <li> Music #3 </li>
+        <li> Music #4 </li>
+      </ul>
+    </section> -->
 
   </section>
 
 
-  
+
+  <footer class="padding_x_2 player text_1_25 flex align_center">
+    <span class="margin_r_10px"> 0035 </span>
+    <span class="margin_r_10px"> 0:14 </span>
+    <span class="margin_r_10px"> / </span>
+    <span class="margin_r_10px"> 3:12 </span>
+    <a href="" class="color_white margin_r_10px"> || </a>
+    <span class="margin_r_10px"> Rick ktoto </span>
+    <span class="margin_r_10px"> - </span>
+    <span class="margin_r_10px"> Nazvania muzyka </span>
+  </footer>
 
 
+  <!-- hidde Items -->
 
   <section id="loginWindow" style="display: none;" class="position_center background_main_2 border_pink padding_x_2 padding_y_2">
 
-    <section class="flex align-center">
-      <section class="flex justifu_between">
+    <section class="flex">
+      <section class="flex justify_between">
         <label class="font_28"> Username </label>
         <input id="loginWindowUsername" type="text" class="input_login font_28 color_white radius">
         <a id="windowButtonLogin" class="height_2 margin_l_10px color_white background_pink padding_x_2 font_20 radius cursor_pointer flex align_center"> Login </a>
       </section>
       <br/>
     </section>
-    
-    <section class="margin_t_1 flex justifu_center">
+
+    <section class="margin_t_1 flex justify_center">
       <span id="statusLogin" class="none padding_x_2 padding_y radius font_20 background_red"> User not found </span>
     </section>
-    
+
   </section>
 
+
+  <section id="tooltip" class="none pointer_event_bobe absolute ">
+    <p id="tooltipText"> ТУт будет текст при наведении </p>
+  </section>
 
   <script type="module" src="/assets/js/main.js"></script>
 </body>

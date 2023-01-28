@@ -3,10 +3,17 @@
 export class WindowLogin{
 
 
+  constructor(){
+    this.addEventView()
+    this.addEventClose()
+  }
+
 
   addEventView( button ){
 
-    button.addEventListener( 'click', function(){
+    const buttonLogin = document.querySelector( '#buttonLogin' )
+
+    buttonLogin.addEventListener( 'click', function(){
 
       document.querySelector( '#loginWindow' ).style.display = 'block'
     
