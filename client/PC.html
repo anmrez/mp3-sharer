@@ -12,8 +12,8 @@
   <header class="height_2_5 background_main_2 border_bottom_pink padding_x_2 padding_y flex justify_between" >
     <h1> MP3 Sharer </h1>
     <section class="flex">
-      <a class="margin_r_1 color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center"> Upload </a>
-      <a id="buttonLogin" class="color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center"> login </a>
+      <a id="upload" class="margin_r_1 color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center"> Upload </a>
+      <a id="homeButtonLogin" class="color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center"> login </a>
       <a id="buttonUser" class="none color_white background_pink padding_x_1 radius cursor_pointer flex align_center justify_around" >
         <img id="userImage" src="" alt="" class="profileImage">
         <span id="username" class="text_1_25"> username </span>
@@ -26,8 +26,11 @@
     <a class="switch_button text_center text_1_25" > Arhive </a>
   </section>
 
+
+  <!-- Body -->
   <section class="flex justify_center padding_x_2 margin_t_1" >
 
+    <!-- Table -->
     <section class="margin_r_3 background_main_2">
       <table class="text_1_25">
         <thead class="height_2 " align="center">
@@ -58,34 +61,6 @@
 
         </thead>
         <tbody id="musickTable">
-          <!-- <tr class="table_row "  align="center">
-            <td class="padding_x_1 text_0_75"> 0001 </td>
-            <td> 01.02 </td>
-            <td> 03:13 </td>
-            <td> ► </td>
-            <td class="padding_x_1"> 
-              Always Wishing You Were Somewhere Else  
-            </td>
-            <td class="padding_x_1"> Hammock </td>
-            <td> 
-              <section class="round_status" style="background: #81818133;"></section>  
-            </td>
-            <td>
-              <section class="round_status" style="background: #81818133;"></section> 
-            </td>
-            <td>
-              <section class="round_status" style="background: #81818133;"></section>
-            </td>
-            <td>
-              <section class="round_status" style="background: #81818133;"></section>
-            </td>
-            <td>
-              <section class="round_status" style="background: #81818133;"></section>
-            </td>
-            <td>
-              <section class="round_status" style="background: #81818133;"></section>
-            </td>
-          </tr> -->
         </tbody>
       </table>
     </section>
@@ -102,7 +77,7 @@
   </section>
 
 
-
+  <!-- Player -->
   <footer class="padding_x_2 player text_1_25 flex align_center">
     <span class="margin_r_10px"> 0035 </span>
     <span class="margin_r_10px"> 0:14 </span>
@@ -115,9 +90,8 @@
   </footer>
 
 
-  <!-- hidde Items -->
-
-  <section id="loginWindow" style="display: none;" class="position_center background_main_2 border_pink padding_x_2 padding_y_2">
+  <!-- Window logiin -->
+  <section id="loginWindow" class="none position_center background_main_2_opacity border_pink padding_x_2 padding_y_2">
 
     <section class="flex">
       <section class="flex justify_between">
@@ -134,7 +108,22 @@
 
   </section>
 
+  <!-- Upload -->
+  <section id="uploadWindow" class="none position_center background_main_2_opacity border_pink padding_x_2 padding_y_2">
+    <h1 class="margin_b_1 text_center text_2 "> Upload mp3 </h1>
+    <section class="flex flex_column text_1_25">
+      <form id="uploadWindowInputs" class="none flex flex_column" action="/upload" method="POST" enctype="multipart/form-data">
+        <label for=""> Song title </label>
+        <input type="text" name="title" id="SongTitle" class="text_1_25 input_upload margin_b_1 color_white radius">
+        <label for=""> Author </label>
+        <input type="text" name="author" id="SongAuthor" class="text_1_25 input_upload margin_b_1 color_white radius">
+        <input id="inputUpload" name="file" type="file" class="none" accept=".MP3">
+      </form>
+      <a id="windowButtonUpload" class="padding_y_0_5 color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center justify_center"> Upload </a>
+    </section>
+  </section>
 
+ <!-- Tooltip -->
   <section id="tooltip" class="none pointer_event_bobe absolute ">
     <p id="tooltipText"> ТУт будет текст при наведении </p>
   </section>
