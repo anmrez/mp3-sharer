@@ -20,7 +20,11 @@ export class AuthService{
     private readonly mysqlService: MySQLService,
     private readonly mailerService: MailerService,
     private readonly generatorService: GeneratorService,
-  ){}
+  ){
+
+    setInterval( this.clearOldUrltTokens.bind( this ), 30_000 )
+
+  }
 
 
   async sendEmail( req: Request, res: any ){
@@ -29,7 +33,7 @@ export class AuthService{
     const username = body.username
 
     // ищем пользователя в БД
-    const user = await this.mysqlService.getUser( username )
+    const user = await this.mysqlService.getUserByName( username )
     if ( user === null ) {
       this.sendNotFound( res )
       return;
@@ -186,6 +190,29 @@ export class AuthService{
     if ( nowDate < dateCreateToken + fiveMinute ) return true
     
     return false
+
+  }
+
+
+  private clearOldUrltTokens (  ){
+
+    if ( this.urlTokens.length === 0 ) return; 
+    
+    let index = 0
+
+    while( this.urlTokens.length > index ) {
+
+      const item = this.urlTokens[index]
+      if ( !this.isUrlTokenNotOutdated( item.dateCreate ) ) {
+
+        this.urlTokens.splice( index, 1 )
+        index--
+
+      }
+
+      index++
+      
+    }
 
   }
 

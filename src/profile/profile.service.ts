@@ -39,10 +39,13 @@ export class ProfileService{
   }
 
 
-  isVerifiedUser( req: Request ){
+  async isVerifiedUser( req: Request ){
 
     const token = this.getToken( req )
     if ( token === null ) return false
+
+    const user = await this.mySQLService.getUserByToken( token )
+    if ( user === null ) return false
 
     return true
 

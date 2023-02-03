@@ -2,26 +2,35 @@ import { HomeModule } from './home/home.module.ts';
 import { ReaderModule } from "./reader/reader.module.ts";
 import { Router } from './Router.ts';
 import { AuthNodule } from './auth/auth.module.ts';
-import { UserDBModule } from './userdb/userdb.module.ts';
 import { GeneratorModule } from './generator/generator.module.ts';
 import { MailerModule } from './mailer/mailer.module.ts';
+import { MySQLModule } from './mysql/mysql.module.ts';
+import { ProfileModule } from './profile/profile.module.ts';
+import { UploadModule } from './upload/upload.module.ts';
 
 
 
 export class AppModule{
 
+  mysqlModule = new MySQLModule()
+
   generatorModule = new GeneratorModule()
   mailerModule = new MailerModule()
   readerModule = new ReaderModule()
-  
-  userDBModule = new UserDBModule( this.generatorModule )
+
+  profileModule = new ProfileModule( this.mysqlModule )
+  uploadModule = new UploadModule( this.profileModule, this.mysqlModule )
   homeModule = new HomeModule( this.readerModule )
-  authModule = new AuthNodule( this.userDBModule, this.mailerModule, this.generatorModule )
+
+  authModule = new AuthNodule( this.mysqlModule, this.mailerModule, this.generatorModule )
 
   router = new Router(
     this.homeModule.contoller,
     this.readerModule.service,
-    this.authModule.controller
+    this.authModule.controller,
+    this.profileModule.controller,
+    this.uploadModule.controller,
+    this.mysqlModule.constroller
   )
 
 

@@ -23,7 +23,10 @@ export class MailerService{
       to: useremail,
       subject: 'Login',
       content: tokenLink,
-      html: `<a href='${address}/login/?token=${tokenLink}' > Ваша ссылка для вохда на сайт </a> <br/> <span> Данная сылка одноразвая и живет 5 минут </span>`
+      html: `
+      <a href='${address}/login/?token=${tokenLink}' > Your link to enter the site: ${address}/login/?token=${tokenLink} </a>
+      <br/> 
+      <span> This link is one-time and its lifetime is 5 minutes. </span>`
     }
 
     await client.connectTLS( this.smtpClient );
