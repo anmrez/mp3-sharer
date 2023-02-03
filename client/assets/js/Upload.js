@@ -61,13 +61,15 @@ export class Upload{
       // const binary = e.target.result
       const arr = new Uint8Array( e.target.result )
 
-      const req = await fetch( '/upload', {
+      const response = await fetch( '/upload', {
         method: 'POST',
         headers: {
           'content-type': 'application/octet-stream'
         },
         body: new Uint8Array( [ ...titleWithAuthor, ...arr,  ] )
       })
+
+      console.log( response )
 
       // Обработка ошибок
 

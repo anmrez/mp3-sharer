@@ -2,183 +2,22 @@
 
 export class GetMusick{
 
-  testData = [
-    { 
-      number: 1,
-      date: '11.11',
-      duration: 300,
-      title: 'Always Wishing You Were Somewhere Else ',
-      author: 'Hammock',
-      users: [
-        {
-          status: 3,
-          message: ''
-        },
-        {
-          status: 2,
-          message: 'Мне очень понравилось'
-        },
-        {
-          status: -1,
-          message: ''
-        },
-        {
-          status: -1,
-          message: ''
-        },
-        {
-          status: -1,
-          message: ''
-        },
-        {
-          status: 1,
-          message: 'Фигня какая та'
-        },
-      ]
-    },
-    { 
-      number: 2,
-      date: '01.11',
-      duration: 166,
-      title: 'Iris',
-      author: 'Nyarons',
-      users: [
-        {
-          status: 1,
-          message: 'Мусор'
-        },
-        {
-          status: 3,
-          message: 'Это круто!'
-        },
-        {
-          status: -1,
-          message: ''
-        },
-        {
-          status: -1,
-          message: ''
-        },
-        {
-          status: -1,
-          message: ''
-        },
-        {
-          status: -1,
-          message: ''
-        },
-      ]
-    },
-    { 
-      number: 3,
-      date: '01.11',
-      duration: 364,
-      title: 'Borrowing the Past',
-      author: 'Rhian Sheehan',
-      users: [
-        {
-          status: 0,
-          message: ''
-        },
-        {
-          status: 3,
-          message: 'Мне очень понравилос'
-        },
-        {
-          status: -1,
-          message: ''
-        },
-        {
-          status: -1,
-          message: ''
-        },
-        {
-          status: -1,
-          message: ''
-        },
-        {
-          status: -1,
-          message: ''
-        },
-      ]
-    },
-    { 
-      number: 4,
-      date: '01.11',
-      duration: 243,
-      title: 'My Shoulder Covered With Stars',
-      author: 'Rhian Sheehan',
-      users: [
-        {
-          status: 3,
-          message: ''
-        },
-        {
-          status: -1,
-          message: 'Мне очень понравилос'
-        },
-        {
-          status: -1,
-          message: ''
-        },
-        {
-          status: -1,
-          message: ''
-        },
-        {
-          status: -1,
-          message: ''
-        },
-        {
-          status: -1,
-          message: ''
-        },
-      ]
-    },
-    { 
-      number: 5,
-      date: '02.11',
-      duration: 59,
-      title: 'No Agenda',
-      author: 'Rhian Sheehan'
-    },
-    { 
-      number: 6,
-      date: '02.05',
-      duration: 66,
-      title: 'watashi igai watashi ja naino',
-      author: 'gesunokiwamiotome'
-    },
-    { 
-      number: 7,
-      date: '02.05',
-      duration: 174,
-      title: 'ikenai dance',
-      author: 'gesunokiwamiotome'
-    },
-    { 
-      number: 8,
-      date: '02.05',
-      duration: 145,
-      title: 'Longer Nights',
-      author: 'Prithvi, Trix.'
-    },
-    { 
-      number: 9,
-      date: '02.05',
-      duration: 166,
-      title: 'Nightscapes',
-      author: 'Prithvi'
-    },
-  ]
 
   constructor(){
 
+    this.init()
 
-    let dataArray = this.get()
+  }
 
-    // const json = JSON.stringify( dataArray[0] )
-    // console.log( 'length json = ' + json.length )
+
+  async init(){
+
+    let dataArray = await this.get()
+
+    if ( dataArray.length === 0 ) 
+    // ЕСЛИ массив пуст
+
+    console.log( dataArray )
 
     this.set( dataArray )
 
@@ -186,9 +25,13 @@ export class GetMusick{
 
 
 
-  get(){
+  async get(){
 
-    return this.testData
+    const response = await fetch( '/getSounds', {
+      method: 'GET'
+    } )
+
+    return response.json()
 
   }
 
@@ -246,7 +89,7 @@ export class GetMusick{
 
     const td = document.createElement( 'td' );
 
-    td.innerHTML = item.number
+    td.innerHTML = item.id
 
     td.classList.add( 'padding_x_1' )
     td.classList.add( 'text_0_75' )
@@ -261,7 +104,7 @@ export class GetMusick{
 
     const td = document.createElement( 'td' );
 
-    td.innerHTML = item.date
+    td.innerHTML = item.createdAt
 
     return td
 
@@ -289,11 +132,46 @@ export class GetMusick{
   _createTDPlay( item ){
 
     const td = document.createElement( 'td' );
-
     td.classList.add( 'pointer' )
-    // td.innerHTML = '►'
+    td.classList.add( 'fill_pink' )
+    td.setAttribute( 'sound', item.id )
 
+    td.addEventListener( 'click', this._TDPlayEvent.bind( this, item ) )
 
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+    svg.setAttribute( 'height', '14px' )
+    svg.setAttribute( 'width', '14px' )
+    svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink")
+    
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path")
+    path.setAttribute( 'd', 'M0 0 L14 7 L0 14' )
+    path.id = 'play'
+
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g")
+    g.classList.add( 'none' )
+    g.id = 'pause'
+
+    const line1 = document.createElementNS("http://www.w3.org/2000/svg", "line")
+    line1.setAttribute( 'x1', '3' )
+    line1.setAttribute( 'y1', '0' )
+    line1.setAttribute( 'x2', '3' )
+    line1.setAttribute( 'y2', '14' )
+    line1.setAttribute( 'stroke-width', '2' )
+    
+    const line2 = document.createElementNS("http://www.w3.org/2000/svg", "line")
+    line2.setAttribute( 'x1', '11' )
+    line2.setAttribute( 'y1', '0' )
+    line2.setAttribute( 'x2', '11' )
+    line2.setAttribute( 'y2', '14' )
+    line2.setAttribute( 'stroke-width', '2' )
+
+    g.append( line1 )
+    g.append( line2 )
+
+    svg.append( path )
+    svg.append( g )
+
+    td.append( svg )
     return td
 
   }
@@ -387,6 +265,58 @@ export class GetMusick{
   _addStatusOut(){
 
     document.querySelector( '#tooltip' ).classList.add( 'none' )
+
+  }
+
+
+  _TDPlayEvent( item ){
+
+    console.log( item )
+
+    const table = document.querySelector( '#tableMusick' )
+
+    table.querySelectorAll('[sound]').forEach( item => {
+      item.querySelector( '#play' ).classList.remove( 'none' )
+      item.querySelector( '#pause' ).classList.add( 'none' )
+    })
+
+    const buttonIntoTable = table.querySelector('[sound="' + item.id + '"]');
+
+
+    const player = document.querySelector( '#player' )
+    player.classList.remove( 'none' )
+
+    const id = player.querySelector( '#id' )
+    const title = player.querySelector( '#title' )
+    const author = player.querySelector( '#author' )
+    const duration = player.querySelector( '#durationMax' )
+    const soundtrack = player.querySelector( '#soundtrack' )
+    const button = player.querySelector( '#button' )
+
+    id.innerHTML = item.id
+    title.innerHTML = item.title
+    author.innerHTML = item.author
+    duration.innerHTML = this._getTime( item.duration )
+    soundtrack.src = './static/mp3/' + item.id + '.mp3'
+    button.click()
+
+  }
+
+
+  _getTime( totalSecond ){
+
+    totalSecond = Math.floor( totalSecond )
+
+    let minute = 0
+    let second = 0
+
+    minute = Math.floor( totalSecond / 60 )
+    second = totalSecond - 60 * minute
+
+    if ( second < 10 ) second = '0' + second
+    if ( minute < 10 ) minute = '0' + minute
+
+    return minute + ':' + second
 
   }
 

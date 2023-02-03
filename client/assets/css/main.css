@@ -47,6 +47,21 @@ table{
 
 
 
+/* Fill */
+
+.fill_pink{
+  fill: #8f0527;
+  stroke: #8f0527;
+}
+.fill_pink path {
+  stroke: transparent !important;
+}
+.fill_pink:hover{
+  fill: #cb0637;
+  stroke: #cb0637;
+  /* stroke: transparent; */
+}
+
 /* Border */
 
 .border_bottom_pink{
@@ -125,6 +140,9 @@ table{
 
 .margin_r_1{
   margin-right: 1em;
+}
+.margin_r_2{
+  margin-right: 2em;
 }
 
 .margin_r_10px{

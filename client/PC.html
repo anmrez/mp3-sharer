@@ -32,7 +32,7 @@
 
     <!-- Table -->
     <section class="margin_r_3 background_main_2">
-      <table class="text_1_25">
+      <table id="tableMusick" class="text_1_25">
         <thead class="height_2 " align="center">
           <td class="color_dark"> № </td>
           <td class="min_width_5"> date </td>
@@ -78,15 +78,24 @@
 
 
   <!-- Player -->
-  <footer class="padding_x_2 player text_1_25 flex align_center">
-    <span class="margin_r_10px"> 0035 </span>
-    <span class="margin_r_10px"> 0:14 </span>
+  <footer id="player" class="none padding_x_2 player text_1_25 flex align_center">
+    <audio id="soundtrack"></audio>
+    <span id="id" class="color_dark margin_r_2"> 0035 </span>
+    <span id="durationCurrent" class="margin_r_10px"> 00:00 </span>
     <span class="margin_r_10px"> / </span>
-    <span class="margin_r_10px"> 3:12 </span>
-    <a href="" class="color_white margin_r_10px"> || </a>
-    <span class="margin_r_10px"> Rick ktoto </span>
+    <span id="durationMax" class="margin_r_10px"> 00:00 </span>
+    <a id="button" class="color_white margin_r_10px cursor_pointer">
+      <svg id="play" class="fill_pink" height="30px" width="30px">
+        <path d="M0 0 L30 15 L0 30" />
+      </svg>
+      <svg id="pause" class="none fill_pink" height="30px" width="30px">
+        <line x1="5" y1="0" x2="5" y2="30" stroke-width="4" />
+        <line x1="25" y1="0" x2="25" y2="30" stroke-width="4" />
+      </svg>
+    </a>
+    <span id="title" class="margin_r_10px"> Rick ktoto </span>
     <span class="margin_r_10px"> - </span>
-    <span class="margin_r_10px"> Nazvania muzyka </span>
+    <span id="author" class="margin_r_10px"> Nazvania muzyka </span>
   </footer>
 
 
@@ -125,7 +134,7 @@
 
  <!-- Tooltip -->
   <section id="tooltip" class="none pointer_event_bobe absolute ">
-    <p id="tooltipText"> ТУт будет текст при наведении </p>
+    <p id="tooltipText"> Текст при наведении </p>
   </section>
 
   <script type="module" src="/assets/js/main.js"></script>
