@@ -2,27 +2,36 @@
 
 export class GetMusick{
 
+  dataArray = []
+  table = document.querySelector( '#tableMusick' )
+  tableBody = document.querySelector( '#tableMusickBody' )
+
 
   constructor(){
 
+    this.table.update = this.get.bind( this )
     this.init()
 
   }
 
 
-  async init(){
+  init(){
 
-    let dataArray = await this.get()
-
-    if ( dataArray.length === 0 ) 
-    // ЕСЛИ массив пуст
-
-    console.log( dataArray )
-
-    this.set( dataArray )
+    this.get()
+    document.addEventListener( 'keyup', this._eventReloadOnR.bind( this ) )
 
   }
 
+
+  _eventReloadOnR( event ){
+
+    if ( event.keyCode === 82 ){
+
+      this.get()
+
+    }
+
+  }
 
 
   async get(){
@@ -31,33 +40,40 @@ export class GetMusick{
       method: 'GET'
     } )
 
-    return response.json()
+    this.dataArray = await response.json()
+
+    if ( this.dataArray.length === 0 ) {
+      console.log( 'песен нет' )
+      return;
+    }
+
+    this.set()
 
   }
 
 
-  set( dataArray ){
+  set(){
 
-    const table = document.querySelector( '#musickTable' )
+    this.tableBody.replaceChildren()
 
-    table.replaceChildren()
-
-    dataArray.forEach( ( item, index ) => {
+    this.dataArray.forEach( ( item, index ) => {
       
-      setTimeout( this._addItem.bind( this ), 50 + index * 40, table, item )
+      const delay = 50 + index * 30
+      setTimeout( this._addItem.bind( this ), delay, item )
 
     });
 
   }
 
 
-  _addItem( table, item ){
+  _addItem( item ){
 
 
     const tr = document.createElement( 'tr' );
 
     tr.classList.add( 'table_row' )
     tr.align = 'center'
+    tr.setAttribute( 'soundID', item.id )
 
     const tdID = this._createTDID( item )
     const tdDate = this._createTDDate( item )
@@ -79,8 +95,8 @@ export class GetMusick{
       tr.append( item )
     })
 
-
-    table.append( tr )
+    // table.append( tr )
+    this.tableBody.append( tr )
 
   }
 
@@ -135,6 +151,7 @@ export class GetMusick{
     td.classList.add( 'pointer' )
     td.classList.add( 'fill_pink' )
     td.setAttribute( 'sound', item.id )
+    td.status = 'pause'
 
     td.addEventListener( 'click', this._TDPlayEvent.bind( this, item ) )
 
@@ -142,7 +159,7 @@ export class GetMusick{
     svg.setAttribute( 'height', '14px' )
     svg.setAttribute( 'width', '14px' )
     svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink")
-    
+
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path")
     path.setAttribute( 'd', 'M0 0 L14 7 L0 14' )
     path.id = 'play'
@@ -271,34 +288,47 @@ export class GetMusick{
 
   _TDPlayEvent( item ){
 
-    console.log( item )
-
-    const table = document.querySelector( '#tableMusick' )
-
-    table.querySelectorAll('[sound]').forEach( item => {
-      item.querySelector( '#play' ).classList.remove( 'none' )
-      item.querySelector( '#pause' ).classList.add( 'none' )
-    })
-
-    const buttonIntoTable = table.querySelector('[sound="' + item.id + '"]');
-
-
     const player = document.querySelector( '#player' )
-    player.classList.remove( 'none' )
-
     const id = player.querySelector( '#id' )
     const title = player.querySelector( '#title' )
     const author = player.querySelector( '#author' )
     const duration = player.querySelector( '#durationMax' )
     const soundtrack = player.querySelector( '#soundtrack' )
     const button = player.querySelector( '#button' )
+    
+    if ( id.innerHTML === String( item.id ) ) {
 
+      button.click()
+      return;
+
+    }
+    
     id.innerHTML = item.id
     title.innerHTML = item.title
     author.innerHTML = item.author
     duration.innerHTML = this._getTime( item.duration )
     soundtrack.src = './static/mp3/' + item.id + '.mp3'
-    button.click()
+
+
+    
+    
+    const table = document.querySelector( '#tableMusick' )
+    
+    // set all 'pause'
+    table.querySelectorAll('[sound]').forEach( item => {
+      item.querySelector( '#play' ).classList.remove( 'none' )
+      item.querySelector( '#pause' ).classList.add( 'none' )
+    })
+
+    // clear all highlight row
+    table.querySelectorAll( '[soundID]' ).forEach( item => {
+      item.classList.remove( 'td_play' )
+    })
+    
+    // add highlight row
+    const td = table.querySelector( '[soundID="' + item.id + '"]' )
+    td.classList.add( 'td_play' )
+
 
   }
 

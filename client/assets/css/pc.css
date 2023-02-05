@@ -1,3 +1,52 @@
+
+input[type='range'] {
+  -webkit-appearance: none !important;
+  background: #222222;
+  height: 1em;
+  border-radius: 1em;
+}
+input[type='range']::-moz-range-thumb,
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance: none !important;
+  background: #cb0637;
+  height: 1em;
+  width: 1em;
+  border: transparent;
+}
+
+
+
+
+#tooltipTimeline{
+  position: absolute;
+  bottom: 30px;
+  background: #222222e8;
+  padding: 0.25em;
+  border-radius: 0.25em;
+  pointer-events: none;
+  transform: translateX(-50%);
+  /* left: 25%; */
+}
+
+#timelineParent{
+  cursor: pointer;
+}
+
+
+#download{
+  fill: none;
+  cursor: pointer;
+  stroke-width: 2px;
+  transition: 0.2s;
+
+}
+
+#download:hover{
+
+  stroke: #8f0527;
+
+}
+
 /* Cursor */
 
 .cursor_pointer{
@@ -111,6 +160,14 @@
 
 .table_row:hover{
   background-color: #8f052869;
+}
+
+
+.td_play{
+  background: #8f052733;
+}
+.td_play:hover{
+  background: #a3082f69;
 }
 
 #tooltip{

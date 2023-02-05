@@ -31,36 +31,36 @@
   <section class="flex justify_center padding_x_2 margin_t_1" >
 
     <!-- Table -->
-    <section class="margin_r_3 background_main_2">
+    <section class="background_main_2">
       <table id="tableMusick" class="text_1_25">
         <thead class="height_2 " align="center">
           <td class="color_dark"> № </td>
           <td class="min_width_5"> date </td>
           <td class="min_width_5"> duration </td>
           <td class="min_width_5">  </td>
-          <td class="min_width_5"> Song title </td>
-          <td class="min_width_5 padding_y"> Author </td>
-          <td class="width_4"> 
+          <td class="width_30"> Song title </td>
+          <td class="width_15 padding_y"> Author </td>
+          <td class="min_width_3" data-user="0"> 
             <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section> 
           </td>
-          <td class="width_4"> 
+          <td class="min_width_3" data-user="1"> 
             <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
           </td>
-          <td class="width_4"> 
+          <td class="min_width_3" data-user="2"> 
             <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
           </td>
-          <td class="width_4"> 
+          <td class="min_width_3" data-user="3"> 
             <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
           </td>
-          <td class="width_4"> 
+          <td class="min_width_3" data-user="4"> 
             <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
           </td>
-          <td class="width_4"> 
+          <td class="min_width_3" data-user="5"> 
             <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
           </td>
 
         </thead>
-        <tbody id="musickTable">
+        <tbody id="tableMusickBody">
         </tbody>
       </table>
     </section>
@@ -78,24 +78,39 @@
 
 
   <!-- Player -->
-  <footer id="player" class="none padding_x_2 player text_1_25 flex align_center">
+  <footer id="player" class="">
     <audio id="soundtrack"></audio>
-    <span id="id" class="color_dark margin_r_2"> 0035 </span>
-    <span id="durationCurrent" class="margin_r_10px"> 00:00 </span>
-    <span class="margin_r_10px"> / </span>
-    <span id="durationMax" class="margin_r_10px"> 00:00 </span>
-    <a id="button" class="color_white margin_r_10px cursor_pointer">
-      <svg id="play" class="fill_pink" height="30px" width="30px">
-        <path d="M0 0 L30 15 L0 30" />
+    <section class="padding_x_2 padding_b_1 player text_1_25 flex align_center relative">
+      <span id="id" class="color_dark margin_r_2">  </span>
+      <span id="durationCurrent" class="margin_r_10px">  </span>
+      <span class="margin_r_10px"> - </span>
+      <span id="durationMax" class="margin_r_1">  </span>
+      <a id="button" class="color_white margin_r_1 cursor_pointer">
+        <svg id="play" class="fill_pink" height="30px" width="30px">
+          <path d="M0 0 L30 15 L0 30" />
+        </svg>
+        <svg id="pause" class="none fill_pink" height="30px" width="30px">
+          <line x1="5" y1="0" x2="5" y2="30" stroke-width="4" />
+          <line x1="25" y1="0" x2="25" y2="30" stroke-width="4" />
+        </svg>
+      </a>
+      <section class="flex flex_column">
+        <span id="title" class="margin_r_10px"> title </span>
+        <span id="author" class="text_0_75 margin_r_10px"> author </span>
+      </section>
+      <!-- <a href="http://192.168.0.2/static/mp3/12.mp3" download="Yunomi - ジェリーӣィッシュ.mp3"> download </a> -->
+      <svg id="download" class="right_17 absolute" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 27 19" stroke='#ccc' fill="none">
+        <line class="cls-1" x1="13.5" x2="13.5" y2="13.9"/>
+        <polyline class="cls-1" points="0.5 7.43 0.5 18.5 26.5 18.5 26.5 7.43"/>
+        <polyline class="cls-1" points="17.37 10.44 13.57 14.23 9.71 10.37"/>
       </svg>
-      <svg id="pause" class="none fill_pink" height="30px" width="30px">
-        <line x1="5" y1="0" x2="5" y2="30" stroke-width="4" />
-        <line x1="25" y1="0" x2="25" y2="30" stroke-width="4" />
-      </svg>
-    </a>
-    <span id="title" class="margin_r_10px"> Rick ktoto </span>
-    <span class="margin_r_10px"> - </span>
-    <span id="author" class="margin_r_10px"> Nazvania muzyka </span>
+      <input id="volume" class="right_10 cursor_pointer absolute" type="range" min="0" max="100">
+    </section>
+    
+    <span id="timelineParent" class="width_full height_1 background_main_3 bottom_0 left_0 absolute">
+      <span id="timeline" class="block height_100 background_pink"></span>
+      <p id="tooltipTimeline" class="none"> 01:23 </p>
+    </span>
   </footer>
 
 

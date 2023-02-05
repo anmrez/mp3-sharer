@@ -3,12 +3,14 @@
 export class Upload{
 
 
+  uploadWindow = document.querySelector( '#uploadWindow' )
+
   constructor(){
 
+    
     this.addEvent()
 
   }
-
 
 
   addEvent(){
@@ -24,11 +26,9 @@ export class Upload{
 
     input.addEventListener( 'change', this._changeFile.bind( this ) )
 
-
     const windowButtonUpload = document.querySelector( '#windowButtonUpload' )
 
     windowButtonUpload.addEventListener( 'click', this._sendFile.bind( this ))
-
 
   }
 
@@ -38,16 +38,16 @@ export class Upload{
     const input = document.querySelector( '#inputUpload' )
     const file = input.files[0]
 
-    // console.log( file )
     if ( file.type !== 'audio/mpeg' ) {
+
       console.log( 'Это не MP3' )
       return
+
     }
 
     const songTitle = document.querySelector( '#SongTitle' ).value
     const songAuthor = document.querySelector( '#SongAuthor' ).value
 
-    // console.log( 'autho: ' + songAuthor )
     const dataTitle = this._fromStingToBinary( songTitle )
     const dataAuthor = this._fromStingToBinary( songAuthor )
 
@@ -55,28 +55,31 @@ export class Upload{
     const titleWithAuthor = [ ...dataTitle, ...separator, ...dataAuthor, ...separator ]
 
     const reader = new FileReader();
-    reader.readAsArrayBuffer( file )
-    reader.onload = async function( e ){
+    reader.onload = async ( event ) => {
 
-      // const binary = e.target.result
-      const arr = new Uint8Array( e.target.result )
-
+      const arr = new Uint8Array( event.target.result )
+      const body = new Uint8Array( [ ...titleWithAuthor, ...arr,  ] )
+  
       const response = await fetch( '/upload', {
         method: 'POST',
-        headers: {
-          'content-type': 'application/octet-stream'
-        },
-        body: new Uint8Array( [ ...titleWithAuthor, ...arr,  ] )
+        body: body
       })
+  
+      if ( response.status === 200 ) {
 
-      console.log( response )
+        document.querySelector( '#uploadWindow' ).classList.add( 'none' )
+        document.querySelector( '#tableMusick' ).update()
+        return;
 
-      // Обработка ошибок
+      }
 
     }
 
+    reader.readAsArrayBuffer( file )
+
 
   }
+
 
 
   _fromStingToBinary( string ){
@@ -117,7 +120,8 @@ export class Upload{
     
     if ( file.type === 'audio/mpeg' ) {
       
-      document.querySelector( '#uploadWindow' ).classList.remove( 'none' )
+      // document.querySelector( '#uploadWindow' ).classList.remove( 'none' )
+      this.uploadWindow.classList.remove( 'none' )
       inputsSection.classList.remove( 'none' )
       this._reader( file )
 

@@ -5,19 +5,20 @@ import { GetMusick } from './GetMusick.js'
 import { Upload } from './Upload.js';
 import { Keyboard } from './Keyboard.js';
 import { Player } from './Player.js'
+import { GetUsers } from './GetUsers.js';
+import { Download } from './Download.js';
+
 
 // load Data
 new Profile()
 new GetMusick()
 
 // add events
+new Keyboard()
+new Player()
+
 new Login()
 new Upload()
 
-new Keyboard()
-
-new Player()
-
-
-
-
+new GetUsers()
+new Download()
