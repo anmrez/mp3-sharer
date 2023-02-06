@@ -4,6 +4,8 @@ export class Upload{
 
 
   uploadWindow = document.querySelector( '#uploadWindow' )
+  title = document.querySelector( '#SongTitle' )
+  author = document.querySelector( '#SongAuthor' )
 
   constructor(){
 
@@ -45,11 +47,8 @@ export class Upload{
 
     }
 
-    const songTitle = document.querySelector( '#SongTitle' ).value
-    const songAuthor = document.querySelector( '#SongAuthor' ).value
-
-    const dataTitle = this._fromStingToBinary( songTitle )
-    const dataAuthor = this._fromStingToBinary( songAuthor )
+    const dataTitle = this._fromStingToBinary( this.title.value )
+    const dataAuthor = this._fromStingToBinary( this.author.value )
 
     const separator = [45, 45, 45, 45 ] // ----
     const titleWithAuthor = [ ...dataTitle, ...separator, ...dataAuthor, ...separator ]
@@ -67,7 +66,8 @@ export class Upload{
   
       if ( response.status === 200 ) {
 
-        document.querySelector( '#uploadWindow' ).classList.add( 'none' )
+        // document.querySelector( '#uploadWindow' ).classList.add( 'none' )
+        this.uploadWindow.classList.add( 'none' )
         document.querySelector( '#tableMusick' ).update()
         return;
 
@@ -89,16 +89,18 @@ export class Upload{
 
     while( string.length > index ){
 
-      const code = string.charCodeAt( index )
-
-      if ( code < 256 ){
-        arr.push( code )
+      const hex = string.charCodeAt( index ).toString(16)
+      
+      if ( hex.length <= 2 ){
+        arr.push( parseInt( hex, 16 ) )
         arr.push( 0 )
       }
 
-      if ( code > 256 ){
-        arr.push( Number( code.toString().substring( 0,3 ) ) )
-        arr.push( Number( code.toString().substring( 3,6 ) ) )
+      if ( hex.length >= 3 ){
+
+        arr.push( parseInt( hex.substring( 0,2 ), 16 ) )
+        arr.push( parseInt( hex.substring( 2,4 ), 16 ) )
+
       }
 
       index++
@@ -115,12 +117,11 @@ export class Upload{
     
     let file = document.querySelector( '#inputUpload' ).files[0]
     const inputsSection = document.querySelector( '#uploadWindowInputs' )
-    document.querySelector( '#SongTitle' ).value = ''
-    document.querySelector( '#SongAuthor' ).value = ''
+    this.title.value = ''
+    this.author.value = ''
     
     if ( file.type === 'audio/mpeg' ) {
       
-      // document.querySelector( '#uploadWindow' ).classList.remove( 'none' )
       this.uploadWindow.classList.remove( 'none' )
       inputsSection.classList.remove( 'none' )
       this._reader( file )
@@ -159,91 +160,104 @@ export class Upload{
 
       // TIT2
       if ( arr[indexTitleHEAD] === 84 )
-        if ( arr[indexTitleHEAD + 1] === 73 )
-          if ( arr[indexTitleHEAD + 2] === 84 )
-            if ( arr[indexTitleHEAD + 3] === 50 ){
-              isExistTitle = true
-              break;
-            }
+      if ( arr[indexTitleHEAD + 1] === 73 )
+      if ( arr[indexTitleHEAD + 2] === 84 )
+      if ( arr[indexTitleHEAD + 3] === 50 ){
+        isExistTitle = true
+        break;
+      }
 
       indexTitleHEAD++
       
     }
 
-    console.log( 'title exist? ' + isExistTitle )
+    if ( isExistTitle === false ){
 
-    //skip 4 byte
-    indexTitleHEAD += 4
-    let indexTitleSize = 0
-
-    let arrTitleSize = []
-    while ( indexTitleSize !== 4 ){
-
-      arrTitleSize.push( arr[indexTitleHEAD] )
+      this.title.value = 'undefined'
       
-      indexTitleSize++
-      indexTitleHEAD++
+    } else {
 
-    }
+      //skip 4 byte
+      indexTitleHEAD += 4
+      let indexTitleSize = 0
 
-    // set length data
-    let titleLengthData = arrTitleSize[ arrTitleSize.length - 1 ]
+      let arrTitleSize = []
+      while ( indexTitleSize !== 4 ){
 
-    // skip 2 byte (00 00)
-    indexTitleHEAD += 2
-    indexTitleSize += 2
-    
-    // skip 3 byte ( 01 FF FE )
-    let indexTitleData = 3
-    indexTitleHEAD += 3
-
-    // get title in array
-    let arrTitleData = []
-    while( titleLengthData > indexTitleData ){
-
-      if ( arr[indexTitleHEAD + 1] !== 0 ){
+        arrTitleSize.push( arr[indexTitleHEAD] )
         
-        let hex1 = arr[indexTitleHEAD + 1].toString(16)
-        let hex2 = arr[indexTitleHEAD ].toString(16)
-
-        let hex = hex1 + hex2
-        arrTitleData.push( String.fromCharCode( parseInt( hex, 16) ) )
+        indexTitleSize++
+        indexTitleHEAD++
 
       }
 
-      if ( arr[indexTitleHEAD + 1] === 0 ){
-        arrTitleData.push( String.fromCharCode( arr[indexTitleHEAD] ) )
-      }
+      // set length data
+      let titleLengthData = arrTitleSize[ arrTitleSize.length - 1 ]
 
-      indexTitleData += 2
+      // skip 2 byte (00 00)
       indexTitleHEAD += 2
+      indexTitleSize += 2
+      
+      // skip 3 byte ( 01 FF FE )
+      let indexTitleData = 3
+      indexTitleHEAD += 3
+
+      // get title in array
+      let arrTitleData = []
+      while( titleLengthData > indexTitleData ){
+
+        if ( arr[indexTitleHEAD + 1] !== 0 ){
+          
+          let hex1 = arr[indexTitleHEAD + 1].toString(16)
+          let hex2 = arr[indexTitleHEAD ].toString(16)
+
+          let hex = hex1 + hex2
+          arrTitleData.push( String.fromCharCode( parseInt( hex, 16) ) )
+
+        }
+
+        if ( arr[indexTitleHEAD + 1] === 0 ){
+          arrTitleData.push( String.fromCharCode( arr[indexTitleHEAD] ) )
+        }
+
+        indexTitleData += 2
+        indexTitleHEAD += 2
+
+      }
+
+      // set title into input
+      arrTitleData.forEach( item => {
+        document.querySelector( '#SongTitle' ).value += item
+      } )
 
     }
-
-    // console.log( arrTitleData )
-    // set title into input
-    arrTitleData.forEach( item => {
-      document.querySelector( '#SongTitle' ).value += item
-    } )
-    
 
     // === === === === === ===
     // === ===  Author === ===
     // === === === === === ===
 
     let indexAuthorHEAD = 0
+    let isExistAuthor = false
     while( arr.length > indexAuthorHEAD ){
 
       // TPE1
       if ( arr[indexAuthorHEAD] === 84 )
-        if ( arr[indexAuthorHEAD + 1] === 80 )
-          if ( arr[indexAuthorHEAD + 2] === 69 )
-            if ( arr[indexAuthorHEAD + 3] === 49 ){
-              break;
-            }
+      if ( arr[indexAuthorHEAD + 1] === 80 )
+      if ( arr[indexAuthorHEAD + 2] === 69 )
+      if ( arr[indexAuthorHEAD + 3] === 49 ){
+        isExistAuthor = true
+        break;
+      }
 
       indexAuthorHEAD++
       
+    }
+
+    if ( isExistAuthor === false ){
+
+      this.author.value = 'undefined'
+      return;
+
     }
 
     // skip 4 byte (TPE1)
@@ -275,18 +289,20 @@ export class Upload{
     let arrAuthorData = []
     while( authorlengthData > indexAuthorData ){
 
+      if ( arr[indexAuthorHEAD + 1] === 0 ){
+        arrAuthorData.push( String.fromCharCode( arr[indexAuthorHEAD] ) )
+      }
+
       if ( arr[indexAuthorHEAD + 1] !== 0 ){
         
         let hex1 = arr[indexAuthorHEAD + 1].toString(16)
+
         let hex2 = arr[indexAuthorHEAD ].toString(16)
+        if ( hex2.length === 1 ) hex2 = '0' + hex2
 
         let hex = hex1 + hex2
         arrAuthorData.push( String.fromCharCode( parseInt( hex, 16) ) )
 
-      }
-
-      if ( arr[indexAuthorHEAD + 1] === 0 ){
-        arrAuthorData.push( String.fromCharCode( arr[indexAuthorHEAD] ) )
       }
 
       indexAuthorData += 2
@@ -296,7 +312,7 @@ export class Upload{
 
     // set author into input
     arrAuthorData.forEach( item => {
-      document.querySelector( '#SongAuthor' ).value += item
+      this.author.value += item
     } )
 
 

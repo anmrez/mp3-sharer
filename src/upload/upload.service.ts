@@ -12,27 +12,50 @@ export class UploadService{
 
   async write( req: Request, res: any ){
 
-    const body = new Uint8Array( await req.arrayBuffer() )
-    
-    let frame = this.getFrame( body, 0 )
-    const title = this.decoder( frame.data )
-    
-    frame = this.getFrame( body, frame.index )
-    const author = this.decoder( frame.data )
 
-    console.log( 'title: ' + title )
-    console.log( 'author: ' + author )
-    
-    const sound = body.slice( frame.index, body.length )
-    const duration = this.getDuration( sound )
-    console.log( 'duration: ' + duration )
+    try {
 
-    const lastId = await this.mySQLService.setSound( title, author, duration )
-    if ( lastId === null ) return
 
-    await Deno.writeFile( './client/static/mp3/' + lastId + '.mp3', sound )
+      const body = new Uint8Array( await req.arrayBuffer() )
+      
+      let frame = this.getFrame( body, 0 )
+      const title = this.decoder( frame.data )
 
-    res( new Response( undefined, { status: 200 } ) )
+      frame = this.getFrame( body, frame.index )
+      const author = this.decoder( frame.data )
+
+      console.log( '\n' )
+      console.log( author + ' – ' + title )
+      console.log( '\n' )
+
+      const sound = body.slice( frame.index, body.length )
+      const duration = this.getDuration( sound )
+
+      const lastId = await this.mySQLService.setSound( title, author, duration )
+      if ( lastId === null ) {
+        res( new Response( 'Ошибка при записи в БД', { status: 500 } ) )
+        return;
+      } 
+      await this.mySQLService.addComment( lastId, 1, 10, '' )
+
+      await Deno.writeFile( './client/static/mp3/' + lastId + '.mp3', sound )
+
+      res( new Response( undefined, { status: 200 } ) )
+
+
+    } catch ( err ) {
+
+
+      console.log( '\n\n' )
+      console.log( new Date() )
+      console.log( err )
+      console.log( '\n\n' )
+
+      res( new Response( undefined, { status: 500 } ) )      
+      
+
+    }
+
 
   }
 
@@ -77,10 +100,15 @@ export class UploadService{
       if ( array[index + 1] === 0 ) result += String.fromCharCode( array[index] )
       if ( array[index + 1] !== 0 ) {
         
-        const str1 = String( array[index] )
-        const str2 = String( array[index + 1] )
+        const item1 = array[index].toString()
+        const str1 = parseInt( item1, 10 ).toString(16)
+        
+        const item2 = array[index + 1].toString()
+        let str2 = parseInt( item2, 10 ).toString(16)
+        if ( str2.length === 1 ) str2 = '0' + str2
+        
         const str = str1 + str2
-        result += String.fromCharCode( Number( str ) )
+        result += String.fromCharCode( parseInt( str, 16 ) )
 
       }
 
