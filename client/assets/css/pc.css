@@ -28,22 +28,30 @@ input[type=range]::-webkit-slider-thumb{
   /* left: 25%; */
 }
 
+#table{
+  /* max-height: 70vh !important;  */
+  max-height: 75vh;
+  overflow-y: scroll;
+}
+
 #timelineParent{
   cursor: pointer;
 }
 
 
-#download{
+#download,
+#comment{
   fill: none;
   cursor: pointer;
-  stroke-width: 2px;
+  /* stroke-width: 2px; */
   transition: 0.2s;
 
 }
 
-#download:hover{
+#download:hover,
+#comment:hover{
 
-  stroke: #8f0527;
+  stroke: #cb0637;
 
 }
 

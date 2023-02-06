@@ -28,10 +28,10 @@
 
 
   <!-- Body -->
-  <section class="flex justify_center padding_x_2 margin_t_1" >
+  <section class="flex justify_center padding_x_2 margin_t_1"  >
 
     <!-- Table -->
-    <section class="background_main_2">
+    <section id="table" class="background_main_2">
       <table id="tableMusick" class="text_1_25">
         <thead class="height_2 " align="center">
           <td class="color_dark"> № </td>
@@ -41,22 +41,22 @@
           <td class="width_30"> Song title </td>
           <td class="width_15 padding_y"> Author </td>
           <td class="min_width_3" data-user="0"> 
-            <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section> 
+            <img style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section> 
           </td>
           <td class="min_width_3" data-user="1"> 
-            <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+            <img style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
           </td>
           <td class="min_width_3" data-user="2"> 
-            <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+            <img style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
           </td>
           <td class="min_width_3" data-user="3"> 
-            <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+            <img style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
           </td>
           <td class="min_width_3" data-user="4"> 
-            <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+            <img style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
           </td>
           <td class="min_width_3" data-user="5"> 
-            <section style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+            <img style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
           </td>
 
         </thead>
@@ -82,9 +82,11 @@
     <audio id="soundtrack"></audio>
     <section class="padding_x_2 padding_b_1 player text_1_25 flex align_center relative">
       <span id="id" class="color_dark margin_r_2">  </span>
+      <!-- Time -->
       <span id="durationCurrent" class="margin_r_10px">  </span>
       <span class="margin_r_10px"> - </span>
       <span id="durationMax" class="margin_r_1">  </span>
+      <!-- Play -->
       <a id="button" class="color_white margin_r_1 cursor_pointer">
         <svg id="play" class="fill_pink" height="30px" width="30px">
           <path d="M0 0 L30 15 L0 30" />
@@ -94,16 +96,25 @@
           <line x1="25" y1="0" x2="25" y2="30" stroke-width="4" />
         </svg>
       </a>
+      <!-- Name -->
       <section class="flex flex_column">
         <span id="title" class="margin_r_10px"> title </span>
         <span id="author" class="text_0_75 margin_r_10px"> author </span>
       </section>
-      <!-- <a href="http://192.168.0.2/static/mp3/12.mp3" download="Yunomi - ジェリーӣィッシュ.mp3"> download </a> -->
-      <svg id="download" class="right_17 absolute" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 27 19" stroke='#ccc' fill="none">
+      <!-- Comment -->
+      <svg id="comment" class="right_20 absolute" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 32 20" stroke='#ccc' fill="none" stroke-width="2px">
+        <rect class="cls-1" x="0.5" y="0.5" width="30" height="20" />
+        <line class="cls-2" x1="3" y1="5" x2="20" y2="5"/>
+        <line class="cls-2" x1="3" y1="10" x2="17" y2="10"/>
+        <line class="cls-2" x1="3" y1="15" x2="21" y2="15"/>
+      </svg>
+      <!-- Download -->
+      <svg id="download" class="right_17 absolute" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 27 19" stroke='#ccc' fill="none" stroke-width="2px">
         <line class="cls-1" x1="13.5" x2="13.5" y2="13.9"/>
         <polyline class="cls-1" points="0.5 7.43 0.5 18.5 26.5 18.5 26.5 7.43"/>
         <polyline class="cls-1" points="17.37 10.44 13.57 14.23 9.71 10.37"/>
       </svg>
+      <!-- Voluem -->
       <input id="volume" class="right_10 cursor_pointer absolute" type="range" min="0" max="100">
     </section>
     

@@ -56,17 +56,33 @@ export class GetMusick{
 
     this.tableBody.replaceChildren()
 
-    this.dataArray.forEach( ( item, index ) => {
+    // this.dataArray.forEach( ( item, index ) => {
       
+    //   const delay = 50 + index * 30
+    //   setTimeout( this._addItem.bind( this ), delay, item )
+
+    // });
+
+    let index = 1
+    const length = this.dataArray.length
+
+    while ( length + 1 > index ){
+
+      const indexItem = length - index
+      const item = this.dataArray[indexItem]
       const delay = 50 + index * 30
+
       setTimeout( this._addItem.bind( this ), delay, item )
 
-    });
+      index++
+
+    }
+
 
   }
 
 
-  _addItem( item ){
+  async _addItem( item ){
 
 
     const tr = document.createElement( 'tr' );
@@ -81,7 +97,7 @@ export class GetMusick{
     const tdPlay = this._createTDPlay( item )
     const tdTitle = this._createTDTitle( item )
     const tdAuthor = this._createTDAuthor( item )
-    const arrayTDUsers = this._createTDUsers( item )
+    const arrayTDUsers = await this._createTDUsers( item )
 
     tr.append( tdID )
     tr.append( tdDate )
@@ -226,10 +242,17 @@ export class GetMusick{
   }
 
 
-  _createTDUsers( item ){
+  async _createTDUsers( item ){
 
     let tdUsers = []
     let index = 0
+
+    const responseComments = await fetch( '/getComment', {
+      method: 'POST',
+      body: item.id + ''
+    } )
+
+    const data = await responseComments.json()
 
     while ( 6 > index ) {
 
@@ -237,16 +260,17 @@ export class GetMusick{
       const span = document.createElement( 'span' )
       span.classList.add( 'round_status' )
 
-      if ( item.users ){
-        if ( item.users[index].status === 0 ) span.style.background = '#ff000077'
-        if ( item.users[index].status === 1 ) span.style.background = '#ffff0077'
-        if ( item.users[index].status === 2 ) span.style.background = '#00ff0077'
-        if ( item.users[index].status === 3 ) span.style.background = '#8b00ff77'
-        if ( item.users[index].message ) { 
+      if ( data[index] )
+      if ( data[index].userID !== undefined ){
+        if ( data[index].status === 1 ) span.style.background = '#ff000077'
+        if ( data[index].status === 2 ) span.style.background = '#ffff0077'
+        if ( data[index].status === 3 ) span.style.background = '#00ff0077'
+        if ( data[index].status === 10 ) span.style.background = '#8b00ff77'
+        if ( data[index].comment ) { 
 
-          span.text = item.users[index].message
+          span.text = data[index].comment
           span.addEventListener( 'mousemove', this._addStatusHover )
-          span.addEventListener( 'mouseout', this._addStatusOut, item.users[index].message )
+          span.addEventListener( 'mouseout', this._addStatusOut, data[index].comment )
 
         }
       }

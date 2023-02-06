@@ -140,7 +140,7 @@ export class Player{
   _addEventVolume(){
 
     let volume = this.player.querySelector( '#volume' )
-    volume.addEventListener( 'change', this._eventVolume.bind( this, volume ) )
+    volume.addEventListener( 'input', this._eventVolume.bind( this, volume ) )
 
   }
 
