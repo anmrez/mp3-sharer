@@ -7,15 +7,23 @@ export class Upload{
   title = document.querySelector( '#SongTitle' )
   author = document.querySelector( '#SongAuthor' )
 
-  constructor(){
+  constructor( player, getMusick ){
 
+    this.playerService = player
+    this.getMusickSercise = getMusick
     
-    this.addEvent()
+  }
+  
+  
+  init(){
+    
+    console.log( '[Upload] - inited.' )
+    this._addEvent()
 
   }
 
 
-  addEvent(){
+  _addEvent(){
 
     const homeButtonUpload = document.querySelector( '#upload' )
     const input = document.querySelector( '#inputUpload' )
@@ -66,8 +74,8 @@ export class Upload{
   
       if ( response.status === 200 ) {
 
-        // document.querySelector( '#uploadWindow' ).classList.add( 'none' )
-        this.uploadWindow.classList.add( 'none' )
+        this.closeWindow()
+        
         document.querySelector( '#tableMusick' ).update()
         return;
 
@@ -114,7 +122,8 @@ export class Upload{
 
   _changeFile(  ){
 
-    
+    this.playerService.removeEventOnSpace()
+
     let file = document.querySelector( '#inputUpload' ).files[0]
     const inputsSection = document.querySelector( '#uploadWindowInputs' )
     this.title.value = ''
@@ -122,7 +131,8 @@ export class Upload{
     
     if ( file.type === 'audio/mpeg' ) {
       
-      this.uploadWindow.classList.remove( 'none' )
+      // this.uploadWindow.classList.remove( 'none' )
+      this.openWindow()
       inputsSection.classList.remove( 'none' )
       this._reader( file )
 
@@ -314,6 +324,42 @@ export class Upload{
     arrAuthorData.forEach( item => {
       this.author.value += item
     } )
+
+
+  }
+
+
+
+  // CLOSE === ===
+  openWindow(){
+
+    this._removeKeyboardEvents()
+    this.uploadWindow.classList.remove( 'none' )
+    
+  }
+  
+  
+  _removeKeyboardEvents(){
+    
+    this.playerService.removeEventOnSpace()
+    this.getMusickSercise.removeEventReloadOnR()
+
+  }
+  
+
+  // CLOSE === ===
+  closeWindow(){
+
+    this._addKeyboardEvents()
+    this.uploadWindow.classList.add( 'none' )
+    
+  }
+  
+  
+  _addKeyboardEvents(){
+    
+    this.playerService.addEventOnSpace()
+    this.getMusickSercise.addEventReloadOnR()
 
 
   }

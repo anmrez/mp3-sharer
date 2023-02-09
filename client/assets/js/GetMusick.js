@@ -6,22 +6,36 @@ export class GetMusick{
   table = document.querySelector( '#tableMusick' )
   tableBody = document.querySelector( '#tableMusickBody' )
 
+  linkOnReload
 
   constructor(){
 
     this.table.update = this.get.bind( this )
-    this.init()
 
   }
 
 
   init(){
 
+    console.log( '[GetMusick] - inited.' )
     this.get()
-    document.addEventListener( 'keyup', this._eventReloadOnR.bind( this ) )
+    
+    this.linkOnReload = this._eventReloadOnR.bind( this )
+    this.addEventReloadOnR()
 
   }
 
+  addEventReloadOnR(){
+
+    document.addEventListener( 'keyup', this.linkOnReload )
+
+  }
+
+  removeEventReloadOnR(){
+
+    document.removeEventListener( 'keyup', this.linkOnReload )
+
+  }
 
   _eventReloadOnR( event ){
 

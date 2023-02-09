@@ -10,13 +10,13 @@ export class GetUsers{
 
   constructor(){
 
-    this.init()
 
   }
 
 
   init(){
 
+    console.log( '[GetUsers] - inited.' )
     this._getUsers()
 
   }

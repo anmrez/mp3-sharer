@@ -3,8 +3,17 @@
 export class Profile{
 
 
-  constructor(){
+  buttonUser = document.querySelector( '#buttonUser' )
+  image =  this.buttonUser.querySelector( '#image' )
+  username = this.buttonUser.querySelector( '#username' )
 
+
+  constructor(){}
+  
+  
+  init(){
+    
+    console.log( '[Profile] - inited.' )
     this.get()
 
   }
@@ -17,18 +26,12 @@ export class Profile{
     })
 
     if ( request.status !== 200 ) return;
-
-    const buttonLogin = document.querySelector( '#buttonLogin' )
-    buttonLogin.classList.add( 'none' )
     
-    const buttonUser = document.querySelector( '#buttonUser' )
-    buttonUser.classList.remove( 'none' )
-
     const response = await request.json()
-
-    buttonUser.querySelector( '#username' ).innerHTML = response.username
-    buttonUser.querySelector( '#userImage' ).src = '/static/profile/' + response.image
-    buttonUser.querySelector( '#userImage' ).alt = response.image
+    
+    this.username.innerHTML = response.username
+    this.image.src = '/static/profile/' + response.image
+    this.image.alt = response.image
 
   }
 

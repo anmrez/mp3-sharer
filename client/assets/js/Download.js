@@ -9,13 +9,12 @@ export class Download{
   
   constructor(){
 
-    this.init()
-
   }
 
 
   init(){
     
+    console.log( '[Download] - inited.' )
     this._addEventClick()
 
   }

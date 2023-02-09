@@ -34,7 +34,7 @@ table{
   background-color: #222222;
 }
 .background_main_2_opacity{
-  background-color: #181818dd;
+  background-color: #181818ee;
 }
 
 .background_pink{
@@ -48,16 +48,31 @@ table{
 .background_red{
   background: #ff000033;
 }
+.background_red:hover{
+  background: #ff000055;
+}
 
 .background_green{
   background: #00ff0022;
+}
+.background_green:hover{
+  background: #00ff0044;
 }
 
 .background_yellow{
   background: #ffff0033;
 }
+.background_yellow:hover{
+  background: #ffff0055;
+}
 
 
+
+/* Select */
+
+.select_none{
+  user-select: none;
+}
 
 /* Fill */
 
@@ -92,7 +107,7 @@ table{
   color: #cccccc;
 }
 .color_dark{
-  color: #cccccc55;
+  color: #cccccc66;
 }
 
 .color_pink{
@@ -187,6 +202,13 @@ table{
 }
 
 /* Padding */
+
+.padding_0_5{
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
 
 .padding_x_1{
   padding-left: 1em;
@@ -318,6 +340,10 @@ table{
 
 
 /* Font */
+
+.text_0_25{
+  font-size: 0.25em;
+}
 
 .text_0_5{
   font-size: 0.5em;

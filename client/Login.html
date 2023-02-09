@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> MP3 sharer </title>
+  <style>
+    *{
+      background-color: #141414;
+      color: #cccccc;
+      font-size: 1em;
+      font-family: FreeMono, monospace;
+      text-decoration: none;
+    }
+
+    input{
+      border: 1px solid #8f0527;
+      background-color: #181818;
+      padding-left: 1em;
+      padding-right: 1em;
+      font-size: 1.75em;
+    }
+    input:focus{
+      border: 1px solid #cb0637;
+      outline: none;
+    }
+
+    h1{
+      font-size: 3em;      
+    }
+
+    section{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translateX(-50%) translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    a{
+      margin-top: 2em;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+      padding-left: 1em;
+      padding-right: 1em;
+      background: #8f0527;
+      border-radius: 0.25em;
+      font-size: 1.5em;  
+      cursor: pointer;
+      user-select: none;
+    }
+    a:hover{
+      background: #cb0637;
+    }
+
+    span{
+      margin-top: 2em;
+      padding: 1em;
+      background: transparent;
+      color: transparent;
+      border-radius: 0.25em;
+      font-size: 1.5em;
+      user-select: none;
+      transition: 0.3s;
+    }
+
+  </style>
+</head>
+<body>
+
+  <section>
+    <h1> Login </h1>
+    <input type="text">
+    <a> login </a>
+    <span> Status </span>
+  </section>
+  
+
+  <script>
+
+    let a = document.getElementsByTagName( 'a' )[0]
+    let input = document.getElementsByTagName( 'input' )[0]
+    let span = document.getElementsByTagName( 'span' )[0]
+
+
+    a.addEventListener( 'click', async function(){
+
+      const response = await fetch( '/login', {
+        method: 'POST',
+        headers:{
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify( { username: input.value } )
+      })
+
+      // console.log( response )
+      const responseText = await response.text()
+      console.log( responseText )
+
+      span.style.color = '#ccc'
+
+      if ( response.status === 404 ){
+
+        span.style.background = '#ff000033'
+        span.innerHTML = responseText
+        setTimeout( removeSpanStyle, 3000 )
+        return;
+        
+      }
+      
+      
+      if ( response.status === 400 ) {
+        
+        span.style.background = '#ffff0033'
+        span.innerHTML = responseText
+        setTimeout( removeSpanStyle, 3000 )
+        return;
+        
+      }
+      
+      
+      span.style.background = '#00ff0022'
+      span.innerHTML = 'Conformation link has been sent to your email address.'
+      setTimeout( removeSpanStyle, 3000 )
+      return;
+
+
+      function removeSpanStyle(){
+
+        span.style.background = 'transparent'
+        span.style.color = 'transparent'
+
+      }
+
+
+    } )
+
+  </script>
+
+</body>
+</html>

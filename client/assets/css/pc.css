@@ -14,7 +14,19 @@ input[type=range]::-webkit-slider-thumb{
   border: transparent;
 }
 
-
+textarea{
+  border: 1px solid transparent;
+  border-radius: 0.25em;
+  min-height: 10em;
+  min-width: 20em;
+  max-height: 10em;
+  max-width: 20em;
+}
+textarea:focus{
+  outline: none !important;
+  border:1px solid #cb0637;
+  box-shadow: 0 0 1px #cb0637;
+}
 
 
 #tooltipTimeline{
@@ -29,8 +41,6 @@ input[type=range]::-webkit-slider-thumb{
 }
 
 #table{
-  /* max-height: 70vh !important;  */
-  max-height: 75vh;
   overflow-y: scroll;
 }
 
@@ -43,9 +53,7 @@ input[type=range]::-webkit-slider-thumb{
 #comment{
   fill: none;
   cursor: pointer;
-  /* stroke-width: 2px; */
   transition: 0.2s;
-
 }
 
 #download:hover,
@@ -53,6 +61,10 @@ input[type=range]::-webkit-slider-thumb{
 
   stroke: #cb0637;
 
+}
+
+#status a{
+  border: 2px solid transparent;
 }
 
 /* Cursor */

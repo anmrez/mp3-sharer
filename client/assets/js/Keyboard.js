@@ -4,11 +4,35 @@
 
 export class Keyboard{
 
+  windowUpload = document.querySelector( '#uploadWindow' )
+  windowLogin = document.querySelector( '#loginWindow' )
+  windowComment = document.querySelector( '#commentWindow' )
+  
+  constructor( upload, comment ){
+    
+    this.uploadService = upload
+    this.commentService = comment
+
+  }
 
 
-  constructor(){
+  init(){
 
+    console.log( '[Keyboard] - inited.' )
+    this._disableSpaceScroll()
     this._addEventsESC()
+    
+  }
+  
+  
+  _disableSpaceScroll(){
+
+    window.addEventListener( 'keydown', function( event ) {
+
+      if ( event.keyCode === 32 )
+        if ( event.target === document.body ) event.preventDefault()
+
+    });
 
   }
 
@@ -24,8 +48,11 @@ export class Keyboard{
 
     if ( event.key === 'Escape' ){
 
-      document.querySelector( '#uploadWindow' ).classList.add( 'none' )
-      document.querySelector( '#loginWindow' ).classList.add( 'none' )
+      this.uploadService.closeWindow()
+      this.commentService.closeWindow()
+
+      this.windowLogin.classList.add( 'none' )
+
 
     }
 

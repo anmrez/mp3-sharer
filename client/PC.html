@@ -13,9 +13,9 @@
     <h1> MP3 Sharer </h1>
     <section class="flex">
       <a id="upload" class="margin_r_1 color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center"> Upload </a>
-      <a id="homeButtonLogin" class="color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center"> login </a>
-      <a id="buttonUser" class="none color_white background_pink padding_x_1 radius cursor_pointer flex align_center justify_around" >
-        <img id="userImage" src="" alt="" class="profileImage">
+      <!-- <a id="homeButtonLogin" class="color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center"> login </a> -->
+      <a id="buttonUser" class="color_white background_pink padding_x_1 radius cursor_pointer flex align_center justify_around" >
+        <img id="image" src="" alt="" class="profileImage">
         <span id="username" class="text_1_25"> username </span>
       </a>
     </section>
@@ -65,22 +65,13 @@
       </table>
     </section>
 
-    <!-- <section>
-      <ul>
-        <li> Music #1 </li>
-        <li> Music #2 </li>
-        <li> Music #3 </li>
-        <li> Music #4 </li>
-      </ul>
-    </section> -->
-
   </section>
 
 
   <!-- Player -->
   <footer id="player" class="">
     <audio id="soundtrack"></audio>
-    <section class="padding_x_2 padding_b_1 player text_1_25 flex align_center relative">
+    <section id="body" class="padding_x_2 padding_b_1 player text_1_25 flex align_center relative">
       <span id="id" class="color_dark margin_r_2">  </span>
       <!-- Time -->
       <span id="durationCurrent" class="margin_r_10px">  </span>
@@ -141,6 +132,27 @@
       <span id="statusLogin" class="none padding_x_2 padding_y radius font_20 background_red"> User not found </span>
     </section>
 
+  </section>
+
+  <!-- Window Comment -->
+  <section id="commentWindow" class="none flex justify_between flex_column position_center background_main_2_opacity border_pink padding_x_2 padding_y_2 text_1_25" >
+    <h1 class="margin_b_1 text_2"> comment </h1>
+    <section class="margin_b_1 flex align_center justify_between">
+      <label class="color_white"> your comment </label>
+      <section class="flex text_0_75 color_dark">
+        <span id="count"> 0 </span>
+        <span> / </span>
+        <span> 100 </span>
+      </section>
+    </section>
+    <textarea id="comment" class="padding_0_5 text_1 margin_b_1 background_main_3 color_white"></textarea>
+    <label class="margin_b_1 color_white"> your assessment </label>
+    <section id="status" class="margin_b_2 color_white select_none">
+      <a class="radius padding_0_5 color_white background_red cursor_pointer" >bad</a>
+      <a class="radius padding_0_5 color_white background_yellow cursor_pointer" >norm</a>
+      <a class="radius padding_0_5 color_white background_green cursor_pointer" >good</a>
+    </section>
+    <a id="send" class="radius padding_0_5 text_center color_white background_pink  cursor_pointer"> save </a>
   </section>
 
   <!-- Upload -->

@@ -17,23 +17,29 @@ export class Player{
   timelineParent = this.player.querySelector( '#timelineParent' )
   tooltipTimeline = this.player.querySelector( '#tooltipTimeline' )
 
+  _linkOnEventOnSpace
+
   
   constructor(){
     
     this.soundtrack.volume = volume.value / 100
-    this.init()
         
   }
   
   
   init(){
     
+    console.log( '[Player] - inited.' )
     this._addEventButton()
     this._addEventCurrentTime()
     this._addEventVolume()
     this._addEventTimeline()
-    this._addEventOnSpace()
+
+    // space
+    this._linkOnEventOnSpace = this._eventOnSpace.bind( this )
+    this.addEventOnSpace()
     
+    // time
     let time = this.soundtrack.duration
     let timeStr = this._getTime( time )
     if ( timeStr === 'NaN:NaN' ) this.duration.max.innerHTML = '00:00'
@@ -44,13 +50,18 @@ export class Player{
   }
 
 
-  _addEventOnSpace(){
+  addEventOnSpace(){
 
-    document.addEventListener( 'keyup', this._eventOnSpace.bind( this ) )
+    document.addEventListener( 'keyup', this._linkOnEventOnSpace )
 
   }
+  
+  removeEventOnSpace(){
 
-
+    document.removeEventListener( 'keyup', this._linkOnEventOnSpace )
+    
+  }
+  
   _eventOnSpace( event ){
     
     if ( event.keyCode === 32 ) this._eventButtonClick()

@@ -5,9 +5,16 @@ export class Login{
 
   constructor(){
 
+    
+  }
+  
+  
+  init(){
+    
+    console.log( '[Login] - inited.' )
     this._addEventButton()
     this._addEventSend( )
-    
+
   }
 
 
