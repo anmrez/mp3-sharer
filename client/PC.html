@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="/assets/css/main.css">
   <link rel="stylesheet" href="/assets/css/pc.css">
   <title> MP3 Share PC </title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 </head>
 <body class="height_full background_main color_white relative">
 
@@ -13,7 +14,6 @@
     <h1> MP3 Sharer </h1>
     <section class="flex">
       <a id="upload" class="margin_r_1 color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center"> Upload </a>
-      <!-- <a id="homeButtonLogin" class="color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center"> login </a> -->
       <a id="buttonUser" class="color_white background_pink padding_x_1 radius cursor_pointer flex align_center justify_around" >
         <img id="image" src="" alt="" class="profileImage">
         <span id="username" class="text_1_25"> username </span>
@@ -22,8 +22,8 @@
   </header>
 
   <section id='switchButton' class="flex justify_center margin_t_1">
-    <a class="switch_button_active text_center text_1_25" > Music </a>
-    <a class="switch_button text_center text_1_25" > Arhive </a>
+    <a id="music" class="switch_button_active switch_button text_center text_1_25" > Music </a>
+    <a id="archive" class="switch_button text_center text_1_25" > Archive </a>
   </section>
 
 
@@ -41,22 +41,22 @@
           <td class="width_30"> Song title </td>
           <td class="width_15 padding_y"> Author </td>
           <td class="min_width_3" data-user="0"> 
-            <img style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section> 
+            <img class="table_users"></section> 
           </td>
           <td class="min_width_3" data-user="1"> 
-            <img style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+            <img class="table_users"></section>  
           </td>
           <td class="min_width_3" data-user="2"> 
-            <img style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+            <img class="table_users"></section>  
           </td>
           <td class="min_width_3" data-user="3"> 
-            <img style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+            <img class="table_users"></section>  
           </td>
           <td class="min_width_3" data-user="4"> 
-            <img style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+            <img class="table_users"></section>  
           </td>
           <td class="min_width_3" data-user="5"> 
-            <img style="width: 40px; height: 40px; border-radius: 1em; background: #81818133;"></section>  
+            <img class="table_users"></section>  
           </td>
 
         </thead>
@@ -114,25 +114,6 @@
       <p id="tooltipTimeline" class="none"> 01:23 </p>
     </span>
   </footer>
-
-
-  <!-- Window logiin -->
-  <section id="loginWindow" class="none position_center background_main_2_opacity border_pink padding_x_2 padding_y_2">
-
-    <section class="flex">
-      <section class="flex justify_between">
-        <label class="font_28"> Username </label>
-        <input id="loginWindowUsername" type="text" class="input_login font_28 color_white radius">
-        <a id="windowButtonLogin" class="height_2 margin_l_10px color_white background_pink padding_x_2 font_20 radius cursor_pointer flex align_center"> Login </a>
-      </section>
-      <br/>
-    </section>
-
-    <section class="margin_t_1 flex justify_center">
-      <span id="statusLogin" class="none padding_x_2 padding_y radius font_20 background_red"> User not found </span>
-    </section>
-
-  </section>
 
   <!-- Window Comment -->
   <section id="commentWindow" class="none flex justify_between flex_column position_center background_main_2_opacity border_pink padding_x_2 padding_y_2 text_1_25" >

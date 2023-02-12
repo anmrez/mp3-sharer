@@ -18,7 +18,8 @@ export class Player{
   tooltipTimeline = this.player.querySelector( '#tooltipTimeline' )
 
   _linkOnEventOnSpace
-
+  _linkOnEventRewind
+  _linkOnEventFastForward
   
   constructor(){
     
@@ -29,15 +30,23 @@ export class Player{
   
   init(){
     
-    console.log( '[Player] - inited.' )
     this._addEventButton()
     this._addEventCurrentTime()
     this._addEventVolume()
     this._addEventTimeline()
 
+    
     // space
     this._linkOnEventOnSpace = this._eventOnSpace.bind( this )
     this.addEventOnSpace()
+
+    // Rewind
+    this._linkOnEventRewind = this._eventRewind.bind( this )
+    this.addEventRewind()
+
+    // fast forward
+    this._linkOnEventFastForward = this._eventFastForward.bind( this )
+    this.addEventFastForward()
     
     // time
     let time = this.soundtrack.duration
@@ -50,6 +59,7 @@ export class Player{
   }
 
 
+  // STOP / SPACE === ===
   addEventOnSpace(){
 
     document.addEventListener( 'keyup', this._linkOnEventOnSpace )
@@ -65,10 +75,72 @@ export class Player{
   _eventOnSpace( event ){
     
     if ( event.keyCode === 32 ) this._eventButtonClick()
+    
+  }
+
+
+  // REWIND === ===
+  addEventRewind(){
+
+    document.addEventListener( 'keyup', this._linkOnEventRewind )
+    
+  }
+  
+  
+  removeEventRewind(){
+    
+    document.removeEventListener( 'keyup', this._linkOnEventRewind )
 
   }
 
 
+  _eventRewind( event ){
+
+    if ( event.keyCode === 37 ) this._rewind()
+
+  }
+
+
+  _rewind(){
+
+    if ( this.soundtrack.currentTime < 10 ) this.soundtrack.currentTime = 0
+    else this.soundtrack.currentTime -= 10
+
+  }
+
+
+  // FAST FORWARD === ===
+  addEventFastForward(){
+
+    document.addEventListener( 'keyup', this._linkOnEventFastForward )
+    
+  }
+  
+  
+  removeEventFastForward(){
+    
+    document.removeEventListener( 'keyup', this._linkOnEventFastForward )
+
+  }
+
+
+  _eventFastForward( event ){
+
+    if ( event.keyCode === 39 ) this._fastForward()
+
+  }
+
+
+  _fastForward(){
+
+    if ( this.soundtrack.duration < this.soundtrack.currentTime + 10 ) 
+      this.soundtrack.currentTime = this.soundtrack.duration
+    else this.soundtrack.currentTime += 10
+
+  }
+
+
+  // BUTTON PLAY === ===
   _addEventButton(){
 
     this.button.status = 'pause'

@@ -18,7 +18,6 @@ export class Keyboard{
 
   init(){
 
-    console.log( '[Keyboard] - inited.' )
     this._disableSpaceScroll()
     this._addEventsESC()
     

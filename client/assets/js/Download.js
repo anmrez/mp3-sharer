@@ -14,7 +14,6 @@ export class Download{
 
   init(){
     
-    console.log( '[Download] - inited.' )
     this._addEventClick()
 
   }

@@ -6,17 +6,14 @@ export class GetUsers{
 
 
   users = document.querySelectorAll( '[data-user]' )
+  tooltip = document.querySelector( '#tooltip' )
+  responseData
 
-
-  constructor(){
-
-
-  }
+  constructor(){}
 
 
   init(){
 
-    console.log( '[GetUsers] - inited.' )
     this._getUsers()
 
   }
@@ -28,26 +25,49 @@ export class GetUsers{
       method: 'GET'
     } )
 
-    const responseData = await response.json()
+    this.responseData = await response.json()
 
     this.users.forEach( ( item, index ) => {
       
       const image = item.firstElementChild
       
-      if ( responseData[index] !== undefined ){
+      if ( this.responseData[index] !== undefined ){
 
-        image.src = './static/profile/' + responseData[index].image
+        let item = this.responseData[index]
+
+        image.src = './static/profile/' + item.image
         image.style.background = 'none'
-        
+
+        image.addEventListener( 'mousemove', this._mousemoveUser.bind( this, item.username ) )
+        image.addEventListener( 'mouseout', this._mouseoverUser.bind( this ) )
+
       } else {
         
-        image.src = './static/profile/default.png'
+        // image.src = './static/profile/default.png'
 
       }
 
     });
 
     return 
+
+  }
+
+
+
+  _mousemoveUser( username, event ){
+
+    this.tooltip.innerHTML = username
+    this.tooltip.classList.remove( 'none' )
+    this.tooltip.style.left = event.clientX + 'px'
+    this.tooltip.style.top = event.clientY + 'px'
+
+  }
+
+
+  _mouseoverUser(){
+
+    this.tooltip.classList.add( 'none' )
 
   }
 

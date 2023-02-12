@@ -29,7 +29,6 @@ export class Comment{
 
   init(){
 
-    console.log( '[Comment] - inited.' )
     this._addEventInputTextarea()
     this._eventInputTextarea()
 
@@ -100,9 +99,8 @@ export class Comment{
       
     }
     
-    console.log( this.sendData )
-
   }
+
 
   // Button into player === ===
   _addEventButtonCommentIntoPlayer(){
@@ -147,8 +145,6 @@ export class Comment{
       body: bodyJson
     } )
 
-    console.log( response ) 
-
     if ( response.status === 200 ) {
 
       this.getMusickService.get()
@@ -164,6 +160,7 @@ export class Comment{
 
   openWindow(){
 
+    this.comment.value = ''
     this._removeKeyboardEvents()
     this.window.classList.remove( 'none' )
 
@@ -173,6 +170,9 @@ export class Comment{
   _removeKeyboardEvents(){
 
     this.playerService.removeEventOnSpace()
+    this.playerService.removeEventFastForward()
+    this.playerService.removeEventRewind()
+
     this.getMusickService.removeEventReloadOnR()
     
   }
@@ -190,6 +190,9 @@ export class Comment{
   _addKeyboardEvents(){
     
     this.playerService.addEventOnSpace()
+    this.playerService.addEventFastForward()
+    this.playerService.addEventRewind()
+
     this.getMusickService.addEventReloadOnR()
 
   }

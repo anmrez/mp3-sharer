@@ -7,17 +7,17 @@ export class Upload{
   title = document.querySelector( '#SongTitle' )
   author = document.querySelector( '#SongAuthor' )
 
-  constructor( player, getMusick ){
+  constructor( player, getMusick, windows1251 ){
 
     this.playerService = player
     this.getMusickSercise = getMusick
+    this.windows1251Service = windows1251
     
   }
   
   
   init(){
     
-    console.log( '[Upload] - inited.' )
     this._addEvent()
 
   }
@@ -125,20 +125,17 @@ export class Upload{
     this.playerService.removeEventOnSpace()
 
     let file = document.querySelector( '#inputUpload' ).files[0]
-    const inputsSection = document.querySelector( '#uploadWindowInputs' )
     this.title.value = ''
     this.author.value = ''
     
     if ( file.type === 'audio/mpeg' ) {
       
-      // this.uploadWindow.classList.remove( 'none' )
       this.openWindow()
-      inputsSection.classList.remove( 'none' )
       this._reader( file )
 
     } else {
     
-      inputsSection.classList.add( 'none' )
+      throw 'ERROR: it is not MP3 file!'
   
     }
       
@@ -158,178 +155,127 @@ export class Upload{
 
   _readerData( e ){
 
-    const arr = new Uint8Array( e.target.result )
+    const sound = new Uint8Array( e.target.result )
 
-    // === === === === === ===
-    // === ===  Title  === ===
-    // === === === === === ===
-
-    let indexTitleHEAD = 0
-    let isExistTitle = false
-    while( arr.length > indexTitleHEAD ){
-
-      // TIT2
-      if ( arr[indexTitleHEAD] === 84 )
-      if ( arr[indexTitleHEAD + 1] === 73 )
-      if ( arr[indexTitleHEAD + 2] === 84 )
-      if ( arr[indexTitleHEAD + 3] === 50 ){
-        isExistTitle = true
-        break;
-      }
-
-      indexTitleHEAD++
-      
-    }
-
-    if ( isExistTitle === false ){
-
-      this.title.value = 'undefined'
-      
-    } else {
-
-      //skip 4 byte
-      indexTitleHEAD += 4
-      let indexTitleSize = 0
-
-      let arrTitleSize = []
-      while ( indexTitleSize !== 4 ){
-
-        arrTitleSize.push( arr[indexTitleHEAD] )
-        
-        indexTitleSize++
-        indexTitleHEAD++
-
-      }
-
-      // set length data
-      let titleLengthData = arrTitleSize[ arrTitleSize.length - 1 ]
-
-      // skip 2 byte (00 00)
-      indexTitleHEAD += 2
-      indexTitleSize += 2
-      
-      // skip 3 byte ( 01 FF FE )
-      let indexTitleData = 3
-      indexTitleHEAD += 3
-
-      // get title in array
-      let arrTitleData = []
-      while( titleLengthData > indexTitleData ){
-
-        if ( arr[indexTitleHEAD + 1] !== 0 ){
-          
-          let hex1 = arr[indexTitleHEAD + 1].toString(16)
-          let hex2 = arr[indexTitleHEAD ].toString(16)
-
-          let hex = hex1 + hex2
-          arrTitleData.push( String.fromCharCode( parseInt( hex, 16) ) )
-
-        }
-
-        if ( arr[indexTitleHEAD + 1] === 0 ){
-          arrTitleData.push( String.fromCharCode( arr[indexTitleHEAD] ) )
-        }
-
-        indexTitleData += 2
-        indexTitleHEAD += 2
-
-      }
-
-      // set title into input
-      arrTitleData.forEach( item => {
-        document.querySelector( '#SongTitle' ).value += item
-      } )
-
-    }
-
-    // === === === === === ===
-    // === ===  Author === ===
-    // === === === === === ===
-
-    let indexAuthorHEAD = 0
-    let isExistAuthor = false
-    while( arr.length > indexAuthorHEAD ){
-
-      // TPE1
-      if ( arr[indexAuthorHEAD] === 84 )
-      if ( arr[indexAuthorHEAD + 1] === 80 )
-      if ( arr[indexAuthorHEAD + 2] === 69 )
-      if ( arr[indexAuthorHEAD + 3] === 49 ){
-        isExistAuthor = true
-        break;
-      }
-
-      indexAuthorHEAD++
-      
-    }
-
-    if ( isExistAuthor === false ){
-
-      this.author.value = 'undefined'
-      return;
-
-    }
-
-    // skip 4 byte (TPE1)
-    indexAuthorHEAD += 4
-    let indexAuthorSize = 0
-
-    let arrsize = []
-    while ( indexAuthorSize !== 4 ){
-
-      arrsize.push( arr[indexAuthorHEAD] )
-      
-      indexAuthorSize++
-      indexAuthorHEAD++
-
-    }
-
-    // set length data
-    let authorlengthData = arrsize[ arrsize.length - 1 ]
-
-    // skip 2 byte (00 00)
-    indexAuthorHEAD += 2
-    indexAuthorSize += 2
+    const title = this._readData( 'TIT2', sound )
+    if ( title === null ) this.title.value = 'undefined'
+    else this.title.value = title
     
-    // skip 3 byte ( 01 FF FE )
-    let indexAuthorData = 3
-    indexAuthorHEAD += 3
+    const author = this._readData( 'TPE1', sound )
+    if ( author === null ) this.author.value = 'undefined'
+    else this.author.value = author
 
-    // get author in array
-    let arrAuthorData = []
-    while( authorlengthData > indexAuthorData ){
+  }
 
-      if ( arr[indexAuthorHEAD + 1] === 0 ){
-        arrAuthorData.push( String.fromCharCode( arr[indexAuthorHEAD] ) )
+  
+  _readData( header, soundArr ) {
+
+    console.log( 'Header = ' + header )
+    if ( header !== 'TIT2' && header !== 'TPE1' ) throw 'ERROR: Incorrect header'
+
+    let HEAD = 0
+    let isExistHeader = false
+    const ID3Version = soundArr[3]
+
+    const codeChar1 = header[0].charCodeAt()
+    const codeChar2 = header[1].charCodeAt()
+    const codeChar3 = header[2].charCodeAt()
+    const codeChar4 = header[3].charCodeAt()
+
+    while( soundArr.length > HEAD ){
+
+      if ( soundArr[HEAD] === codeChar1 )
+      if ( soundArr[HEAD + 1] === codeChar2 )
+      if ( soundArr[HEAD + 2] === codeChar3 )
+      if ( soundArr[HEAD + 3] === codeChar4 ){
+        isExistHeader = true
+        break;
       }
 
-      if ( arr[indexAuthorHEAD + 1] !== 0 ){
-        
-        let hex1 = arr[indexAuthorHEAD + 1].toString(16)
+      HEAD++
+      
+    }
 
-        let hex2 = arr[indexAuthorHEAD ].toString(16)
-        if ( hex2.length === 1 ) hex2 = '0' + hex2
+    if ( isExistHeader === false ) return null;
+
+
+    // skip 4 byte: [TIT2] || [TPE1] 
+    HEAD += 4
+    let arrSize = []
+    const sizeLength = HEAD + 4
+
+
+    // get size
+    while ( sizeLength > HEAD ){
+
+      arrSize.push( soundArr[ HEAD ] )
+      HEAD++
+
+    }
+
+  
+    //skip 2 byte [00 00]
+    HEAD += 2
+    let dataHeaderLength = arrSize[3] + HEAD
+    const dataHeaderArr = []
+
+
+    // skip 3 byte [00 FF FE] 
+    if ( soundArr[HEAD] === 1 )
+    if ( soundArr[HEAD + 1] === 255 )
+    if ( soundArr[HEAD + 2] === 254 ) HEAD +=3
+
+
+    // save data of header in array
+    while ( dataHeaderLength > HEAD ){
+
+      dataHeaderArr.push( soundArr[HEAD] )
+      HEAD++
+
+    }
+
+
+    // convert`s data in symbols
+    let index = 0
+    let dataHeader = []
+
+    if ( ID3Version === 3 ) while ( dataHeaderArr.length > index ){
+
+
+      if ( dataHeaderArr[index + 1] !== 0 ){
+
+        let hex1 = dataHeaderArr[index + 1].toString(16)
+        let hex2 = dataHeaderArr[index].toString(16)
 
         let hex = hex1 + hex2
-        arrAuthorData.push( String.fromCharCode( parseInt( hex, 16) ) )
+        dataHeader.push( String.fromCharCode( parseInt( hex, 16) ) )
 
       }
 
-      indexAuthorData += 2
-      indexAuthorHEAD += 2
+      if ( dataHeaderArr[index + 1] === 0 ){
+        dataHeader.push( String.fromCharCode( dataHeaderArr[index] ) )
+      }
+
+      index += 2
+
+
+    } else if ( ID3Version === 4 ) while( dataHeaderArr.length > index ){
+
+
+      dataHeader.push( this.windows1251Service.decode( dataHeaderArr[index] ) )
+
+      index++
+
 
     }
 
-    // set author into input
-    arrAuthorData.forEach( item => {
-      this.author.value += item
-    } )
-
+    return dataHeader.join('')
 
   }
 
 
 
+  // WINDOW === ===
   // CLOSE === ===
   openWindow(){
 
@@ -342,6 +288,9 @@ export class Upload{
   _removeKeyboardEvents(){
     
     this.playerService.removeEventOnSpace()
+    this.playerService.removeEventFastForward()
+    this.playerService.removeEventRewind()
+
     this.getMusickSercise.removeEventReloadOnR()
 
   }
@@ -359,8 +308,10 @@ export class Upload{
   _addKeyboardEvents(){
     
     this.playerService.addEventOnSpace()
-    this.getMusickSercise.addEventReloadOnR()
+    this.playerService.addEventFastForward()
+    this.playerService.addEventRewind()
 
+    this.getMusickSercise.addEventReloadOnR()
 
   }
 

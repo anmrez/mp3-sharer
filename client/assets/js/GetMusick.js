@@ -6,6 +6,10 @@ export class GetMusick{
   table = document.querySelector( '#tableMusick' )
   tableBody = document.querySelector( '#tableMusickBody' )
 
+  switchButton = document.querySelector( '#switchButton' )
+  switchButtonMusic = switchButton.querySelector( '#music' )
+  switchButtonArchive = switchButton.querySelector( '#archive' )
+
   linkOnReload
 
   constructor(){
@@ -17,25 +21,30 @@ export class GetMusick{
 
   init(){
 
-    console.log( '[GetMusick] - inited.' )
     this.get()
     
     this.linkOnReload = this._eventReloadOnR.bind( this )
     this.addEventReloadOnR()
 
+    this._addEventSwitch()
+
   }
 
+
+  // RELOAD === ===
   addEventReloadOnR(){
 
     document.addEventListener( 'keyup', this.linkOnReload )
 
   }
 
+
   removeEventReloadOnR(){
 
     document.removeEventListener( 'keyup', this.linkOnReload )
 
   }
+
 
   _eventReloadOnR( event ){
 
@@ -48,16 +57,51 @@ export class GetMusick{
   }
 
 
+  // SWITCH === ===
+  _addEventSwitch(){
+
+    this.switchButtonMusic.addEventListener( 'click', 
+      this._eventSwitch.bind( this, this.switchButtonMusic, this.switchButtonArchive ) 
+    )
+
+    this.switchButtonArchive.addEventListener( 'click', 
+      this._eventSwitch.bind( this, this.switchButtonArchive, this.switchButtonMusic ) 
+    )
+
+  }
+
+  _eventSwitch( button, reverceButton ){
+
+    button.classList.add( 'switch_button_active' )
+    reverceButton.classList.remove( 'switch_button_active' )
+    this.get()
+
+  }
+
+
+  // GET DATA
   async get(){
 
-    const response = await fetch( '/getSounds', {
-      method: 'GET'
-    } )
+    let response
+
+    if ( this.switchButtonArchive.classList.contains( 'switch_button_active' ) ) {
+      
+      response = await fetch( '/getSoundsInArchive', {
+        method: 'GET'
+      } ) 
+
+    } else {
+
+      response = await fetch( '/getSounds', {
+        method: 'GET'
+      } )
+
+    }
 
     this.dataArray = await response.json()
 
     if ( this.dataArray.length === 0 ) {
-      console.log( 'песен нет' )
+      console.log( 'Soundtracks not found' )
       return;
     }
 
@@ -69,13 +113,6 @@ export class GetMusick{
   set(){
 
     this.tableBody.replaceChildren()
-
-    // this.dataArray.forEach( ( item, index ) => {
-      
-    //   const delay = 50 + index * 30
-    //   setTimeout( this._addItem.bind( this ), delay, item )
-
-    // });
 
     let index = 1
     const length = this.dataArray.length
@@ -259,7 +296,6 @@ export class GetMusick{
   async _createTDUsers( item ){
 
     let tdUsers = []
-    let index = 0
 
     const responseComments = await fetch( '/getComment', {
       method: 'POST',
@@ -268,26 +304,32 @@ export class GetMusick{
 
     const data = await responseComments.json()
 
-    while ( 6 > index ) {
+    let index = 1
+    while ( 7 !== index ) {
 
       const td = document.createElement( 'td' );
       const span = document.createElement( 'span' )
       span.classList.add( 'round_status' )
 
-      if ( data[index] )
-      if ( data[index].userID !== undefined ){
-        if ( data[index].status === 1 ) span.style.background = '#ff000077'
-        if ( data[index].status === 2 ) span.style.background = '#ffff0077'
-        if ( data[index].status === 3 ) span.style.background = '#00ff0077'
-        if ( data[index].status === 10 ) span.style.background = '#8b00ff77'
-        if ( data[index].comment ) { 
+      if ( data ) data.forEach( item => {
+        
+        if ( item.userID === index ) {
 
-          span.text = data[index].comment
-          span.addEventListener( 'mousemove', this._addStatusHover )
-          span.addEventListener( 'mouseout', this._addStatusOut, data[index].comment )
+          if ( item.status === 1 ) span.style.background = '#ff000077'
+          if ( item.status === 2 ) span.style.background = '#ffff0077'
+          if ( item.status === 3 ) span.style.background = '#00ff0077'
+          if ( item.status === 10 ) span.style.background = '#8b00ff77'
+          if ( item.comment ) { 
+  
+            span.text = item.comment
+            span.addEventListener( 'mousemove', this._addStatusHover )
+            span.addEventListener( 'mouseout', this._addStatusOut )
+  
+          }
 
         }
-      }
+  
+      })
 
       td.append( span )
       tdUsers.push( td )
@@ -303,7 +345,6 @@ export class GetMusick{
 
   _addStatusHover( event ) {
 
-    // console.log( event.target.text ) 
     let tooltip = document.querySelector( '#tooltip' )
     let X = event.clientX
     let Y = event.clientY

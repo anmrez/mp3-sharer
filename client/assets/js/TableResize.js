@@ -8,16 +8,11 @@ export class TableResize{
   table = document.querySelector( '#table' )
 
 
-  constructor(){
-
-    // this.init()
-
-  }
+  constructor(){}
 
 
   init(){
 
-    console.log( '[TableResize] - inited.' )
     this._evnetResizeWindow()
     this._addEventResizeWindow()
 

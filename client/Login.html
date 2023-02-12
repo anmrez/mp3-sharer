@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <title> MP3 sharer </title>
   <style>
     *{
@@ -16,9 +17,12 @@
 
     input{
       border: 1px solid #8f0527;
+      border-radius: 0.25em;
       background-color: #181818;
       padding-left: 1em;
       padding-right: 1em;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
       font-size: 1.75em;
     }
     input:focus{
@@ -68,12 +72,18 @@
       transition: 0.3s;
     }
 
+    label{
+      font-size: 1.25em;
+      margin-bottom: 0.5em;
+    }
+
   </style>
 </head>
 <body>
 
   <section>
     <h1> Login </h1>
+    <label> Your username </label>
     <input type="text">
     <a> login </a>
     <span> Status </span>
@@ -86,6 +96,12 @@
     let input = document.getElementsByTagName( 'input' )[0]
     let span = document.getElementsByTagName( 'span' )[0]
 
+
+    window.addEventListener( 'keyup', function( event ){
+
+      if ( event.keyCode === 13 ) a.click()
+
+    } )
 
     a.addEventListener( 'click', async function(){
 

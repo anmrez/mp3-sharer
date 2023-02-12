@@ -10,7 +10,7 @@ import { Upload } from './Upload.js';
 import { Player } from './Player.js'
 import { TableResize } from './TableResize.js';
 
-
+import { Windows1251 } from './Windows1251.js'
 
 
 
@@ -28,7 +28,8 @@ class Init{
   profile = new Profile()
   tableResize = new TableResize()
   
-  upload = new Upload( this.player, this.getMusick )
+  windows1251 = new Windows1251()
+  upload = new Upload( this.player, this.getMusick, this.windows1251 )
   comment = new Comment( this.player, this.getMusick )
 
   keyboard = new Keyboard( this.upload, this.comment )
@@ -42,8 +43,6 @@ class Init{
   
   
   init(){
-
-    console.log( '[Init] – DOM loaded' )
     
     let index = 1
     

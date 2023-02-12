@@ -137,6 +137,7 @@ textarea:focus{
   padding-bottom: 0.5em;
 
   cursor: pointer;
+  transition: 0.2s;;
 }
 
 .switch_button:hover{
@@ -208,4 +209,13 @@ textarea:focus{
 
 .pointer_event_bobe{
   pointer-events: none;
+}
+
+
+.table_users{
+  width: 40px;
+  height: 40px;
+  border-radius: 1em; 
+  background: #81818133; 
+  border: 1px solid transparent;
 }

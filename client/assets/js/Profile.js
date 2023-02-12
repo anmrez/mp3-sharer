@@ -13,7 +13,6 @@ export class Profile{
   
   init(){
     
-    console.log( '[Profile] - inited.' )
     this.get()
 
   }
