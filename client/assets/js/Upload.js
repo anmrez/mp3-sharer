@@ -48,12 +48,7 @@ export class Upload{
     const input = document.querySelector( '#inputUpload' )
     const file = input.files[0]
 
-    if ( file.type !== 'audio/mpeg' ) {
-
-      console.log( 'Это не MP3' )
-      return
-
-    }
+    if ( file.type !== 'audio/mpeg' ) throw 'ERROR: this is not an MP3 file'
 
     const dataTitle = this._fromStingToBinary( this.title.value )
     const dataAuthor = this._fromStingToBinary( this.author.value )
@@ -106,8 +101,8 @@ export class Upload{
 
       if ( hex.length >= 3 ){
 
-        arr.push( parseInt( hex.substring( 0,2 ), 16 ) )
         arr.push( parseInt( hex.substring( 2,4 ), 16 ) )
+        arr.push( parseInt( hex.substring( 0,2 ), 16 ) )
 
       }
 
@@ -170,7 +165,6 @@ export class Upload{
   
   _readData( header, soundArr ) {
 
-    console.log( 'Header = ' + header )
     if ( header !== 'TIT2' && header !== 'TPE1' ) throw 'ERROR: Incorrect header'
 
     let HEAD = 0

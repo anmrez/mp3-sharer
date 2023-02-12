@@ -294,7 +294,7 @@ export class Windows1251{
   decode( code ){
 
     const char = this.map[code]
-    if ( char === undefined ) return '*'
+    if ( char === undefined ) return '♦'
     return char
 
   }
