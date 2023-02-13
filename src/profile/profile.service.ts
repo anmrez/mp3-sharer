@@ -10,31 +10,54 @@ export class ProfileService{
   ){}
 
 
-  async get( req: Request, res: any ){
+  async getAllUsers(): Promise< Response > {
+
+    const users = await this.mySQLService.getAllUsers()
+    if ( users === null ) return new Response( undefined, { status: 404 } ) 
+
+    const responseData: any[] = []
+
+    users.forEach ( item => {
+
+      responseData.push({
+        username: item.username,
+        image: item.image
+      })
+
+    })
+
+    const responseDataJson = JSON.stringify( responseData )
+    return new Response( responseDataJson, {
+      status: 200,
+      headers: {
+        'content-type': 'application/json'
+      }
+    } )
+
+  }
+
+
+  async get( req: Request ): Promise< Response >{
 
     const token = this.getToken( req )
-    if ( token === null ) return res( new Response( undefined, { status: 400 } ) )
+    if ( token === null ) return new Response( undefined, { status: 400 } )
 
     const user = await this.mySQLService.getUserByToken( token )
-    if ( user === null ) return res( 
-      new Response( undefined, { 
-        status: 400, 
-        headers: {
-          'Set-cookie': 'token=-1; max-age=-1'
-        } 
-      }) 
-    )
+    if ( user === null ) return new Response( undefined, { 
+      status: 400, 
+      headers: {
+        'Set-cookie': 'token=-1; max-age=-1'
+      } 
+    }) 
 
     const responseJson = JSON.stringify({
       username: user.username,
       image: user.image
     })
 
-    res( 
-      new Response( responseJson, {
-        status: 200
-      }) 
-    )
+    return new Response( responseJson, {
+      status: 200
+    }) 
 
   }
 
@@ -62,7 +85,7 @@ export class ProfileService{
 
     const token = 'token'
 
-    let matches = cookie.match(new RegExp(
+    const matches = cookie.match(new RegExp(
       "(?:^|; )" + token.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
     ));
 

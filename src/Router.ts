@@ -21,71 +21,91 @@ export class Router{
   ){}
 
 
-  async routes( req: Request, res: any ){
+  async routes( req: Request ): Promise< Response >{
 
     const urlPath = new URL( req.url ).pathname
     
-    // console.log( '[Router]  - request (' + req.method, urlPath + ')' )
+    console.log( '[' + urlPath + " | " + req.method + ']' )
 
+
+
+    // TOTAL REQUEST === ==
     switch ( true ) {
-      case urlPath === '/' :
-        this.homeController.get( req, res )
-      break;
+
+      case urlPath === '/favicon.svg':
+        return this.readStatic( urlPath )
+
+      case urlPath === '/login' && req.method === 'POST':
+        return this.authController.sendEmail( req )
+      
+      case new RegExp( '/login/' ).test( urlPath ) && req.method === 'GET':{
+        const result = await this.authController.login( req )
+        if ( result === '404' ) return await this.sendLoginHTML()
+        else return result
+      }
+
+    }
 
 
-      case new RegExp( '/assets' ).test(urlPath) && req.method === 'GET':
-        await this.readAssets( res, urlPath.substring( urlPath.indexOf( '/assets' ), urlPath.length ) )
-      break;
+
+    // IF USER UNDEFINED
+    const user = await this.mySQLController.getUser( req )
+    if ( user === null ){
+      
+      return await this.sendLoginHTML()
+      
+    }
+
+    
+
+    // REQUEST OF AUTH USER === ===
+    switch ( true ) {
+
+      case urlPath === '/': return this.homeController.get( req )
+
+
+      case new RegExp( '/assets' ).test(urlPath) && req.method === 'GET':{
+
+        const filePath = urlPath.substring( urlPath.indexOf( '/assets' ), urlPath.length )
+        return await this.readAssets( filePath )
+         
+      }
 
 
       case urlPath === '/getProfile' && req.method === 'POST': 
-        this.profileController.get( req, res )
-      break;
+        return this.profileController.get( req )
 
 
       case urlPath === '/getSounds' && req.method === 'GET':
-        this.mySQLController.getAllSounds( req, res )
-      break;
+        return this.mySQLController.getAllSounds()
+      
+
+      case urlPath === '/getSoundsInArchive' && req.method === 'GET':
+        return this.mySQLController.getAllSoundsInArchive()
+
+
+      case urlPath === '/getComment' && req.method === 'POST':
+        return this.mySQLController.getComment( req )
+
+      
+      case urlPath === '/setComment' && req.method === 'POST':
+        return this.mySQLController.addCommet( req )
 
 
       case new RegExp( '/static/' ).test( urlPath ):
-        console.log( 'get file: ' + urlPath )
-        this.readStatic( res, urlPath )
-      break;
+        return this.readStatic( urlPath )
 
 
       case urlPath === '/upload' && req.method === 'POST':
-        this.uploadController.write( req, res )
-      break;
+        return this.uploadController.write( req )
 
 
-      case urlPath === '/login' && req.method === 'POST':
-        this.authController.sendEmail( req, res )
-        break;
-        
-        
-      case new RegExp( '/login/' ).test( urlPath ) && req.method === 'GET':
-        if ( await this.authController.login( req, res ) === '404' ) this.send404( res )
-      break;
+      case urlPath === '/getUsers' && req.method === 'GET':
+        return this.profileController.getAllUsers()
+
+
+      default: return await this.send404()
       
-
-      case urlPath === '/favicon.ico':
-        res( new Response( undefined, {
-          status: 200
-        } ) )
-      break;
-
-
-
-      case urlPath === '/getUsers':
-        this.authController.getAllUsersInConsole()
-        await this.send404( res )
-      break;
-
-
-      default:
-        await this.send404( res )
-      break;
     }
 
 
@@ -93,65 +113,78 @@ export class Router{
 
 
 
-  private async send404( res: any ){
+  private async send404(): Promise< Response >{
 
     const file = await this.readerService.read( './client/404.html' )
-    if ( file === undefined ) {
+    if ( file === undefined ) return new Response( '404', {
+      status: 404
+    } )
 
-      res( new Response( '404', {
-        status: 404
-      }))
-      return;
-
-    }
-
-    res( new Response( file.readable, {
+    return new Response( file.readable, {
       status: 404,
       headers: {
         'content-type': 'text/html'
       }
-    }))
+    } )
 
   }
 
 
-  private async readStatic( res: any, filePath: string ){
+  private async readStatic( filePath: string ): Promise<Response> {
 
-    const staticPath = './client' + filePath
-    const file = await this.readerService.read( staticPath )
-    if ( file === undefined ) {
 
-      res( new Response( '404', {
+    try {
+
+
+      const staticPath = './client' + filePath
+      const file = await this.readerService.read( staticPath )
+      if ( file === undefined ) return new Response( '404', {
         status: 404
-      }))
-      return;
+      })
+  
+      return new Response( file.readable, {
+        status: 200,
+      })
+
+      
+    } catch ( err ) {
+
+      
+      const currentdate = new Date();
+      const datetime = "Error: " 
+        + currentdate.getDate() + "/"
+        + (currentdate.getMonth()+1)  + "/"
+        + currentdate.getFullYear() + " @ "
+        + currentdate.getHours() + ":"
+        + currentdate.getMinutes() + ":"
+        + currentdate.getSeconds();
+
+      console.log( '\n' )
+      console.log( datetime )
+      console.log( err )
+      console.log( '\n' )
+
+      return new Response( 'Error reading file', {
+        status: 500,
+      })
+
 
     }
 
-    res( new Response( file.readable, {
-      status: 200,
-      // headers: headers
-    }))
 
   }
 
 
-  private async readAssets( res: any, filePath: string ){
+  private async readAssets( filePath: string ): Promise< Response > {
 
     const assentsPath = './client' + filePath
     const file = await this.readerService.read( assentsPath )
 
-    if ( file === undefined ) {
-
-      res( new Response( '404', {
-        status: 404
-      }))
-      return;
-
-    }
+    if ( file === undefined ) return new Response( '404', {
+      status: 404
+    } )
 
     const headers = new Headers()
-
 
     switch (true){
 
@@ -165,14 +198,30 @@ export class Router{
 
     }
 
-    res( new Response( file.readable, {
+    return new Response( file.readable, {
       status: 200,
       headers: headers
-    }))
+    } )
 
   }
 
 
+  private async sendLoginHTML(): Promise< Response >{
 
+    const staticPath = './client/Login.html'
+    const file = await this.readerService.read( staticPath )
+    if ( file === undefined ) {
+
+      return new Response( '404', {
+        status: 404
+      })
+
+    }
+
+    return new Response( file.readable, {
+      status: 200,
+    })
+
+  }
 
 }

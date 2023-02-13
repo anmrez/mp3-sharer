@@ -13,7 +13,7 @@ export class HomeController{
   ){}
 
 
-  async get( req: Request, res: any ){
+  async get( req: Request ): Promise< Response > {
 
     const device = this.homeService.getDeviceType( req )
     let file;
@@ -21,16 +21,14 @@ export class HomeController{
 
     if ( device === 'pc' ) file = await this.readerService.read( './client/PC.html' )
     if ( device === 'mobile' ) file = await this.readerService.read( './client/Mobile.html' )
-    if ( file === undefined ) {
-      res( new Response( '404 - file not found ', {
-        status: 404
-      } ) )
-      return;
-    }
+    if ( file === undefined ) return new Response( '404 - file not found ', {
+      status: 404
+    } ) 
 
     const readableStream = file.readable;
-    const response = new Response(readableStream);
-    await res(response);
+    return new Response( readableStream )
+    // const response = new Response( readableStream );
+    // await res(response);
 
   }
 

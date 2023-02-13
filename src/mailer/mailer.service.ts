@@ -1,5 +1,5 @@
 import { SendConfig, SmtpClient } from "https://deno.land/x/smtp@v0.7.0/mod.ts";
-import { address, SMTPClient } from "../../config.ts";
+import { serverParams, SMTPClient } from "../../config.ts";
 
 
 export interface ISMTPClient{
@@ -18,13 +18,15 @@ export class MailerService{
   async send( useremail: string, tokenLink: string ): Promise< void > {
     
     const client: SmtpClient = new SmtpClient();
+    const fullAddress = serverParams.address + ':' + serverParams.port
+
     const sendConfig: SendConfig = {
       from: 'MP3 Sharer <' + this.smtpClient.username + '>',
       to: useremail,
       subject: 'Login',
       content: tokenLink,
       html: `
-      <a href='${address}/login/?token=${tokenLink}' > Your link to enter the site: ${address}/login/?token=${tokenLink} </a>
+      <a href='${ fullAddress }/login/?token=${ tokenLink }' > Your link to enter the site: ${ fullAddress }/login/?token=${ tokenLink } </a>
       <br/> 
       <span> This link is one-time and its lifetime is 5 minutes. </span>`
     }

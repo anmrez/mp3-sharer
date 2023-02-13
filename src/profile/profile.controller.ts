@@ -9,9 +9,16 @@ export class ProfileController{
   ){}
 
 
-  get( req: Request, res: any ){
+  get( req: Request ): Promise< Response > {
 
-    this.profileService.get( req, res )
+    return this.profileService.get( req )
+
+  }
+
+
+  getAllUsers(): Promise< Response > {
+
+    return this.profileService.getAllUsers()
 
   }
 

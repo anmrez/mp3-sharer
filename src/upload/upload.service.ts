@@ -1,5 +1,5 @@
 import { MySQLService } from '../mysql/mysql.service.ts';
-
+import { serverParams } from '../../config.ts';
 
 export class UploadService{
 
@@ -9,8 +9,7 @@ export class UploadService{
   ){}
 
 
-
-  async write( req: Request, res: any ){
+  async write( req: Request ): Promise< Response > {
 
 
     try {
@@ -19,39 +18,49 @@ export class UploadService{
       const body = new Uint8Array( await req.arrayBuffer() )
       
       let frame = this.getFrame( body, 0 )
-      const title = this.decoder( frame.data )
+      let title = this.decoder( frame.data )
+      title = title.substring( 0, 60 )
+      title = title.split(`'`).join('`')
 
       frame = this.getFrame( body, frame.index )
-      const author = this.decoder( frame.data )
-
-      console.log( '\n' )
-      console.log( author + ' – ' + title )
-      console.log( '\n' )
+      let author = this.decoder( frame.data )
+      author = author.substring( 0, 60 )
+      author = author.split(`'`).join('`')
 
       const sound = body.slice( frame.index, body.length )
       const duration = this.getDuration( sound )
 
-      const lastId = await this.mySQLService.setSound( title, author, duration )
-      if ( lastId === null ) {
-        res( new Response( 'Ошибка при записи в БД', { status: 500 } ) )
-        return;
-      } 
-      await this.mySQLService.addComment( lastId, 1, 10, '' )
+      await this.checkSize( sound.length )
 
+      const lastId = await this.mySQLService.setSound( title, author, duration )
+      if ( lastId === null ) return new Response( 'Error writing to the database', { status: 500 } )
+
+      await this.mySQLService.addComment( req, lastId, 10, '' )
       await Deno.writeFile( './client/static/mp3/' + lastId + '.mp3', sound )
 
-      res( new Response( undefined, { status: 200 } ) )
+      return new Response( undefined, { status: 200 } ) 
 
 
     } catch ( err ) {
 
 
-      console.log( '\n\n' )
-      console.log( new Date() )
-      console.log( err )
-      console.log( '\n\n' )
+      const currentdate = new Date();
+      const datetime = "Error: " 
+        + currentdate.getDate() + "/"
+        + (currentdate.getMonth()+1)  + "/"
+        + currentdate.getFullYear() + " @ "
+        + currentdate.getHours() + ":"
+        + currentdate.getMinutes() + ":"
+        + currentdate.getSeconds();
 
-      res( new Response( undefined, { status: 500 } ) )      
+      console.log( '\n' )
+      console.log( datetime )
+      console.log( err )
+      console.log( '\n' )
+
+      return new Response( 'Error when recording an mp3 file', {
+        status: 500,
+      } ) 
       
 
     }
@@ -63,14 +72,59 @@ export class UploadService{
   // PRIVATE === ===
 
 
+  private async checkSize( sizeUploadFile: number ){
+
+    const sizeUploadFileInMB = sizeUploadFile / 1024 / 1024
+    const path = './client/static/mp3'
+    
+    const sounds = await this.mySQLService.getAllSounds()
+    if ( sounds === null ) throw 'ERROR: limit exceeded'
+    
+    let index = 0
+    while ( sounds.length > index ){
+      
+      const totalSize = await this.getSize( path )
+      if ( totalSize + sizeUploadFileInMB < serverParams.maxSize ) break;
+      
+      const soundID = sounds[index].id
+      await this.removeOldSoundtrack( soundID, path )
+      index++
+      
+    }
+    
+  }
+
+
+  private async getSize( path: string ){
+
+    let totalSize = 0
+    for await ( const file of Deno.readDir( path ) ) {
+
+      const dataFile = await Deno.stat( path + '/' + file.name )
+      totalSize += dataFile.size / 1024 / 1024 // in MB
+
+    }
+    return totalSize
+
+  }
+
+
+  private async removeOldSoundtrack( soundID: number, path: string ){
+
+    await Deno.remove( path + '/' + soundID + '.mp3' )
+    await this.mySQLService.removeSoundtrack( soundID )
+
+  }
+
+
   private getFrame( data: Uint8Array, startIndex: number ): { data: Uint8Array, index: number } {
-  
   
     const result: number[] = []
 
     let index = startIndex
     while ( data.length > index ){
 
+      // find separate
       if ( data[index] === 45 )
       if ( data[index + 1] === 45 )
       if ( data[index + 2] === 45 )
@@ -92,25 +146,46 @@ export class UploadService{
 
   private decoder( array: Uint8Array ): string {
 
-    let result =''
+    let result = ''
     let index = 0
 
     while ( array.length > index ){
       
-      if ( array[index + 1] === 0 ) result += String.fromCharCode( array[index] )
-      if ( array[index + 1] !== 0 ) {
+      if ( array[index] === 0 ) {
+
+        const temp = array[index + 1]
         
-        const item1 = array[index].toString()
-        const str1 = parseInt( item1, 10 ).toString(16)
+        array[index + 1] = array[index]
+        array[index] = temp
         
-        const item2 = array[index + 1].toString()
-        let str2 = parseInt( item2, 10 ).toString(16)
-        if ( str2.length === 1 ) str2 = '0' + str2
-        
-        const str = str1 + str2
+        const item = array[index].toString()
+        const str = parseInt( item, 10 ).toString(16) + '0'
         result += String.fromCharCode( parseInt( str, 16 ) )
+        
+      } else {
+
+        if ( array[index + 1] === 0 ) {
+  
+          result += String.fromCharCode( array[index] )
+  
+        }  
+        
+        if ( array[index + 1] !== 0 ) {
+          
+          const item1 = array[index + 1].toString()
+          const str1 = parseInt( item1, 10 ).toString(16)
+          
+          const item2 = array[index].toString()
+          let str2 = parseInt( item2, 10 ).toString(16)
+          if ( str2.length === 1 ) str2 = '0' + str2
+          
+          const str = str1 + str2
+          result += String.fromCharCode( parseInt( str, 16 ) )
+  
+        }
 
       }
+
 
       index += 2
 
@@ -124,16 +199,85 @@ export class UploadService{
   private getDuration( sound: Uint8Array ){
 
     const lengthID3 = this.getID3length( sound )
-
     const header = this.getAudioFrameHeader( sound, lengthID3 )
-
+    
     const mpegVersion = this.getMPEGVersion( header )
     const layer = this.getLayer( header )
     const bitrate = this.getBitrate( header, mpegVersion, layer )
 
-    const duration = ( sound.length - lengthID3 ) / bitrate / 1000 * 8
+    const samplingRate = this.getSamplingRate( header, mpegVersion )
+    const samplesPerFrame = this.getSamplesPerFrame( layer, mpegVersion )
+    
+    let duration = 0
+    
+    const Xing = this.findXingHeader( sound, lengthID3 )
+    if ( Xing === null ) {
+      
+      duration = ( sound.length - lengthID3 ) / bitrate / 1000 * 8
+
+    } else {
+
+      const numberofFrames = this.getNumberofFrames( sound, Xing )
+      duration = numberofFrames * samplesPerFrame / samplingRate
+
+    } 
 
     return Math.floor( duration )
+
+  }
+
+
+  private findXingHeader( sound: Uint8Array , lengthID3: number ): number | null{
+
+    let index = 0
+
+    while( 100 > index ){
+
+      const soundIndex = lengthID3 + index
+
+      // find [Xing]
+      if ( sound[soundIndex] === 88 )
+      if ( sound[soundIndex + 1] === 105 )
+      if ( sound[soundIndex + 2] === 110 )
+      if ( sound[soundIndex + 3] === 103 ) return soundIndex
+
+      index++
+
+    }
+
+    return null
+
+  }
+
+
+  private getNumberofFrames( sound: Uint8Array, XingPosition: number ): number {
+
+    let HEAD = XingPosition
+
+    // skip [Xing]
+    HEAD += 4
+    
+    // skip [00 00 00]
+    HEAD += 3
+
+    const flags = sound[HEAD].toString(2)
+    if ( flags[3] !== '1' ) return 0
+
+    // skip byte of flags
+    HEAD ++
+
+    let index = 0
+    const numberofFramesArr = []
+    while( 4 > index ){
+
+      const byte = sound[HEAD].toString(16)
+      if ( byte !== '0' ) numberofFramesArr.push( byte )
+
+      HEAD++
+      index++
+    }
+
+    return  parseInt( numberofFramesArr.join(''), 16 )
 
   }
 
@@ -251,6 +395,70 @@ export class UploadService{
 
   }
 
+
+  private getSamplingRate( header: number[], mpegVersion: string ) : number {
+
+    const byte = header[2].toString(2)
+    const index = byte.substring( 4, 6)
+
+    if ( index === '00' ){
+
+      if ( mpegVersion === 'V1' ) return 44_100
+      if ( mpegVersion === 'V2' ) return 22_050
+      if ( mpegVersion === 'V2.5' ) return 11_025 
+
+    }
+    
+    if ( index === '01' ){
+
+      if ( mpegVersion === 'V1' ) return 48_000 
+      if ( mpegVersion === 'V2' ) return 24_000 
+      if ( mpegVersion === 'V2.5' ) return 12_000  
+
+    }
+    
+    if ( index === '10' ){
+
+      if ( mpegVersion === 'V1' ) return 32_000  
+      if ( mpegVersion === 'V2' ) return 16_000  
+      if ( mpegVersion === 'V2.5' ) return 8_000   
+
+    }
+
+    return 0
+
+  }
+
+
+  private getSamplesPerFrame( layer: string, mpegVersion: string ): number {
+
+    if ( layer === '1' ){
+
+      if ( mpegVersion === 'V1' ) return 384
+      if ( mpegVersion === 'V2' ) return 384
+      if ( mpegVersion === 'V2.5' ) return 384
+
+    }
+    
+    if ( layer === '2' ){
+
+      if ( mpegVersion === 'V1' ) return 1152
+      if ( mpegVersion === 'V2' ) return 1152
+      if ( mpegVersion === 'V2.5' ) return 1152
+
+    }
+    
+    if ( layer === '3' ){
+
+      if ( mpegVersion === 'V1' ) return 1152
+      if ( mpegVersion === 'V2' ) return 576
+      if ( mpegVersion === 'V2.5' ) return 576
+
+    }
+
+    return 0
+
+  }
 
 
 }

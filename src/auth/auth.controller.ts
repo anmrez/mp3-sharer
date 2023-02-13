@@ -10,16 +10,16 @@ export class AuthController{
 
 
 
-  sendEmail( req: Request, res: any ){
+  sendEmail( req: Request ): Promise< Response > {
 
-    this.authService.sendEmail( req, res )
+    return this.authService.sendEmail( req )
     
   }
 
   
-  login( req: Request, res: any ){
+  login( req: Request ): Promise< Response | "404" > {
 
-    return this.authService.login( req, res )
+    return this.authService.login( req )
 
   }
   

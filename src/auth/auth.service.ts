@@ -27,33 +27,30 @@ export class AuthService{
   }
 
 
-  async sendEmail( req: Request, res: any ){
+  async sendEmail( req: Request ): Promise< Response > {
 
     const body: { username: string } = await req.json()
     const username = body.username
 
     // ищем пользователя в БД
     const user = await this.mysqlService.getUserByName( username )
-    if ( user === null ) {
-      this.sendNotFound( res )
-      return;
-    }
+    if ( user === null ) return this.sendNotFound()
 
     // генерируем токен и сохраняем его 
     const urlToken = this.generatorService.urlToken()
     const save = this.saveUrlToken( user.username, urlToken )
 
     // Если письмо уже отправленно то оповещаем пользователя
-    if ( save === false ) return this.alreadyBeenSent( res )
+    if ( save === false ) return this.alreadyBeenSent()
 
     // Отправляем пользователю на почту ссылку для входа
     this.mailerService.send( user.email, urlToken )
-    this.sendOK( res )
+    return this.sendOK()
     
   }
 
 
-  async login( req: Request, res: any ){
+  async login( req: Request ): Promise< '404' | Response >{
 
     const urlToken = new URL( req.url ).searchParams.get( 'token' )
     if ( urlToken === null ) return '404';
@@ -64,14 +61,18 @@ export class AuthService{
     // Сгенерировать токен, записаеть его в БД
     const token = this.generatorService.token()
     await this.mysqlService.setToken( username, token )
+    console.log( username )
 
-    res( new Response( undefined, {
+    let maxAge = 999_999_999
+    if ( username === 'Guest' ) maxAge = 3_600
+
+    return new Response( undefined, {
       status: 301,
       headers: {
-        'Set-cookie': 'token=' + token + '; simesite=strict; Path=/; HttpOnly; max-age=' + 999_999_999 ,
+        'Set-cookie': 'token=' + token + '; simesite=strict; Path=/; HttpOnly; max-age=' + maxAge ,
         'Location': '/'
       }
-    } ) )
+    } ) 
 
   }
 
@@ -127,35 +128,51 @@ export class AuthService{
   }
 
 
-  private sendNotFound( res: any ){
+  private sendNotFound(): Response {
 
-    res( new Response( 'User not found!', {
+    // res( new Response( 'User not found!', {
+    //   status: 404,
+    //   headers: {
+    //     'content-type': 'text/plain'
+    //   }
+    // } ) )
+    return new Response( 'User not found!', {
       status: 404,
       headers: {
         'content-type': 'text/plain'
       }
-    } ) )
+    } )
 
   }
 
 
-  private sendOK( res: any ){
+  private sendOK(): Response {
 
-    res( new Response( undefined, {
+    // res( new Response( undefined, {
+    //   status: 200
+    // } ) )
+    return new Response( undefined, {
       status: 200
-    } ) )
+    } )
 
   }
 
 
-  private alreadyBeenSent( res: any ){
+  private alreadyBeenSent(): Response {
 
-    res( new Response( 'The email has already been sent!', {
+    // res( new Response( 'The email has already been sent!', {
+    //   status: 400,
+    //   headers: {
+    //     'content-type': 'text/plain'
+    //   }
+    // } ) )
+
+    return new Response( 'The email has already been sent!', {
       status: 400,
       headers: {
         'content-type': 'text/plain'
       }
-    } ) )
+    } )
 
   }
 

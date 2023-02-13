@@ -10,12 +10,31 @@ export interface IUser{
 }
 
 
+interface IUserSQL{
+  id: number
+  username: string
+  image: string
+  email: string
+  token: null | string
+}
+
+
 interface IUserMySQL{
   id: number
   username: string
   email: string
   image: string
   token: null | string
+}
+
+
+interface ISoundtrack{
+  id: number
+  duration: number
+  title: string
+  author: string
+  createdAt: string
+  is_archiver: number
 }
 
 
@@ -35,8 +54,10 @@ export class MySQLService{
   private async create(){
 
     await this.createDatabase()
-    await this.createUserTable()
+
+    // await this.createUserTable()
     await this.createSoundTable()
+    await this.createCommentTable()
 
   }
 
@@ -86,7 +107,9 @@ export class MySQLService{
 
     const result = await client.execute( `SELECT * FROM users;` )
     
-    const users = result.rows
+    if ( result.rows === undefined ) return null
+
+    const users: IUserMySQL[] = result.rows
     return users
 
   }
@@ -132,7 +155,6 @@ export class MySQLService{
 
     const showTables = await client.execute( `SHOW TABLES LIKE 'sounds';` )
 
-    console.log( showTables.rows?.length )
     if ( showTables.rows?.length === 0 )
 
     await client.execute( `CREATE TABLE sounds (
@@ -140,16 +162,36 @@ export class MySQLService{
       duration smallint,
       title varchar(60) NOT NULL,
       author varchar(60) NOT NULL,
-      createdAt varchar(5) NOT NULL
+      createdAt varchar(5) NOT NULL,
+      is_archived boolean DEFAULT false
     );` )
 
   }
 
 
-  async getAllSounds(){
+  async getAllSounds(): Promise< ISoundtrack[] | null > {
 
-    const allSound = await client.execute( 'SELECT * FROM sounds;' )
+    const allSound = await client.execute( 'SELECT * FROM sounds WHERE is_archived = 0;' )
+
+    if ( allSound.rows == undefined ) return null
     return allSound.rows
+    
+  }
+
+
+  async getAllSoundsInArchive(){
+    
+    const allSound = await client.execute( 'SELECT * FROM sounds WHERE is_archived = 1;' )
+
+    if ( allSound.rows == undefined ) return null
+    return allSound.rows
+    
+  }
+
+
+  async removeSoundtrack( soundID: number ){
+
+    await client.execute( `UPDATE sounds SET is_archived=true WHERE id=${ soundID }` )
 
   }
 
@@ -173,6 +215,80 @@ export class MySQLService{
 
     if ( result.lastInsertId !== undefined ) return result.lastInsertId
     return null
+
+  }
+
+
+
+  // COMMENT === ===
+
+  private async createCommentTable(){
+
+    const showTables = await client.execute( `SHOW TABLES LIKE 'comments';` )
+
+    if ( showTables.rows?.length === 0 )
+    await client.execute( `CREATE TABLE comments (
+      soundID INT NOT NULL,
+      userID tinyint NOT NULL,
+      status tinyint DEFAULT 0,
+      comment varchar(100)
+    );` )
+
+  }
+
+
+  async addComment( req: Request, soundID: number, status: number, comment: string ){
+
+    if ( status !== 1 && status !== 2 && status !== 3 && status !== 10 ) status = 0
+
+    const token = this.getToken( req )
+    if ( token === null ) throw 'Token indefined'
+
+    const user = await this.getUserByToken( token )
+    if ( user === null ) throw 'User not found'
+    const userID = user.id
+
+    const data = await client.execute( `SELECT * FROM comments 
+    WHERE soundID=${ soundID } AND userID=${ userID };` )
+
+    if ( data.rows === undefined || data.rows.length === 0 ) {
+
+      await client.execute( `INSERT INTO comments ( soundID, userID, status, comment ) 
+      VALUES ( ${ soundID }, ${userID}, ${ status }, '${ comment }' )` )
+
+    } else {
+
+      await client.execute( `UPDATE comments SET comment='${ comment }' WHERE soundID=${ soundID } AND userID=${ userID };` )
+
+      if ( data.rows[0].status !== 10 ) await client.execute( `UPDATE comments SET status='${ status }' WHERE soundID=${ soundID } AND userID=${ userID };` )
+
+    } 
+
+  }
+
+
+  async getCommentsBySoundID( soundID: number ){
+
+    const result = await client.execute( `SELECT * FROM comments WHERE soundID=${ soundID };` )
+
+    if ( result.rows === undefined ) return null
+    return result.rows 
+
+  }
+
+
+  private getToken( req: Request ) {
+
+    const cookie = req.headers.get( 'cookie' )
+    if ( cookie === null ) return null
+
+    const token = 'token'
+
+    const matches = cookie.match(new RegExp(
+      "(?:^|; )" + token.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+
+    return matches ? decodeURIComponent( matches[1] ) : null;
 
   }
 
