@@ -390,3 +390,16 @@ table{
   border-radius: 1em;
   background: #81818133;
 }
+
+
+
+@keyframes spinner {
+  from {
+    transform: rotate(0deg);
+    
+  }
+  
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -6,6 +6,7 @@ export class Upload{
   uploadWindow = document.querySelector( '#uploadWindow' )
   title = document.querySelector( '#SongTitle' )
   author = document.querySelector( '#SongAuthor' )
+  status = uploadWindow.querySelector( '#status' )
 
   constructor( player, getMusick, windows1251 ){
 
@@ -61,11 +62,14 @@ export class Upload{
 
       const arr = new Uint8Array( event.target.result )
       const body = new Uint8Array( [ ...titleWithAuthor, ...arr,  ] )
+      
+      this.status.classList.remove( 'opacity_0' )
   
       const response = await fetch( '/upload', {
         method: 'POST',
         body: body
       })
+
   
       if ( response.status === 200 ) {
 
@@ -240,6 +244,7 @@ export class Upload{
 
         let hex1 = dataHeaderArr[index + 1].toString(16)
         let hex2 = dataHeaderArr[index].toString(16)
+        if ( hex2.length === 1 ) hex2 = '0' + hex2
 
         let hex = hex1 + hex2
         dataHeader.push( String.fromCharCode( parseInt( hex, 16) ) )
@@ -295,6 +300,7 @@ export class Upload{
 
     this._addKeyboardEvents()
     this.uploadWindow.classList.add( 'none' )
+    this.status.classList.add( 'opacity_0' )
     
   }
   
