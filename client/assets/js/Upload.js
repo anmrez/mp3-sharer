@@ -173,7 +173,6 @@ export class Upload{
 
     let HEAD = 0
     let isExistHeader = false
-    const ID3Version = soundArr[3]
 
     const codeChar1 = header[0].charCodeAt()
     const codeChar2 = header[1].charCodeAt()
@@ -214,14 +213,20 @@ export class Upload{
   
     //skip 2 byte [00 00]
     HEAD += 2
-    let dataHeaderLength = arrSize[3] + HEAD
+    const dataHeaderLength = arrSize[3] + HEAD
     const dataHeaderArr = []
+    let itIsUTF = false
 
 
     // skip 3 byte [00 FF FE] 
     if ( soundArr[HEAD] === 1 )
     if ( soundArr[HEAD + 1] === 255 )
-    if ( soundArr[HEAD + 2] === 254 ) HEAD +=3
+    if ( soundArr[HEAD + 2] === 254 ) {
+
+      itIsUTF = true
+      HEAD +=3
+
+    } 
 
 
     // save data of header in array
@@ -235,18 +240,18 @@ export class Upload{
 
     // convert`s data in symbols
     let index = 0
-    let dataHeader = []
+    const dataHeader = []
 
-    if ( ID3Version === 3 ) while ( dataHeaderArr.length > index ){
+    if ( itIsUTF ) while ( dataHeaderArr.length > index ){
 
 
       if ( dataHeaderArr[index + 1] !== 0 ){
 
-        let hex1 = dataHeaderArr[index + 1].toString(16)
+        const hex1 = dataHeaderArr[index + 1].toString(16)
         let hex2 = dataHeaderArr[index].toString(16)
         if ( hex2.length === 1 ) hex2 = '0' + hex2
 
-        let hex = hex1 + hex2
+        const hex = hex1 + hex2
         dataHeader.push( String.fromCharCode( parseInt( hex, 16) ) )
 
       }
@@ -258,7 +263,7 @@ export class Upload{
       index += 2
 
 
-    } else if ( ID3Version === 4 ) while( dataHeaderArr.length > index ){
+    } else while( dataHeaderArr.length > index ){
 
 
       dataHeader.push( this.windows1251Service.decode( dataHeaderArr[index] ) )
