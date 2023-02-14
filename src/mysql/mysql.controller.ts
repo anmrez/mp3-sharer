@@ -85,6 +85,7 @@ export class MySQLController{
     } = await req.json()
 
     data.comment = data.comment.substring( 0, 100 )
+    data.comment = data.comment.split(`'`).join('`')
 
     try {
       
