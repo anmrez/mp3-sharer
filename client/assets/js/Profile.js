@@ -26,11 +26,12 @@ export class Profile{
 
     if ( request.status !== 200 ) return;
     
-    const response = await request.json()
-    
-    this.username.innerHTML = response.username
-    this.image.src = '/static/profile/' + response.image
-    this.image.alt = response.image
+    const user = await request.json()
+
+    this.buttonUser.userID = user.id
+    this.username.innerHTML = user.username
+    this.image.src = '/static/profile/' + user.image
+    this.image.alt = user.image
 
   }
 

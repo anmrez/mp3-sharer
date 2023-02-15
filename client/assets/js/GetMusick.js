@@ -12,6 +12,8 @@ export class GetMusick{
 
   linkOnReload
 
+  timeoutSetList = []
+
   constructor(){
 
     this.table.update = this.get.bind( this )
@@ -70,6 +72,7 @@ export class GetMusick{
 
   }
 
+
   _eventSwitch( button, reverceButton ){
 
     button.classList.add( 'switch_button_active' )
@@ -100,10 +103,7 @@ export class GetMusick{
 
     this.dataArray = await response.json()
 
-    if ( this.dataArray.length === 0 ) {
-      console.log( 'Soundtracks not found' )
-      return;
-    }
+    if ( this.dataArray.length === 0 ) throw 'ERROR: Soundtracks not found'
 
     this.set()
 
@@ -113,6 +113,7 @@ export class GetMusick{
   set(){
 
     this.tableBody.replaceChildren()
+    this._cleatTimeoutSetList()
 
     let index = 1
     const length = this.dataArray.length
@@ -121,14 +122,25 @@ export class GetMusick{
 
       const indexItem = length - index
       const item = this.dataArray[indexItem]
-      const delay = 50 + index * 30
+      const delay = 50 + index * 25
 
-      setTimeout( this._addItem.bind( this ), delay, item )
+      const timeID = setTimeout( this._addItem.bind( this ), delay, item )
+      this.timeoutSetList.push( timeID )
 
       index++
 
     }
 
+  }
+
+
+  _cleatTimeoutSetList(){
+
+    this.timeoutSetList.forEach( item => {
+      clearTimeout( item )
+    } )
+
+    this.timeoutSetList = []
 
   }
 
@@ -148,7 +160,14 @@ export class GetMusick{
     const tdPlay = this._createTDPlay( item )
     const tdTitle = this._createTDTitle( item )
     const tdAuthor = this._createTDAuthor( item )
-    const arrayTDUsers = await this._createTDUsers( item )
+
+    const arrayTDUsers = this._createTDUsers()
+    arrayTDUsers.getCommets = this._eventGetCommentsInTDUsers.bind( arrayTDUsers, item )
+
+    let delay = Math.random() * 1000
+    if ( delay < 100 ) delay += 300
+    if ( delay > 600 ) delay -= 300
+    setTimeout( arrayTDUsers.getCommets, delay )
 
     tr.append( tdID )
     tr.append( tdDate )
@@ -162,7 +181,6 @@ export class GetMusick{
       tr.append( item )
     })
 
-    // table.append( tr )
     this.tableBody.append( tr )
 
   }
@@ -293,16 +311,9 @@ export class GetMusick{
   }
 
 
-  async _createTDUsers( item ){
+  _createTDUsers( ){
 
-    let tdUsers = []
-
-    const responseComments = await fetch( '/getComment', {
-      method: 'POST',
-      body: item.id + ''
-    } )
-
-    const data = await responseComments.json()
+    const tdUsers = []
 
     let index = 1
     while ( 7 !== index ) {
@@ -310,26 +321,7 @@ export class GetMusick{
       const td = document.createElement( 'td' );
       const span = document.createElement( 'span' )
       span.classList.add( 'round_status' )
-
-      if ( data ) data.forEach( item => {
-        
-        if ( item.userID === index ) {
-
-          if ( item.status === 1 ) span.style.background = '#ff000077'
-          if ( item.status === 2 ) span.style.background = '#ffff0077'
-          if ( item.status === 3 ) span.style.background = '#00ff0077'
-          if ( item.status === 10 ) span.style.background = '#8b00ff77'
-          if ( item.comment ) { 
-  
-            span.text = item.comment
-            span.addEventListener( 'mousemove', this._addStatusHover )
-            span.addEventListener( 'mouseout', this._addStatusOut )
-  
-          }
-
-        }
-  
-      })
+      span.setAttribute( 'userID', index )
 
       td.append( span )
       tdUsers.push( td )
@@ -343,24 +335,63 @@ export class GetMusick{
   }
 
 
-  _addStatusHover( event ) {
+  async _eventGetCommentsInTDUsers( item ){
 
-    let tooltip = document.querySelector( '#tooltip' )
-    let X = event.clientX
-    let Y = event.clientY
-    let text = event.target.text
+    const responseComments = await fetch( '/getComment', {
+      method: 'POST',
+      body: String( item.id )
+    } )
 
-    tooltip.classList.remove( 'none' )
-    tooltip.style.left = X + 'px'
-    tooltip.style.top = Y + 'px'
-    tooltip.innerHTML = text
+    const data = await responseComments.json()
+    
+    let index = 0
+    while( index !== this.length ){
+      
+      if ( data ) data.forEach( item => {
+        
+        const td = this[index]
+        const span = td.lastChild
+        
+        if ( item.userID === index + 1 ) {
+          
+          if ( item.status === 1 ) span.style.background = '#ff000077'
+          if ( item.status === 2 ) span.style.background = '#ffff0077'
+          if ( item.status === 3 ) span.style.background = '#00ff0077'
+          if ( item.status === 10 ) span.style.background = '#8b00ff77'
+          if ( item.comment ) { 
+            
+            span.comment = item.comment
 
-  }
+            span.addEventListener( 'mousemove', function( event ){
 
+              let tooltip = document.querySelector( '#tooltip' )
+              let X = event.clientX
+              let Y = event.clientY
+              let text = event.target.comment
+          
+              tooltip.classList.remove( 'none' )
+              tooltip.style.left = X + 'px'
+              tooltip.style.top = Y + 'px'
+              tooltip.innerHTML = text
 
-  _addStatusOut(){
+            } )
 
-    document.querySelector( '#tooltip' ).classList.add( 'none' )
+            span.addEventListener( 'mouseout', function(){
+
+              document.querySelector( '#tooltip' ).classList.add( 'none' )
+
+            } )
+  
+          }
+
+        }
+
+        
+      })
+
+      index++
+
+    }
 
   }
 

@@ -1,11 +1,8 @@
 
 
-
-
 export class Keyboard{
 
   windowUpload = document.querySelector( '#uploadWindow' )
-  windowLogin = document.querySelector( '#loginWindow' )
   windowComment = document.querySelector( '#commentWindow' )
   
   constructor( upload, comment ){
@@ -49,9 +46,6 @@ export class Keyboard{
 
       this.uploadService.closeWindow()
       this.commentService.closeWindow()
-
-      this.windowLogin.classList.add( 'none' )
-
 
     }
 

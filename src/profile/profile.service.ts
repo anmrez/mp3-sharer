@@ -51,6 +51,7 @@ export class ProfileService{
     }) 
 
     const responseJson = JSON.stringify({
+      id: user.id,
       username: user.username,
       image: user.image
     })

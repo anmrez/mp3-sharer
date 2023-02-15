@@ -5,6 +5,7 @@ import { ReaderService } from "./reader/reader.service.ts";
 import { ProfileController } from './profile/profile.controller.ts';
 import { UploadController } from './upload/upload.controller.ts';
 import { MySQLController } from './mysql/mysql.controller.ts';
+import { serverParams } from "../config.ts";
 
 
 
@@ -24,9 +25,8 @@ export class Router{
   async routes( req: Request ): Promise< Response >{
 
     const urlPath = new URL( req.url ).pathname
-    
-    console.log( '[' + urlPath + " | " + req.method + ']' )
 
+    if ( serverParams.connectionsLogger ) console.log( '[' + urlPath + " | " + req.method + ']' )
 
 
     // TOTAL REQUEST === ==

@@ -13,6 +13,10 @@ export class Comment{
   commentIntoPlayer = this.player.querySelector( '#comment' )
   soundID = this.player.querySelector( '#id' )
 
+  table = document.querySelector( '#tableMusickBody' )
+  buttonUser = document.querySelector( '#buttonUser' )
+  userID = 0
+
   sendData = {
     soundID: 0,
     status: 0,
@@ -36,6 +40,8 @@ export class Comment{
     this._addEventButtonCommentIntoPlayer()
     this._addEventSend()
 
+    this.userID = Number( this.buttonUser.userID )
+
   }
 
   // TEXTAREA === ===
@@ -45,6 +51,7 @@ export class Comment{
 
   }
 
+
   _eventInputTextarea(){
 
     if ( this.comment.value.length > 100 )
@@ -53,6 +60,8 @@ export class Comment{
       this.count.innerHTML = this.comment.value.length + ''
 
   }
+
+
 
   // STATUS === ===
   _addEventStatus(){
@@ -128,6 +137,7 @@ export class Comment{
 
   }
 
+
   async _eventSend(){
 
 
@@ -155,14 +165,27 @@ export class Comment{
   }
 
 
-  // WINDOW
+
+  // WINDOW === === ===
   // OPEN === ===
 
   openWindow(){
 
-    this.comment.value = ''
+    this._findCurrentComment()
     this._removeKeyboardEvents()
     this.window.classList.remove( 'none' )
+
+  }
+
+
+  _findCurrentComment(){
+
+    const soundID = this.soundID.innerHTML
+    const row = this.table.querySelector( '[soundid="' + soundID + '"]' )
+    const status = row.querySelector( '[userid="' + this.userID + '"]' )
+
+    this.comment.value = ''
+    if ( status.comment ) this.comment.value = status.comment
 
   }
 
@@ -177,6 +200,7 @@ export class Comment{
     
   }
   
+
 
   // CLOSE === ===
   closeWindow(){
