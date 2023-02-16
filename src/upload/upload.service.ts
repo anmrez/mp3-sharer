@@ -14,7 +14,6 @@ export class UploadService{
 
     try {
 
-
       const body = new Uint8Array( await req.arrayBuffer() )
       
       let frame = this.getFrame( body, 0 )
@@ -58,11 +57,9 @@ export class UploadService{
       console.log( err )
       console.log( '\n' )
 
-      return new Response( 'Error when recording an mp3 file', {
-        status: 500,
-      } ) 
-      
+      return new Response( null, { status: 500, } ) 
 
+      
     }
 
 

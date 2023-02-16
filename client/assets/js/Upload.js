@@ -4,9 +4,13 @@ export class Upload{
 
 
   uploadWindow = document.querySelector( '#uploadWindow' )
-  title = document.querySelector( '#SongTitle' )
-  author = document.querySelector( '#SongAuthor' )
-  status = uploadWindow.querySelector( '#status' )
+  esc = this.uploadWindow.querySelector( '#esc' )
+
+  title = this.uploadWindow.querySelector( '#SongTitle' )
+  author = this.uploadWindow.querySelector( '#SongAuthor' )
+  status = this.uploadWindow.querySelector( '#status' )
+  statusErr = this.status.querySelector( '#err' )
+  statusLoad = this.status.querySelector( '#load' )
 
   constructor( player, getMusick, windows1251 ){
 
@@ -19,7 +23,16 @@ export class Upload{
   
   init(){
     
+    this._addEventEsc()
     this._addEvent()
+
+  }
+
+
+  // ESC === ===
+  _addEventEsc(){
+
+    this.esc.addEventListener( 'click', this.closeWindow.bind( this ) )
 
   }
 
@@ -63,22 +76,25 @@ export class Upload{
       const arr = new Uint8Array( event.target.result )
       const body = new Uint8Array( [ ...titleWithAuthor, ...arr,  ] )
       
-      this.status.classList.remove( 'opacity_0' )
-  
-      const response = await fetch( '/upload', {
+      this.statusErr.classList.add( 'opacity_0' )
+      this.statusLoad.classList.remove( 'opacity_0' )
+      
+      await fetch( '/upload', {
+        
         method: 'POST',
         body: body
-      })
-
-  
-      if ( response.status === 200 ) {
-
-        this.closeWindow()
         
+      }).then( () => {
+        
+        this.closeWindow()
         document.querySelector( '#tableMusick' ).update()
-        return;
+        
+      } ).catch( ( ) => {
+        
+        this.statusLoad.classList.add( 'opacity_0' ),
+        this.statusErr.classList.remove( 'opacity_0' )
 
-      }
+      } )
 
     }
 
@@ -244,8 +260,11 @@ export class Upload{
 
     if ( itIsUTF ) while ( dataHeaderArr.length > index ){
 
+      if ( dataHeaderArr[index] === 0 && dataHeaderArr[index + 1] === 0 ){
 
-      if ( dataHeaderArr[index + 1] !== 0 ){
+        // nothing
+
+      } else if ( dataHeaderArr[index + 1] !== 0 ){
 
         const hex1 = dataHeaderArr[index + 1].toString(16)
         let hex2 = dataHeaderArr[index].toString(16)
@@ -254,10 +273,10 @@ export class Upload{
         const hex = hex1 + hex2
         dataHeader.push( String.fromCharCode( parseInt( hex, 16) ) )
 
-      }
+      } else if ( dataHeaderArr[index + 1] === 0 ){
 
-      if ( dataHeaderArr[index + 1] === 0 ){
         dataHeader.push( String.fromCharCode( dataHeaderArr[index] ) )
+
       }
 
       index += 2
@@ -305,7 +324,9 @@ export class Upload{
 
     this._addKeyboardEvents()
     this.uploadWindow.classList.add( 'none' )
-    this.status.classList.add( 'opacity_0' )
+
+    this.statusLoad.classList.add( 'opacity_0' )
+    this.statusErr.classList.add( 'opacity_0' )
     
   }
   

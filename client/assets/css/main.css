@@ -305,6 +305,9 @@ table{
   left: 0;
 }
 
+.right_0{
+  right: 0;
+}
 .right_10{
   right: 10em;
 }
@@ -320,6 +323,9 @@ table{
 
 .radius{
   border-radius: 0.2em;
+}
+.radius_lb{
+  border-radius: 0em 0em 0em 0.2em;
 }
 
 
@@ -379,6 +385,13 @@ table{
 
 .pointer{
   cursor: pointer;
+}
+
+
+/* Transition */
+
+.transition{
+  transition: 0.2s;
 }
 
 

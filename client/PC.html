@@ -137,7 +137,8 @@
   </section>
 
   <!-- Upload -->
-  <section id="uploadWindow" class="none position_center background_main_2_opacity border_pink padding_x_2 padding_y_2">
+  <section id="uploadWindow" class="none position_center background_main_2_opacity border_pink padding_x_2 padding_y_2 relative">
+    <a id="esc" class="padding_y_0_5 color_white background_pink padding_x_1 radius_lb cursor_pointer flex align_center justify_center top_0 right_0 absolute"> Esc </a>
     <h1 class="margin_b_1 text_center text_2 "> Upload mp3 </h1>
     <section class="flex flex_column text_1_25">
       <form id="uploadWindowInputs" class="flex flex_column" action="/upload" method="POST" enctype="multipart/form-data">
@@ -147,20 +148,25 @@
         <input type="text" name="author" id="SongAuthor" class="text_1_25 input_upload margin_b_1 color_white radius">
         <input id="inputUpload" name="file" type="file" class="none" accept=".MP3">
       </form>
-      <section id="status" class="opacity_0 margin_b_1 text_1_25 flex justify_center align_center select_none">
-        <p class="margin_r_1"> uploading </p>
-        <svg height="40px" width="40px" fill="none">
-          <circle cx="20" cy="20" r="15" stroke="#333333" stroke-width="3" />
-          <circle style="
-          filter: drop-shadow(); 
-          animation-name: spinner; 
-          animation-duration: 2s; 
-          transform-origin: center;
-          animation-iteration-count: infinite;" 
-          cx="20" cy="20" r="15" stroke="#cb0637 " stroke-width="3" stroke-linecap="round" stroke-dasharray="15" />
-        </svg>
+      <section id="status" class="relative">
+        <section id="err" class="padding_0_5 background_red radius transition opacity_0">
+          Error writing/reading file
+        </section>
+        <section id="load" class="text_1_25 transition opacity_0 flex justify_center align_center select_none">
+          <p class="margin_r_1"> uploading </p>
+          <svg height="40px" width="40px" fill="none">
+            <circle cx="20" cy="20" r="15" stroke="#333333" stroke-width="3" />
+            <circle style="
+            filter: drop-shadow(); 
+            animation-name: spinner; 
+            animation-duration: 2s; 
+            transform-origin: center;
+            animation-iteration-count: infinite;" 
+            cx="20" cy="20" r="15" stroke="#cb0637 " stroke-width="3" stroke-linecap="round" stroke-dasharray="15" />
+          </svg>
+        </section>
       </section>
-      <a id="windowButtonUpload" class="padding_y_0_5 color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center justify_center"> Upload </a>
+      <a id="windowButtonUpload" class="margin_t_1 padding_y_0_5 color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center justify_center"> Upload </a>
     </section>
   </section>
 

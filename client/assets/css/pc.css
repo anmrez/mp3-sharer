@@ -138,7 +138,7 @@ textarea:focus{
   padding-bottom: 0.5em;
 
   cursor: pointer;
-  transition: 0.2s;;
+  transition: 0.2s;
 }
 
 .switch_button:hover{
