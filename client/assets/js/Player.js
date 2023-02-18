@@ -66,11 +66,13 @@ export class Player{
 
   }
   
+
   removeEventOnSpace(){
 
     document.removeEventListener( 'keyup', this._linkOnEventOnSpace )
     
   }
+
   
   _eventOnSpace( event ){
     
@@ -251,6 +253,7 @@ export class Player{
     let duration = this.soundtrack.duration
     let currentTime = this.soundtrack.currentTime
   
+    if ( currentTime === duration ) this._eventButtonPause()
     this.timeline.style.width = currentTime * 100 / duration + '%'
 
   }

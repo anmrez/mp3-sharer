@@ -58,9 +58,20 @@ textarea:focus{
 
 #download:hover,
 #comment:hover{
-
+  
   stroke: #cb0637;
+  
+}
 
+
+#renameSoundtrack{
+  transform: rotateZ( -45deg );
+  fill: #ccc;
+  cursor: pointer;
+  transition: 0.2s;
+}
+#renameSoundtrack:hover{
+  fill: #cb0637;
 }
 
 #status a{

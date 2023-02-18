@@ -8,6 +8,7 @@ import { Profile } from './Profile.js';
 import { Upload } from './Upload.js';
 import { Player } from './Player.js'
 import { TableResize } from './TableResize.js';
+import { RenameSoundtrack } from './RenameSoundtrack.js'
 import { Windows1251 } from './Windows1251.js'
 
 
@@ -15,17 +16,18 @@ class Init{
   
   
   download = new Download()
-  getMusick = new GetMusick()
   getUsers = new GetUsers()
-  player = new Player()
   profile = new Profile()
   tableResize = new TableResize()
-  
+  getMusick = new GetMusick()
+  player = new Player()
   windows1251 = new Windows1251()
+  
+  renameSoundtrack = new RenameSoundtrack( this.player, this.getMusick )
   upload = new Upload( this.player, this.getMusick, this.windows1251 )
   comment = new Comment( this.player, this.getMusick )
 
-  keyboard = new Keyboard( this.upload, this.comment )
+  keyboard = new Keyboard( this.upload, this.comment, this.renameSoundtrack )
   
   
   constructor(){
@@ -44,8 +46,8 @@ class Init{
       let delay = 100 * index
 
       if ( index === 1 ) setTimeout( this.profile.init.bind( this.profile ), delay ) 
-      if ( index === 2 ) setTimeout( this.getMusick.init.bind( this.getMusick ), delay ) 
-      if ( index === 3 ) setTimeout( this.getUsers.init.bind( this.getUsers ), delay ) 
+      if ( index === 2 ) setTimeout( this.getUsers.init.bind( this.getUsers ), delay ) 
+      if ( index === 3 ) setTimeout( this.getMusick.init.bind( this.getMusick, this.renameSoundtrack ), delay ) 
       
       if ( index === 4 ) setTimeout( this.tableResize.init.bind( this.tableResize ), delay ) 
       
@@ -55,6 +57,8 @@ class Init{
       if ( index === 7 ) setTimeout( this.comment.init.bind( this.comment ), delay ) 
       if ( index === 8 ) setTimeout( this.download.init.bind( this.download ), delay ) 
       if ( index === 9 ) setTimeout( this.upload.init.bind( this.upload ), delay ) 
+      
+      if ( index === 10 ) setTimeout( this.renameSoundtrack.init.bind( this.renameSoundtrack ), delay ) 
 
       index++
 

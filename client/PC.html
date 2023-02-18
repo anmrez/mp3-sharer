@@ -92,6 +92,10 @@
         <span id="title" class="margin_r_10px"> title </span>
         <span id="author" class="text_0_75 margin_r_10px"> author </span>
       </section>
+      <!-- Rename track -->
+      <svg id="renameSoundtrack" class="none right_23 absolute" xmlns="http://www.w3.org/2000/svg" width="31" height="31"  stroke-width="2px" >
+        <path d="M0 15 L4 13 L30 13 L30 17 L4 17 L0 15" />
+      </svg>
       <!-- Comment -->
       <svg id="comment" class="right_20 absolute" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 32 20" stroke='#ccc' fill="none" stroke-width="2px">
         <rect class="cls-1" x="0.5" y="0.5" width="30" height="20" />
@@ -136,12 +140,12 @@
     <a id="send" class="radius padding_0_5 text_center color_white background_pink  cursor_pointer"> save </a>
   </section>
 
-  <!-- Upload -->
+  <!-- Window Upload -->
   <section id="uploadWindow" class="none position_center background_main_2_opacity border_pink padding_x_2 padding_y_2 relative">
     <a id="esc" class="padding_y_0_5 color_white background_pink padding_x_1 radius_lb cursor_pointer flex align_center justify_center top_0 right_0 absolute"> Esc </a>
     <h1 class="margin_b_1 text_center text_2 "> Upload mp3 </h1>
     <section class="flex flex_column text_1_25">
-      <form id="uploadWindowInputs" class="flex flex_column" action="/upload" method="POST" enctype="multipart/form-data">
+      <form id="uploadWindowInputs" class="flex flex_column">
         <label for=""> Song title </label>
         <input type="text" name="title" id="SongTitle" class="text_1_25 input_upload margin_b_1 color_white radius">
         <label for=""> Author </label>
@@ -168,6 +172,20 @@
       </section>
       <a id="windowButtonUpload" class="margin_t_1 padding_y_0_5 color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center justify_center"> Upload </a>
     </section>
+  </section>
+
+  <!-- Window Rename soundtrack -->
+  <section id="renameSoundtrackWindow" class="none position_center background_main_2_opacity border_pink padding_x_2 padding_y_2 relative">
+    <a id="esc" class="padding_y_0_5 color_white background_pink padding_x_1 radius_lb cursor_pointer flex align_center justify_center top_0 right_0 absolute"> Esc </a>
+    <h1 class="margin_b_1 text_center text_2 " > Rename soundtrack </h1>
+    <form id="uploadWindowInputs" class="flex flex_column text_1_25">
+      <span id="soundID"></span>
+      <label> Title </label>
+      <input type="text" id="title" class="text_1_25 input_upload margin_b_1 color_white radius">
+      <label> Author </label>
+      <input type="text" id="author" class="text_1_25 input_upload margin_b_1 color_white radius">
+    </form>
+    <a id="send" class="margin_t_1 padding_y_0_5 color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center justify_center"> Rename </a>
   </section>
 
  <!-- Tooltip -->

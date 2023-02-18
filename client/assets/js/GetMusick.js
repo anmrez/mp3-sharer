@@ -2,6 +2,9 @@
 
 export class GetMusick{
 
+  player = document.querySelector( '#player' )
+
+
   dataArray = []
   table = document.querySelector( '#tableMusick' )
   tableBody = document.querySelector( '#tableMusickBody' )
@@ -14,24 +17,35 @@ export class GetMusick{
 
   timeoutSetList = []
 
+  
   constructor(){
 
     this.table.update = this.get.bind( this )
-
+    
   }
-
-
-  init(){
+  
+  
+  init( renameSoundtrack ){
+    
+    if ( renameSoundtrack === undefined ) throw 'RenameSoundtrack Service is undefined'
+    this.renameSoundtrackService = renameSoundtrack
 
     this.get()
     
     this.linkOnReload = this._eventReloadOnR.bind( this )
     this.addEventReloadOnR()
-
+    
     this._addEventSwitch()
+    this._getUserID()
+    
+  }  
+  
+  
+  _getUserID(){
+    
+    this.userID = document.querySelector( '#buttonUser' ).userID
 
   }
-
 
   // RELOAD === ===
   addEventReloadOnR(){
@@ -124,7 +138,7 @@ export class GetMusick{
       const item = this.dataArray[indexItem]
       const delay = 50 + index * 25
 
-      const timeID = setTimeout( this._addItem.bind( this ), delay, item )
+      const timeID = setTimeout( this._addItem.bind( this ), delay, item, index )
       this.timeoutSetList.push( timeID )
 
       index++
@@ -145,8 +159,7 @@ export class GetMusick{
   }
 
 
-  async _addItem( item ){
-
+  async _addItem( item, index ){
 
     const tr = document.createElement( 'tr' );
 
@@ -164,9 +177,7 @@ export class GetMusick{
     const arrayTDUsers = this._createTDUsers()
     arrayTDUsers.getCommets = this._eventGetCommentsInTDUsers.bind( arrayTDUsers, item )
 
-    let delay = Math.random() * 1000
-    if ( delay < 100 ) delay += 300
-    if ( delay > 600 ) delay -= 300
+    const delay = 50 + index * 55
     setTimeout( arrayTDUsers.getCommets, delay )
 
     tr.append( tdID )
@@ -354,10 +365,34 @@ export class GetMusick{
         
         if ( item.userID === index + 1 ) {
           
-          if ( item.status === 1 ) span.style.background = '#ff000077'
-          if ( item.status === 2 ) span.style.background = '#ffff0077'
-          if ( item.status === 3 ) span.style.background = '#00ff0077'
-          if ( item.status === 10 ) span.style.background = '#8b00ff77'
+          if ( item.status === 1 ) {
+
+            span.code = 1
+            span.style.background = '#ff000077'
+          
+          } 
+
+          if ( item.status === 2 ) {
+
+            span.code = 2
+            span.style.background = '#ffff0077'
+          
+          } 
+
+          if ( item.status === 3 ) {
+
+            span.code = 3
+            span.style.background = '#00ff0077'
+
+          } 
+
+          if ( item.status === 10 ) {
+
+            span.code = 10
+            span.style.background = '#8b00ff77'
+
+          } 
+
           if ( item.comment ) { 
             
             span.comment = item.comment
@@ -398,13 +433,12 @@ export class GetMusick{
 
   _TDPlayEvent( item ){
 
-    const player = document.querySelector( '#player' )
-    const id = player.querySelector( '#id' )
-    const title = player.querySelector( '#title' )
-    const author = player.querySelector( '#author' )
-    const duration = player.querySelector( '#durationMax' )
-    const soundtrack = player.querySelector( '#soundtrack' )
-    const button = player.querySelector( '#button' )
+    const id = this.player.querySelector( '#id' )
+    const title = this.player.querySelector( '#title' )
+    const author = this.player.querySelector( '#author' )
+    const duration = this.player.querySelector( '#durationMax' )
+    const soundtrack = this.player.querySelector( '#soundtrack' )
+    const button = this.player.querySelector( '#button' )
     
     if ( id.innerHTML === String( item.id ) ) {
 
@@ -412,15 +446,18 @@ export class GetMusick{
       return;
 
     }
-    
+
     id.innerHTML = item.id
+    player.soundID = item.id
+
     title.innerHTML = item.title
+    player.title = item.title
+
     author.innerHTML = item.author
+    player.author = item.author
+
     duration.innerHTML = this._getTime( item.duration )
     soundtrack.src = './static/mp3/' + item.id + '.mp3'
-
-
-    
     
     const table = document.querySelector( '#tableMusick' )
     
@@ -438,6 +475,18 @@ export class GetMusick{
     // add highlight row
     const td = table.querySelector( '[soundID="' + item.id + '"]' )
     td.classList.add( 'td_play' )
+
+    // show/hidden renameSoundtrack
+    const span = td.querySelector( '[userid="' + this.userID +'"]' )
+    if ( span.code === 10 ) {
+
+      this.renameSoundtrackService.show()
+
+    } else {
+
+      this.renameSoundtrackService.hidden()
+      
+    }
 
 
   }

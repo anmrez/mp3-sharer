@@ -25,6 +25,9 @@ export class Comment{
 
   constructor( player, getMusick ){
 
+    if ( player === undefined ) throw 'PlayerService is undefined'
+    if ( getMusick === undefined ) throw 'GetMusickService is undefined'
+
     this.playerService = player
     this.getMusickService = getMusick
 
@@ -124,7 +127,7 @@ export class Comment{
     let isHidden = this.window.classList.contains( 'none' )
 
     if ( isHidden )
-      this.openWindow()
+      this._openWindow()
     else 
       this.closeWindow()
 
@@ -169,7 +172,7 @@ export class Comment{
   // WINDOW === === ===
   // OPEN === ===
 
-  openWindow(){
+  _openWindow(){
 
     this._findCurrentComment()
     this._removeKeyboardEvents()
@@ -182,12 +185,19 @@ export class Comment{
 
     const soundID = this.soundID.innerHTML
     const row = this.table.querySelector( '[soundid="' + soundID + '"]' )
+    
     const status = row.querySelector( '[userid="' + this.userID + '"]' )
+    const buttonsStatus = this.status.children
+    if ( status.code === 1 ) buttonsStatus[0].click()
+    if ( status.code === 2 ) buttonsStatus[1].click()
+    if ( status.code === 3 ) buttonsStatus[2].click()
 
     this.comment.value = ''
     if ( status.comment ) this.comment.value = status.comment
 
+
   }
+
 
 
   _removeKeyboardEvents(){

@@ -14,7 +14,7 @@ export class Profile{
   init(){
     
     this.get()
-
+    
   }
 
 
