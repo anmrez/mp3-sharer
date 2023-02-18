@@ -10,15 +10,6 @@ export interface IUser{
 }
 
 
-interface IUserSQL{
-  id: number
-  username: string
-  image: string
-  email: string
-  token: null | string
-}
-
-
 interface IUserMySQL{
   id: number
   username: string
@@ -35,6 +26,14 @@ interface ISoundtrack{
   author: string
   createdAt: string
   is_archiver: number
+}
+
+
+interface IComment{
+  soundID: number
+  userID: number
+  status: number
+  comment: string
 }
 
 
@@ -219,6 +218,12 @@ export class MySQLService{
   }
 
 
+  async renameSoundrack( soundID: number, title: string, author: string ){
+
+    await client.execute( `UPDATE sounds SET title='${ title }', author='${ author }' WHERE id=${ soundID }` )
+
+  }
+
 
   // COMMENT === ===
 
@@ -267,7 +272,7 @@ export class MySQLService{
   }
 
 
-  async getCommentsBySoundID( soundID: number ){
+  async getCommentsBySoundID( soundID: number ): Promise< IComment[] | null >{
 
     const result = await client.execute( `SELECT * FROM comments WHERE soundID=${ soundID };` )
 

@@ -78,6 +78,10 @@ export class Router{
 
       case urlPath === '/getSounds' && req.method === 'GET':
         return this.mySQLController.getAllSounds()
+
+        
+      case urlPath === '/renameSoundtrack' && req.method === 'POST':
+        return this.mySQLController.renameSoundtrack( req )
       
 
       case urlPath === '/getSoundsInArchive' && req.method === 'GET':

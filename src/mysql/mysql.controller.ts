@@ -9,6 +9,7 @@ export class MySQLController{
   ){}
 
 
+  // User === ===
   async getUser( req: Request ){
     
     const token = this.getToken( req )
@@ -22,6 +23,7 @@ export class MySQLController{
   }
 
 
+  // Soundtrack === ===
   async getAllSounds(): Promise< Response > {
 
     const sounds = await this.mySQLService.getAllSounds()
@@ -60,6 +62,61 @@ export class MySQLController{
   }
 
 
+  async renameSoundtrack( req: Request ): Promise< Response > {
+
+    const data: {
+      id: number,
+      title: string,
+      author: string,
+    } = await req.json()
+
+    data.title = data.title.substring( 0, 60 )
+    data.author = data.author.substring( 0, 60 )
+
+    const user = await this.getUser( req )
+    if ( user === null ) return new Response( null, { status: 400 } )
+    
+    const comments = await this.mySQLService.getCommentsBySoundID( data.id )
+    if ( comments === null ) return new Response( null, { status: 404 } )
+
+    // check author
+    let isAuthor = false
+    let index = 0
+    while( comments.length > index ){
+
+      const item = comments[index]
+      if ( item.userID === user.id && item.status === 10 ) {
+
+        isAuthor = true
+        index = comments.length // stop while
+
+      } 
+
+      index++
+
+    }
+    
+    if ( isAuthor === false ) return new Response( null, { status: 400 } )
+
+    try{
+
+
+      await this.mySQLService.renameSoundrack( data.id, data.title, data.author )
+      return new Response( null, { status: 200 } )
+      
+
+    } catch ( err ) {
+      
+
+      this.showErrIntoConsole( err )
+      return new Response( null, { status: 500 } )
+
+
+    }
+
+  }
+
+  // Comment === ===
   async getComment( req: Request ): Promise< Response > {
 
     const soundID = Number( await req.text() )
@@ -104,20 +161,8 @@ export class MySQLController{
       
     } catch ( err ) {
 
-      const currentdate = new Date();
-      const datetime = "Error: " 
-        + currentdate.getDate() + "/"
-        + (currentdate.getMonth()+1)  + "/"
-        + currentdate.getFullYear() + " @ "
-        + currentdate.getHours() + ":"
-        + currentdate.getMinutes() + ":"
-        + currentdate.getSeconds();
 
-      console.log( '\n' )
-      console.log( datetime )
-      console.log( err )
-      console.log( '\n' )
-
+      this.showErrIntoConsole( err )
       return new Response( 'Error when writing a comment to the database', { status: 500 } )
 
 
@@ -141,6 +186,25 @@ export class MySQLController{
     ));
 
     return matches ? decodeURIComponent( matches[1] ) : null;
+
+  }
+
+
+  private showErrIntoConsole( err: any ){
+
+    const currentdate = new Date();
+    const datetime = "Error: " 
+      + currentdate.getDate() + "/"
+      + (currentdate.getMonth()+1)  + "/"
+      + currentdate.getFullYear() + " @ "
+      + currentdate.getHours() + ":"
+      + currentdate.getMinutes() + ":"
+      + currentdate.getSeconds();
+
+    console.log( '\n' )
+    console.log( datetime )
+    console.log( err )
+    console.log( '\n' )
 
   }
 
