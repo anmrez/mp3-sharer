@@ -5,7 +5,7 @@ Convenient website for shraring mp3 files between a group of friends
 
 
 #
-## Pre-launch Setup
+## Pre-launch Setup:
 
 ### • Config
   1) Rename 'example-config.ts' to 'config.ts'
@@ -31,3 +31,15 @@ Convenient website for shraring mp3 files between a group of friends
     openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes -keyout key.key -out cert.crt -extensions san -config
 
   2) Move 'cert.crt' and 'key.key' into the 'cert' forler 
+
+
+## Launch:
+
+### • Using NPM
+
+    npm run start
+
+
+### • Using Deno
+
+    deno run --allow-net --allow-read --allow-write main.ts

@@ -3,7 +3,8 @@ todo.txt
 
 config.ts
 
-cert/**
+cert/cert.crt
+cert/key.key
 
 client/static/profile/**
 client/static/mp3/**
