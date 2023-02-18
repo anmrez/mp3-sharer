@@ -71,7 +71,10 @@ export class MySQLController{
     } = await req.json()
 
     data.title = data.title.substring( 0, 60 )
+    data.title = data.title.split(`'`).join('`')
+
     data.author = data.author.substring( 0, 60 )
+    data.author = data.author.split(`'`).join('`')
 
     const user = await this.getUser( req )
     if ( user === null ) return new Response( null, { status: 400 } )
