@@ -164,6 +164,7 @@ export class GetMusick{
     const tr = document.createElement( 'tr' );
 
     tr.classList.add( 'table_row' )
+    if ( item.id === this.table.selected ) tr.classList.add( 'td_play' )
     tr.align = 'center'
     tr.setAttribute( 'soundID', item.id )
 
@@ -177,7 +178,7 @@ export class GetMusick{
     const arrayTDUsers = this._createTDUsers()
     arrayTDUsers.getCommets = this._eventGetCommentsInTDUsers.bind( arrayTDUsers, item )
 
-    const delay = 50 + index * 55
+    const delay = 50 + index * 15
     setTimeout( arrayTDUsers.getCommets, delay )
 
     tr.append( tdID )
@@ -397,6 +398,11 @@ export class GetMusick{
             
             span.comment = item.comment
 
+            // add point
+            const point = document.createElement( 'span' )
+            point.classList.add( 'point' )
+            span.append( point )
+
             span.addEventListener( 'mousemove', function( event ){
 
               let tooltip = document.querySelector( '#tooltip' )
@@ -458,22 +464,22 @@ export class GetMusick{
 
     duration.innerHTML = this._getTime( item.duration )
     soundtrack.src = './static/mp3/' + item.id + '.mp3'
-    
-    const table = document.querySelector( '#tableMusick' )
+
+    this.table.selected = item.id
     
     // set all 'pause'
-    table.querySelectorAll('[sound]').forEach( item => {
+    this.table.querySelectorAll('[sound]').forEach( item => {
       item.querySelector( '#play' ).classList.remove( 'none' )
       item.querySelector( '#pause' ).classList.add( 'none' )
     })
 
     // clear all highlight row
-    table.querySelectorAll( '[soundID]' ).forEach( item => {
+    this.table.querySelectorAll( '[soundID]' ).forEach( item => {
       item.classList.remove( 'td_play' )
     })
     
     // add highlight row
-    const td = table.querySelector( '[soundID="' + item.id + '"]' )
+    const td = this.table.querySelector( '[soundID="' + item.id + '"]' )
     td.classList.add( 'td_play' )
 
     // show/hidden renameSoundtrack

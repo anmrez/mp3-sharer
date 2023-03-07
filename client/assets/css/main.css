@@ -398,6 +398,8 @@ table{
 }
 
 
+/* Status */
+
 
 .round_status{
   display: block;
@@ -405,9 +407,25 @@ table{
   height: 20px;
   border-radius: 1em;
   background: #81818133;
+  position: relative;
 }
 
 
+.point{
+  background: #181818;
+  width: 8px;
+  height: 8px;
+  display: block;
+  border-radius: 1em;
+  pointer-events: none;
+  position: absolute;
+  transform: translateX(-50%) translateY(-50%);
+  top: 50%;
+  left: 50%;
+}
+
+
+/* Animation */
 
 @keyframes spinner {
   from {
