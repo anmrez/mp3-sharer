@@ -1,4 +1,5 @@
-import { MySQLService } from '../mysql/mysql.service.ts';
+import { CookieService } from '../cookie/cookie.service.ts';
+import { MySQLServiceUser } from '../mysql/mysql.service.user.ts';
 
 
 
@@ -6,13 +7,14 @@ export class ProfileService{
 
 
   constructor(
-    private readonly mySQLService: MySQLService
+    private readonly cookieService: CookieService,
+    private readonly mySQLServiceUser: MySQLServiceUser
   ){}
 
 
   async getAllUsers(): Promise< Response > {
 
-    const users = await this.mySQLService.getAllUsers()
+    const users = await this.mySQLServiceUser.getAllUsers()
     if ( users === null ) return new Response( undefined, { status: 404 } ) 
 
     const responseData: any[] = []
@@ -39,10 +41,10 @@ export class ProfileService{
 
   async get( req: Request ): Promise< Response >{
 
-    const token = this.getToken( req )
+    const token = this.cookieService.get( req, 'token' )
     if ( token === null ) return new Response( undefined, { status: 400 } )
 
-    const user = await this.mySQLService.getUserByToken( token )
+    const user = await this.mySQLServiceUser.getUserByToken( token )
     if ( user === null ) return new Response( undefined, { 
       status: 400, 
       headers: {
@@ -65,32 +67,13 @@ export class ProfileService{
 
   async isVerifiedUser( req: Request ){
 
-    const token = this.getToken( req )
+    const token = this.cookieService.get( req, 'token' )
     if ( token === null ) return false
 
-    const user = await this.mySQLService.getUserByToken( token )
+    const user = await this.mySQLServiceUser.getUserByToken( token )
     if ( user === null ) return false
 
     return true
-
-  }
-
-
-
-  // PRIVATE === ===
-
-  private getToken( req: Request ) {
-
-    const cookie = req.headers.get( 'cookie' )
-    if ( cookie === null ) return null
-
-    const token = 'token'
-
-    const matches = cookie.match(new RegExp(
-      "(?:^|; )" + token.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-    ));
-
-    return matches ? decodeURIComponent( matches[1] ) : null;
 
   }
 

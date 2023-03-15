@@ -1,6 +1,7 @@
 import { MySQLModule } from "../mysql/mysql.module.ts";
 import { ProfileController } from "./profile.controller.ts";
 import { ProfileService } from "./profile.service.ts";
+import { CookieModule } from '../cookie/cookie.module.ts';
 
 
 export class ProfileModule{
@@ -11,10 +12,11 @@ export class ProfileModule{
 
 
   constructor(
-    private readonly mySQLModule: MySQLModule
+    private readonly cookieModule: CookieModule,
+    private readonly mySQLModule: MySQLModule,
   ){
 
-    this.service = new ProfileService( this.mySQLModule.service )
+    this.service = new ProfileService( this.cookieModule.service, this.mySQLModule.serviceUser )
     this.controller = new ProfileController( this.service )
 
   }

@@ -14,7 +14,7 @@ export class UploadModule{
     private readonly mySQLModule: MySQLModule
   ){
 
-    this.service = new UploadService( this.mySQLModule.service )
+    this.service = new UploadService( this.mySQLModule.serviceSoundtrack, this.mySQLModule.serviceComment )
     this.controller = new UploadController( this.service )
 
   }

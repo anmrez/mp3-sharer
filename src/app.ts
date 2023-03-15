@@ -8,18 +8,20 @@ import { MailerModule } from './mailer/mailer.module.ts';
 import { MySQLModule } from './mysql/mysql.module.ts';
 import { ProfileModule } from './profile/profile.module.ts';
 import { UploadModule } from './upload/upload.module.ts';
+import { CookieModule } from "./cookie/cookie.module.ts";
 
 
 
 export class AppModule{
 
-  mysqlModule = new MySQLModule()
+  cookieModule = new CookieModule()
+  mysqlModule = new MySQLModule( this.cookieModule )
 
   generatorModule = new GeneratorModule()
   mailerModule = new MailerModule()
   readerModule = new ReaderModule()
 
-  profileModule = new ProfileModule( this.mysqlModule )
+  profileModule = new ProfileModule( this.cookieModule, this.mysqlModule )
   uploadModule = new UploadModule( this.mysqlModule )
   homeModule = new HomeModule( this.readerModule )
 

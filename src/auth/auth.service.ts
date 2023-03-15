@@ -1,6 +1,6 @@
 import { MailerService } from "../mailer/mailer.service.ts";
 import { GeneratorService } from "../generator/generator.service.ts";
-import { MySQLService } from '../mysql/mysql.service.ts';
+import { MySQLServiceUser } from '../mysql/mysql.service.user.ts';
 
 
 interface IListTokens{
@@ -17,7 +17,7 @@ export class AuthService{
 
 
   constructor(
-    private readonly mysqlService: MySQLService,
+    private readonly mySQLServiceUser: MySQLServiceUser,
     private readonly mailerService: MailerService,
     private readonly generatorService: GeneratorService,
   ){
@@ -33,7 +33,7 @@ export class AuthService{
     const username = body.username
 
     // ищем пользователя в БД
-    const user = await this.mysqlService.getUserByName( username )
+    const user = await this.mySQLServiceUser.getUserByName( username )
     if ( user === null ) return this.sendNotFound()
 
     // генерируем токен и сохраняем его 
@@ -60,7 +60,7 @@ export class AuthService{
 
     // Сгенерировать токен, записаеть его в БД
     const token = this.generatorService.token()
-    await this.mysqlService.setToken( username, token )
+    await this.mySQLServiceUser.setToken( username, token )
     console.log( username )
 
     let maxAge = 999_999_999
@@ -80,7 +80,7 @@ export class AuthService{
 
   async getAllUsersInConsole(){
 
-    console.log( await this.mysqlService.getAllUsers() )
+    console.log( await this.mySQLServiceUser.getAllUsers() )
 
   }
 

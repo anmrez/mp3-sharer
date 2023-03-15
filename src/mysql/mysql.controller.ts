@@ -1,21 +1,27 @@
-import { MySQLService } from './mysql.service.ts';
+import { CookieService } from '../cookie/cookie.service.ts';
+import { MySQLServiceComment } from './mysql.service.comment.ts';
+import { MySQLServiceSoundtrack } from './mysql.service.soundtrack.ts';
+import { MySQLServiceUser } from './mysql.service.user.ts';
 
 
 export class MySQLController{
 
 
   constructor(
-    private readonly mySQLService: MySQLService
+    private readonly cookieService: CookieService,
+    private readonly mySQLServiceUser: MySQLServiceUser,
+    private readonly mySQLServiceSoundtrack: MySQLServiceSoundtrack,
+    private readonly mySQLServiceComment: MySQLServiceComment,
   ){}
 
 
   // User === ===
   async getUser( req: Request ){
     
-    const token = this.getToken( req )
+    const token = this.cookieService.get( req, 'token' )
     if ( token === null ) return null
     
-    const user = await this.mySQLService.getUserByToken( token )
+    const user = await this.mySQLServiceUser.getUserByToken( token )
     if ( user === null ) return null
 
     return user
@@ -26,7 +32,7 @@ export class MySQLController{
   // Soundtrack === ===
   async getAllSounds(): Promise< Response > {
 
-    const sounds = await this.mySQLService.getAllSounds()
+    const sounds = await this.mySQLServiceSoundtrack.getAllSounds()
     if ( sounds === null ) return new Response( null, {
       status: 404
     } ) 
@@ -45,7 +51,7 @@ export class MySQLController{
 
   async getAllSoundsInArchive(): Promise< Response > {
 
-    const sounds = await this.mySQLService.getAllSoundsInArchive()
+    const sounds = await this.mySQLServiceSoundtrack.getAllSoundsInArchive()
     if ( sounds === null ) return new Response( null, {
       status: 404
     } ) 
@@ -79,7 +85,7 @@ export class MySQLController{
     const user = await this.getUser( req )
     if ( user === null ) return new Response( null, { status: 400 } )
     
-    const comments = await this.mySQLService.getCommentsBySoundID( data.id )
+    const comments = await this.mySQLServiceComment.getCommentsBySoundID( data.id )
     if ( comments === null ) return new Response( null, { status: 404 } )
 
     // check author
@@ -104,7 +110,7 @@ export class MySQLController{
     try{
 
 
-      await this.mySQLService.renameSoundrack( data.id, data.title, data.author )
+      await this.mySQLServiceSoundtrack.renameSoundrack( data.id, data.title, data.author )
       return new Response( null, { status: 200 } )
       
 
@@ -123,7 +129,7 @@ export class MySQLController{
   async getComment( req: Request ): Promise< Response > {
 
     const soundID = Number( await req.text() )
-    const data = await this.mySQLService.getCommentsBySoundID( soundID )
+    const data = await this.mySQLServiceComment.getCommentsBySoundID( soundID )
 
     const dataJson = JSON.stringify( data )
     return new Response( dataJson, {
@@ -152,7 +158,7 @@ export class MySQLController{
 
       if ( data.soundID !== 0 ) {
 
-        await this.mySQLService.addComment( req, data.soundID, data.status, data.comment )
+        await this.mySQLServiceComment.addComment( req, data.soundID, data.status, data.comment )
         return new Response( undefined, { status: 200 } )
         
       } else {
@@ -177,20 +183,20 @@ export class MySQLController{
 
 
   // PRIVATE === ===
-  private getToken( req: Request ) {
+  // private getToken( req: Request ) {
 
-    const cookie = req.headers.get( 'cookie' )
-    if ( cookie === null ) return null
+  //   const cookie = req.headers.get( 'cookie' )
+  //   if ( cookie === null ) return null
 
-    const token = 'token'
+  //   const token = 'token'
 
-    let matches = cookie.match(new RegExp(
-      "(?:^|; )" + token.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-    ));
+  //   let matches = cookie.match(new RegExp(
+  //     "(?:^|; )" + token.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+  //   ));
 
-    return matches ? decodeURIComponent( matches[1] ) : null;
+  //   return matches ? decodeURIComponent( matches[1] ) : null;
 
-  }
+  // }
 
 
   private showErrIntoConsole( err: any ){

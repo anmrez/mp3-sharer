@@ -1,11 +1,13 @@
-import { MySQLService } from '../mysql/mysql.service.ts';
 import { serverParams } from '../../config.ts';
+import { MySQLServiceSoundtrack } from '../mysql/mysql.service.soundtrack.ts';
+import { MySQLServiceComment } from '../mysql/mysql.service.comment.ts';
 
 export class UploadService{
 
 
   constructor(
-    private readonly mySQLService: MySQLService
+    private readonly mySQLServiceSoundtrack: MySQLServiceSoundtrack,
+    private readonly mySQLServiceComment: MySQLServiceComment
   ){}
 
 
@@ -28,13 +30,15 @@ export class UploadService{
 
       const sound = body.slice( frame.index, body.length )
       const duration = this.getDuration( sound )
-
+      console.log( '\n' )
+      console.log( 'duration' )
+      console.log( duration )
       await this.checkSize( sound.length )
 
-      const lastId = await this.mySQLService.setSound( title, author, duration )
+      const lastId = await this.mySQLServiceSoundtrack.setSound( title, author, duration )
       if ( lastId === null ) return new Response( 'Error writing to the database', { status: 500 } )
 
-      await this.mySQLService.addComment( req, lastId, 10, '' )
+      await this.mySQLServiceComment.addComment( req, lastId, 10, '' )
       await Deno.writeFile( './client/static/mp3/' + lastId + '.mp3', sound )
 
       return new Response( undefined, { status: 200 } ) 
@@ -74,7 +78,7 @@ export class UploadService{
     const sizeUploadFileInMB = sizeUploadFile / 1024 / 1024
     const path = './client/static/mp3'
     
-    const sounds = await this.mySQLService.getAllSounds()
+    const sounds = await this.mySQLServiceSoundtrack.getAllSounds()
     if ( sounds === null ) throw 'ERROR: limit exceeded'
     
     let index = 0
@@ -109,7 +113,7 @@ export class UploadService{
   private async removeOldSoundtrack( soundID: number, path: string ){
 
     await Deno.remove( path + '/' + soundID + '.mp3' )
-    await this.mySQLService.removeSoundtrack( soundID )
+    await this.mySQLServiceSoundtrack.removeSoundtrack( soundID )
 
   }
 
@@ -193,7 +197,7 @@ export class UploadService{
   }
 
 
-  private getDuration( sound: Uint8Array ){
+  private getDuration( sound: Uint8Array ): number {
 
     const lengthID3 = this.getID3length( sound )
     const header = this.getAudioFrameHeader( sound, lengthID3 )
@@ -211,24 +215,25 @@ export class UploadService{
     if ( Xing === null ) {
       
       duration = ( sound.length - lengthID3 ) / bitrate / 1000 * 8
-
+      
     } else {
-
+      
       const numberofFrames = this.getNumberofFrames( sound, Xing )
       duration = numberofFrames * samplesPerFrame / samplingRate
 
     } 
 
+    if ( isNaN( duration ) ) duration = 0
     return Math.floor( duration )
 
   }
 
 
-  private findXingHeader( sound: Uint8Array , lengthID3: number ): number | null{
+  private findXingHeader( sound: Uint8Array , lengthID3: number ): number | null {
 
     let index = 0
 
-    while( 100 > index ){
+    while( sound.length > index ){
 
       const soundIndex = lengthID3 + index
 

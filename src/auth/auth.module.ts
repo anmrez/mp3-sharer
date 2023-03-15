@@ -19,7 +19,7 @@ export class AuthNodule{
   ){
     
     this.service = new AuthService( 
-      this.mysqlModule.service, 
+      this.mysqlModule.serviceUser, 
       this.mailerModule.service, 
       this.generatorModule.service 
     )
