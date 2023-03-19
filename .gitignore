@@ -3,6 +3,8 @@ todo.txt
 
 config.ts
 deno.lock
+dev.env
+test.ts
 
 cert/cert.crt
 cert/key.key

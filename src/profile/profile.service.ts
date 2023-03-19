@@ -65,19 +65,6 @@ export class ProfileService{
   }
 
 
-  async isVerifiedUser( req: Request ){
-
-    const token = this.cookieService.get( req, 'token' )
-    if ( token === null ) return false
-
-    const user = await this.mySQLServiceUser.getUserByToken( token )
-    if ( user === null ) return false
-
-    return true
-
-  }
-
-
 }
 
 

@@ -8,20 +8,21 @@ Convenient website for shraring mp3 files between a group of friends
 ## Pre-launch Setup:
 
 ### • Config
-  1) Rename 'example-config.ts' to 'config.ts'
-  2) Set your params at 'serverParams':
 
-    - port – server port
-    - address – address of your server. This is address which is sent to email address
-    - maxSize – server limit ( in megabytes )
-    - connectionsLogger – loggs connections into the console ( true/false )
+  Set your params at '.env' file:
 
-  3) Set your params at 'SMTPClient'
-  4) Set your params at 'users':
+  server:
 
-    - username – username ( unique user is present - 'Guest' for which authorization limit is 10 minutes )
-    - image – profile image ( default: 'default.png' ). You can upload your custom image to:'client/static/profile'
-    - email – address to which authorization link will be sent
+    PORT – server port
+    ADDRESS – address of your server. This is address which is sent to email address
+    MAXSIZE – server limit ( in megabytes )
+    LOGGER – loggs connections into the console ( true/false ) # in development
+
+  users:
+
+    USERNAME – username ( unique user is present - 'Guest' for which authorization limit is 10 minutes )
+    ICON – profile image ( default: 'default.png' ). You can upload your custom image to:'client/static/profile'
+    EMAIL – address to which authorization link will be sent
 
 
 ### • Certificate
@@ -33,13 +34,6 @@ Convenient website for shraring mp3 files between a group of friends
   2) Move 'cert.crt' and 'key.key' into the 'cert' forler 
 
 
-## Launch:
+# Launch:
 
-### • Using NPM
-
-    npm run start
-
-
-### • Using Deno
-
-    deno run --allow-net --allow-read --allow-write main.ts
+    deno task start

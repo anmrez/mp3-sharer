@@ -1,5 +1,7 @@
 import { Client } from "https://deno.land/x/mysql@v2.11.0/mod.ts";
-import { soundtrackDTO } from "./dto/soundtrack.dto.ts";
+import { MySQLServiceUser } from './mysql.service.user.ts';
+import { MySQLServiceComment } from './mysql.service.comment.ts';
+import { soundtrackDTO } from './dto/soundtrack.dto.ts';
 
 
 
@@ -8,7 +10,9 @@ export class MySQLServiceSoundtrack{
   client: Client
 
   constructor(
-    client: Client
+    client: Client,
+    private readonly mySQLServiceUser: MySQLServiceUser,
+    private readonly mySQLServiceComment: MySQLServiceComment
   ){
 
     this.client = client
@@ -35,22 +39,55 @@ export class MySQLServiceSoundtrack{
   }
 
 
-  async getAllSounds(): Promise< soundtrackDTO[] | null > {
+  async responseAllSounds(): Promise< Response > {
 
-    const allSound = await this.client.execute( 'SELECT * FROM sounds WHERE is_archived = 0;' )
+    const sounds = await this.getAllSounds()
+    if ( sounds === null ) return new Response( null, {
+      status: 404
+    } ) 
 
-    if ( allSound.rows == undefined ) return null
-    return allSound.rows
+
+    const jsonData = JSON.stringify( sounds )
+
+    return new Response( jsonData, {
+      status: 200,
+      headers: {
+        'content-type': 'application/json'
+      }
+    } )
+
     
   }
 
 
-  async getAllSoundsInArchive(){
+  async getAllSounds(): Promise< soundtrackDTO[] | null > {
+
+    const allSound = await this.client.execute( 'SELECT * FROM sounds WHERE is_archived = 0;' )
+    const sounds: soundtrackDTO[] | undefined = allSound.rows
+    
+    if ( sounds === undefined ) return null
+    return sounds
+
+  }
+
+
+  async getAllSoundsInArchive(): Promise< Response > {
     
     const allSound = await this.client.execute( 'SELECT * FROM sounds WHERE is_archived = 1;' )
+    const sounds = allSound.rows
 
-    if ( allSound.rows == undefined ) return null
-    return allSound.rows
+    if ( sounds === undefined ) return new Response( null, {
+      status: 404
+    } )
+
+    const jsonData = JSON.stringify( sounds )
+
+    return new Response( jsonData, {
+      status: 200,
+      headers: {
+        'content-type': 'application/json'
+      }
+    } )
     
   }
 
@@ -85,9 +122,65 @@ export class MySQLServiceSoundtrack{
   }
 
 
-  async renameSoundrack( soundID: number, title: string, author: string ){
+  // async renameSoundrack( soundID: number, title: string, author: string ): Promise< Response >{
+  async renameSoundrack( req: Request ): Promise< Response > {
 
-    await this.client.execute( `UPDATE sounds SET title='${ title }', author='${ author }' WHERE id=${ soundID }` )
+    const data: {
+      id: number,
+      title: string,
+      author: string,
+    } = await req.json()
+    
+    if ( !data.id || !data.title || !data.author ) return new Response( 'ucorrect data' )
+
+    data.title = data.title.substring( 0, 60 )
+    data.title = data.title.split(`'`).join('`')
+
+    data.author = data.author.substring( 0, 60 )
+    data.author = data.author.split(`'`).join('`')
+
+    const user = await this.mySQLServiceUser.getUser( req )
+    if ( user === null ) return new Response( null, { status: 400 } )
+    
+    const comments = await this.mySQLServiceComment.getCommentsBySoundID( data.id )
+    if ( comments === null ) return new Response( null, { status: 404 } )
+
+
+    // check author
+    let isAuthor = false
+    let index = 0
+    while( comments.length > index ){
+
+      const item = comments[index]
+      if ( item.userID === user.id && item.status === 10 ) {
+
+        isAuthor = true
+        index = comments.length // stop while
+
+      } 
+
+      index++
+
+    }
+
+
+    if ( isAuthor === false ) return new Response( null, { status: 404 } )
+
+    try{
+
+
+      await this.client.execute( `UPDATE sounds SET title='${ data.title }', author='${ data.author }' WHERE id=${ data.id }` )
+      return new Response( null, { status: 200 } )
+      
+
+    } catch ( err ) {
+      
+
+      console.log( '\n ' + err + '\n' )
+      return new Response( null, { status: 500 } )
+
+
+    }
 
   }
 

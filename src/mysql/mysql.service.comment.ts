@@ -40,43 +40,96 @@ export class MySQLServiceComment{
   }
 
 
-  async addComment( req: Request, soundID: number, status: number, comment: string ){
+  async setComment( req: Request ): Promise< Response > {
 
-    if ( status !== 1 && status !== 2 && status !== 3 && status !== 10 ) status = 0
+    const data: {
+      soundID: number | undefined,
+      status: number | undefined,
+      comment: string | undefined
+    } = await req.json()
 
-    // const token = this.getToken( req )
+    if ( data.soundID === undefined ) return new Response( 'id soundtrack - undefined', { status: 400 } )
+    if ( data.soundID === 0 ) return new Response( 'This soundtrack does not exist', { status: 400 } )
+
+    if ( data.status === undefined ) return new Response( 'status of comment - undefined', { status: 400 } )
+
     const token = this.cookieService.get( req, 'token' )
-    if ( token === null ) throw 'Token undefined'
+    if ( token === null ) return new Response( null, { status: 403 } )
 
     const user = await this.serviceUser.getUserByToken( token )
-    if ( user === null ) throw 'User not found'
+    if ( user === null ) return new Response( null, { status: 403 } )
     const userID = user.id
 
-    const data = await this.client.execute( `SELECT * FROM comments 
-    WHERE soundID=${ soundID } AND userID=${ userID };` )
+    if ( data.comment === undefined ) return this.removeTextOfComment( data.soundID, userID )
 
-    if ( data.rows === undefined || data.rows.length === 0 ) {
+    data.comment = data.comment.substring( 0, 100 )
+    data.comment = data.comment.split(`'`).join('`')
 
-      await this.client.execute( `INSERT INTO comments ( soundID, userID, status, comment ) 
-      VALUES ( ${ soundID }, ${userID}, ${ status }, '${ comment }' )` )
+    if ( data.status !== 1 && data.status !== 2 && data.status !== 3 && data.status !== 10 ) data.status = 0
+
+    const comments = await this.client.execute( `SELECT * FROM comments WHERE soundID=${ data.soundID } AND userID=${ userID };` )
+
+    if ( comments.rows === undefined || comments.rows.length === 0 ) {
+
+      await this.addComment( data.soundID, userID, data.status, data.comment  )
 
     } else {
 
-      await this.client.execute( `UPDATE comments SET comment='${ comment }' WHERE soundID=${ soundID } AND userID=${ userID };` )
+      await this.client.execute( `UPDATE comments SET comment='${ data.comment }' WHERE soundID=${ data.soundID } AND userID=${ userID };` )
 
-      if ( data.rows[0].status !== 10 ) await this.client.execute( `UPDATE comments SET status='${ status }' WHERE soundID=${ soundID } AND userID=${ userID };` )
+      if ( comments.rows[0].status !== 10 ) await this.client.execute( `UPDATE comments SET status='${ data.status }' WHERE soundID=${ data.soundID } AND userID=${ userID };` )
 
     } 
+
+    return new Response( null, { status: 200 } )
 
   }
 
 
-  async getCommentsBySoundID( soundID: number ): Promise< commentDTO[] | null >{
+  async addComment( soundID: number, userID: number, status = 10, comment = '' ){
+
+    await this.client.execute( `INSERT INTO comments ( soundID, userID, status, comment ) 
+      VALUES ( ${ soundID }, ${ userID }, ${ status }, '${ comment }' )` )
+
+  }
+
+
+  async getCommentByRequest( req: Request ): Promise< Response >{
+
+    const soundID = Number( await req.text() )
+
+    const comments = await this.getCommentsBySoundID( soundID )
+    if ( comments === null ) return new Response( null, {
+      status: 404
+    } )
+
+    const commentsJson = JSON.stringify( comments )
+    return new Response( commentsJson, {
+      status: 200,
+      headers: {
+        'content-type': 'application/json'
+      }
+    } )
+
+  }
+
+
+  async getCommentsBySoundID( soundID: number ): Promise< commentDTO[] | null > {
 
     const result = await this.client.execute( `SELECT * FROM comments WHERE soundID=${ soundID };` )
 
-    if ( result.rows === undefined ) return null
-    return result.rows 
+    const comments: commentDTO[] | undefined = result.rows
+    if ( comments === undefined ) return null
+
+    return comments
+
+  }
+
+
+  private async removeTextOfComment( soundID: number, userID: number ){
+
+    await this.client.execute( `UPDATE comments SET comment="" WHERE soundID=` + soundID + ` AND userID=` + userID + ``  )
+    return new Response( 'text removed', { status: 200 } )
 
   }
 

@@ -1,3 +1,4 @@
+import { Router } from '../router/router.ts';
 import { ProfileService } from './profile.service.ts';
 
 
@@ -5,20 +6,19 @@ export class ProfileController{
 
 
   constructor(
+    private readonly router: Router,
     private readonly profileService: ProfileService
-  ){}
+  ){
 
+    router.get( '/getProfile', function( req: Request ){
+      return profileService.get( req )
+    } )
+    
 
-  get( req: Request ): Promise< Response > {
+    router.get( '/getUsers', function() {
+      return profileService.getAllUsers()
+    } )
 
-    return this.profileService.get( req )
-
-  }
-
-
-  getAllUsers(): Promise< Response > {
-
-    return this.profileService.getAllUsers()
 
   }
 

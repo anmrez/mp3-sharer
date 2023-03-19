@@ -1,20 +1,26 @@
-import { serverParams } from '../../config.ts';
 import { MySQLServiceSoundtrack } from '../mysql/mysql.service.soundtrack.ts';
 import { MySQLServiceComment } from '../mysql/mysql.service.comment.ts';
+import { MySQLServiceUser } from '../mysql/mysql.service.user.ts';
+import { ConfigModule } from '../config/config.module.ts';
 
 export class UploadService{
 
 
   constructor(
     private readonly mySQLServiceSoundtrack: MySQLServiceSoundtrack,
-    private readonly mySQLServiceComment: MySQLServiceComment
+    private readonly mySQLServiceComment: MySQLServiceComment,
+    private readonly mySQLServiceUser: MySQLServiceUser,
+    private readonly config: ConfigModule
   ){}
 
 
   async write( req: Request ): Promise< Response > {
 
+    const user = await this.mySQLServiceUser.getUser( req )
+    if ( user === null ) return new Response( null, { status: 403 })
 
     try {
+
 
       const body = new Uint8Array( await req.arrayBuffer() )
       
@@ -30,15 +36,12 @@ export class UploadService{
 
       const sound = body.slice( frame.index, body.length )
       const duration = this.getDuration( sound )
-      console.log( '\n' )
-      console.log( 'duration' )
-      console.log( duration )
       await this.checkSize( sound.length )
 
       const lastId = await this.mySQLServiceSoundtrack.setSound( title, author, duration )
       if ( lastId === null ) return new Response( 'Error writing to the database', { status: 500 } )
 
-      await this.mySQLServiceComment.addComment( req, lastId, 10, '' )
+      await this.mySQLServiceComment.addComment( lastId, user.id )
       await Deno.writeFile( './client/static/mp3/' + lastId + '.mp3', sound )
 
       return new Response( undefined, { status: 200 } ) 
@@ -85,7 +88,8 @@ export class UploadService{
     while ( sounds.length > index ){
       
       const totalSize = await this.getSize( path )
-      if ( totalSize + sizeUploadFileInMB < serverParams.maxSize ) break;
+      // if ( totalSize + sizeUploadFileInMB < serverParams.maxSize ) break;
+      if ( totalSize + sizeUploadFileInMB < this.config.server.maxSize ) break;
       
       const soundID = sounds[index].id
       await this.removeOldSoundtrack( soundID, path )

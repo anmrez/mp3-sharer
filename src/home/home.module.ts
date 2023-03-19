@@ -1,23 +1,22 @@
-import { ReaderModule } from "../reader/reader.module.ts";
 import { HomeController } from "./home.controller.ts";
 import { HomeService } from "./home.service.ts";
+import { Router } from '../router/router.ts';
+import { ResponseModule } from '../response/response.module.ts';
 
 
 
 export class HomeModule{
 
-  service: HomeService
-  contoller: HomeController
+  public service: HomeService
+  public contoller: HomeController
 
   constructor(
-    private readonly readerModule: ReaderModule
+    private readonly router: Router,
+    private readonly responseModule: ResponseModule
   ){
 
-    this.service = new HomeService()
-    this.contoller = new HomeController(
-      this.service,
-      this.readerModule.service
-    )
+    this.service = new HomeService( this.responseModule.service )
+    this.contoller = new HomeController( this.router, this.service, )
 
   }
 

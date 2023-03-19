@@ -1,3 +1,4 @@
+import { ResponseService } from '../response/response.service.ts';
 
 
 
@@ -5,10 +6,22 @@
 export class HomeService{
 
 
-  constructor(){}
+  constructor(
+    private readonly responseService: ResponseService
+  ){}
 
 
-  getDeviceType( req: Request ): 'mobile' | 'pc' {
+  gethomepage( req: Request ): Promise< Response > {
+
+    const device = this.getDeviceType( req )
+    if ( device === 'mobile' ) return this.responseService.readFile( './client/Mobile.html' )
+
+    return this.responseService.readFile( './client/PC.html' )
+
+  }
+
+
+  private getDeviceType( req: Request ): 'mobile' | 'pc' {
 
     const useragent = req.headers.get( 'user-agent' )
     if ( useragent === null ) return 'pc'

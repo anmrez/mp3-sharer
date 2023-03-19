@@ -21,7 +21,7 @@ export class Profile{
   async get(){
 
     const request = await fetch( '/getProfile', {
-      method: 'POST',
+      method: 'GET',
     })
 
     if ( request.status !== 200 ) return;

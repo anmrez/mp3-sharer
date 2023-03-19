@@ -1,7 +1,5 @@
 import { serveTls } from "https://deno.land/std@0.173.0/http/server.ts";
 import { HomeModule } from './home/home.module.ts';
-import { ReaderModule } from "./reader/reader.module.ts";
-import { Router } from './Router.ts';
 import { AuthNodule } from './auth/auth.module.ts';
 import { GeneratorModule } from './generator/generator.module.ts';
 import { MailerModule } from './mailer/mailer.module.ts';
@@ -9,35 +7,41 @@ import { MySQLModule } from './mysql/mysql.module.ts';
 import { ProfileModule } from './profile/profile.module.ts';
 import { UploadModule } from './upload/upload.module.ts';
 import { CookieModule } from "./cookie/cookie.module.ts";
+import { Router } from "./router/router.ts";
+import { ResponseModule } from './response/response.module.ts';
+import { AppController } from "./app.controller.ts";
+import { SecureModule } from './secure/secure.module.ts';
+import { ConfigModule } from './config/config.module.ts';
+import { Client } from "https://deno.land/x/mysql@v2.11.0/src/client.ts";
 
 
 
 export class AppModule{
 
-  cookieModule = new CookieModule()
-  mysqlModule = new MySQLModule( this.cookieModule )
-
-  generatorModule = new GeneratorModule()
-  mailerModule = new MailerModule()
-  readerModule = new ReaderModule()
-
-  profileModule = new ProfileModule( this.cookieModule, this.mysqlModule )
-  uploadModule = new UploadModule( this.mysqlModule )
-  homeModule = new HomeModule( this.readerModule )
-
-  authModule = new AuthNodule( this.mysqlModule, this.mailerModule, this.generatorModule )
-
-  router = new Router(
-    this.homeModule.contoller,
-    this.readerModule.service,
-    this.authModule.controller,
-    this.profileModule.controller,
-    this.uploadModule.controller,
-    this.mysqlModule.constroller
-  )
-
+  private readonly controller: AppController
+  private readonly secure: SecureModule
   
-  constructor(){}
+  constructor(
+    private readonly config: ConfigModule,
+    private readonly mysqlClient: Client,
+  ){
+
+    const responseModule = new ResponseModule()
+    const router = new Router( responseModule.service )
+    const cookieModule = new CookieModule()
+    const generatorModule = new GeneratorModule()
+    const mailerModule = new MailerModule( config )
+
+    const mysqlModule = new MySQLModule( router, this.mysqlClient, cookieModule, config )
+    const profileModule = new ProfileModule( router, cookieModule, mysqlModule )
+    const uploadModule = new UploadModule( router, mysqlModule )
+    const homeModule = new HomeModule( router, responseModule )
+    const authModule = new AuthNodule( router, mysqlModule, mailerModule, generatorModule, responseModule )
+    this.secure = new SecureModule( router, mysqlModule, responseModule )
+    
+    this.controller = new AppController( router, responseModule.service )
+
+  }
   
   
   async listen( PORT: number ){
@@ -50,7 +54,8 @@ export class AppModule{
 
     serveTls( ( req ) => { 
 
-      return this.router.routes( req )
+      return this.secure.use( req )
+      // return this.router.use( req )
 
     }, serverOption )
 

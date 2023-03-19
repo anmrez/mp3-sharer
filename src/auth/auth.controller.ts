@@ -1,32 +1,23 @@
 import { AuthService } from "./auth.service.ts";
+import { Router } from '../router/router.ts';
 
 
 export class AuthController{
 
 
   constructor(
-    private readonly authService: AuthService
-  ){}
+    private readonly router: Router,
+    private readonly authService: AuthService,
+  ){
 
-
-
-  sendEmail( req: Request ): Promise< Response > {
-
-    return this.authService.sendEmail( req )
+    router.get( '/login/', function( req: Request ) {
+      return authService.login( req )
+    } )
     
-  }
-
-  
-  login( req: Request ): Promise< Response | "404" > {
-
-    return this.authService.login( req )
-
-  }
-  
-
-  getAllUsersInConsole(){
-
-    this.authService.getAllUsersInConsole()
+    
+    router.post( '/login', function( req: Request ) {
+      return authService.sendEmail( req )
+    } )
 
   }
 

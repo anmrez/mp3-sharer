@@ -1,6 +1,7 @@
 import { MailerService } from "../mailer/mailer.service.ts";
 import { GeneratorService } from "../generator/generator.service.ts";
 import { MySQLServiceUser } from '../mysql/mysql.service.user.ts';
+import { ResponseService } from '../response/response.service.ts';
 
 
 interface IListTokens{
@@ -20,9 +21,10 @@ export class AuthService{
     private readonly mySQLServiceUser: MySQLServiceUser,
     private readonly mailerService: MailerService,
     private readonly generatorService: GeneratorService,
+    private readonly responseService: ResponseService
   ){
 
-    setInterval( this.clearOldUrltTokens.bind( this ), 30_000 )
+    setInterval( this.clearOldUrlTokens.bind( this ), 30_000 )
 
   }
 
@@ -50,21 +52,20 @@ export class AuthService{
   }
 
 
-  async login( req: Request ): Promise< '404' | Response >{
+  async login( req: Request ): Promise< Response >{
 
     const urlToken = new URL( req.url ).searchParams.get( 'token' )
-    if ( urlToken === null ) return '404';
+    if ( urlToken === null ) return this.responseService.redirect( '/' )
 
     const username = this.findUrlToken( urlToken )
-    if ( username === null ) return '404';
+    if ( username === null ) return this.responseService.redirect( '/' )
 
     // Сгенерировать токен, записаеть его в БД
     const token = this.generatorService.token()
     await this.mySQLServiceUser.setToken( username, token )
-    console.log( username )
 
     let maxAge = 999_999_999
-    if ( username === 'Guest' ) maxAge = 3_600
+    if ( username === 'Guest' ) maxAge = 600
 
     return new Response( undefined, {
       status: 301,
@@ -75,19 +76,10 @@ export class AuthService{
     } ) 
 
   }
+  
 
-
-
-  async getAllUsersInConsole(){
-
-    console.log( await this.mySQLServiceUser.getAllUsers() )
-
-  }
-
-   
   
   // PRIVATE === ===
-
   private saveUrlToken( username: string, token: string ): boolean {
 
     if ( this.isExistUrlToken( username ) ) return false
@@ -130,12 +122,6 @@ export class AuthService{
 
   private sendNotFound(): Response {
 
-    // res( new Response( 'User not found!', {
-    //   status: 404,
-    //   headers: {
-    //     'content-type': 'text/plain'
-    //   }
-    // } ) )
     return new Response( 'User not found!', {
       status: 404,
       headers: {
@@ -148,9 +134,6 @@ export class AuthService{
 
   private sendOK(): Response {
 
-    // res( new Response( undefined, {
-    //   status: 200
-    // } ) )
     return new Response( undefined, {
       status: 200
     } )
@@ -159,13 +142,6 @@ export class AuthService{
 
 
   private alreadyBeenSent(): Response {
-
-    // res( new Response( 'The email has already been sent!', {
-    //   status: 400,
-    //   headers: {
-    //     'content-type': 'text/plain'
-    //   }
-    // } ) )
 
     return new Response( 'The email has already been sent!', {
       status: 400,
@@ -211,7 +187,7 @@ export class AuthService{
   }
 
 
-  private clearOldUrltTokens (  ){
+  private clearOldUrlTokens (  ){
 
     if ( this.urlTokens.length === 0 ) return; 
     
