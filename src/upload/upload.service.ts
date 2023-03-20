@@ -2,6 +2,7 @@ import { MySQLServiceSoundtrack } from '../mysql/mysql.service.soundtrack.ts';
 import { MySQLServiceComment } from '../mysql/mysql.service.comment.ts';
 import { MySQLServiceUser } from '../mysql/mysql.service.user.ts';
 import { ConfigModule } from '../config/config.module.ts';
+import { HashService } from '../hash/hash.service.ts';
 
 export class UploadService{
 
@@ -10,7 +11,8 @@ export class UploadService{
     private readonly mySQLServiceSoundtrack: MySQLServiceSoundtrack,
     private readonly mySQLServiceComment: MySQLServiceComment,
     private readonly mySQLServiceUser: MySQLServiceUser,
-    private readonly config: ConfigModule
+    private readonly config: ConfigModule,
+    private readonly hashService: HashService
   ){}
 
 
@@ -23,26 +25,21 @@ export class UploadService{
 
 
       const body = new Uint8Array( await req.arrayBuffer() )
+      const file = this.separateFile( body )
+
+      const hash = this.hashService.generateHash( file.sound )
       
-      let frame = this.getFrame( body, 0 )
-      let title = this.decoder( frame.data )
-      title = title.substring( 0, 60 )
-      title = title.split(`'`).join('`')
+      const response = await this.checkSoundtrackExists( file.title, file.author, hash )
+      if ( response !== null ) return response
 
-      frame = this.getFrame( body, frame.index )
-      let author = this.decoder( frame.data )
-      author = author.substring( 0, 60 )
-      author = author.split(`'`).join('`')
+      const duration = this.getDuration( file.sound )
+      await this.checkSize( file.sound.length )
 
-      const sound = body.slice( frame.index, body.length )
-      const duration = this.getDuration( sound )
-      await this.checkSize( sound.length )
-
-      const lastId = await this.mySQLServiceSoundtrack.setSound( title, author, duration )
+      const lastId = await this.mySQLServiceSoundtrack.setSound( file.title, file.author, duration, hash )
       if ( lastId === null ) return new Response( 'Error writing to the database', { status: 500 } )
 
       await this.mySQLServiceComment.addComment( lastId, user.id )
-      await Deno.writeFile( './client/static/mp3/' + lastId + '.mp3', sound )
+      await Deno.writeFile( './client/static/mp3/' + lastId + '.mp3', file.sound )
 
       return new Response( undefined, { status: 200 } ) 
 
@@ -64,7 +61,7 @@ export class UploadService{
       console.log( err )
       console.log( '\n' )
 
-      return new Response( null, { status: 500, } ) 
+      return new Response( 'Error writing/reading file', { status: 500 } ) 
 
       
     }
@@ -74,53 +71,28 @@ export class UploadService{
 
 
   // PRIVATE === ===
+  private separateFile( body: Uint8Array )  {
 
+    let frame = this.getFrame( body, 0 )
+    let title = this.decoder( frame.data )
+    title = title.substring( 0, 60 )
+    title = title.split(`'`).join('`')
 
-  private async checkSize( sizeUploadFile: number ){
+    frame = this.getFrame( body, frame.index )
+    let author = this.decoder( frame.data )
+    author = author.substring( 0, 60 )
+    author = author.split(`'`).join('`')
 
-    const sizeUploadFileInMB = sizeUploadFile / 1024 / 1024
-    const path = './client/static/mp3'
-    
-    const sounds = await this.mySQLServiceSoundtrack.getAllSounds()
-    if ( sounds === null ) throw 'ERROR: limit exceeded'
-    
-    let index = 0
-    while ( sounds.length > index ){
-      
-      const totalSize = await this.getSize( path )
-      // if ( totalSize + sizeUploadFileInMB < serverParams.maxSize ) break;
-      if ( totalSize + sizeUploadFileInMB < this.config.server.maxSize ) break;
-      
-      const soundID = sounds[index].id
-      await this.removeOldSoundtrack( soundID, path )
-      index++
-      
+    const sound = body.slice( frame.index, body.length )
+
+    return {
+      title: title,
+      author: author,
+      sound: sound
     }
-    
-  }
-
-
-  private async getSize( path: string ){
-
-    let totalSize = 0
-    for await ( const file of Deno.readDir( path ) ) {
-
-      const dataFile = await Deno.stat( path + '/' + file.name )
-      totalSize += dataFile.size / 1024 / 1024 // in MB
-
-    }
-    return totalSize
 
   }
-
-
-  private async removeOldSoundtrack( soundID: number, path: string ){
-
-    await Deno.remove( path + '/' + soundID + '.mp3' )
-    await this.mySQLServiceSoundtrack.removeSoundtrack( soundID )
-
-  }
-
+  
 
   private getFrame( data: Uint8Array, startIndex: number ): { data: Uint8Array, index: number } {
   
@@ -145,6 +117,67 @@ export class UploadService{
       data: new Uint8Array( result ),
       index: index + 4
     } 
+
+  }
+
+
+  private async checkSoundtrackExists( title: string, author: string, hash: string ): Promise< Response | null > {
+
+    const soundByHash = await this.mySQLServiceSoundtrack.findByHash( hash )
+    if ( soundByHash !== null ) 
+      return new Response( 'This file has already been uploaded ID: ' + soundByHash.id, { status: 402 } )
+
+    const soundByTitleAndAuthor = await this.mySQLServiceSoundtrack.findByTitleAndAuthor( title, author )
+    if ( soundByTitleAndAuthor !== null ) 
+      return new Response( 'The song with that name already exists ID: ' + soundByTitleAndAuthor.id, { status: 402 } ) 
+
+    return null
+
+  }
+
+
+  private async checkSize( sizeUploadFile: number ){
+
+    const sizeUploadFileInMB = sizeUploadFile / 1024 / 1024
+    const path = './client/static/mp3'
+    
+    const sounds = await this.mySQLServiceSoundtrack.getAllSounds()
+    if ( sounds === null ) throw 'ERROR: limit exceeded'
+    
+    let index = 0
+    while ( sounds.length > index ){
+      
+      const totalSize = await this.getSize( path )
+      if ( totalSize + sizeUploadFileInMB < this.config.server.maxSize ) break;
+      
+      const soundID = sounds[index].id
+      await this.removeOldSoundtrack( soundID, path )
+      index++
+      
+    }
+    
+  }
+
+
+  private async getSize( path: string ){
+
+    let totalSize = 0
+    for await ( const file of Deno.readDir( path ) ) {
+
+      const dataFile = await Deno.stat( path + '/' + file.name )
+      totalSize += dataFile.size / 1024 / 1024 // in MB
+
+    }
+
+    return totalSize
+
+  }
+
+
+  private async removeOldSoundtrack( soundID: number, path: string ){
+
+    await Deno.remove( path + '/' + soundID + '.mp3' )
+    await this.mySQLServiceSoundtrack.removeSoundtrack( soundID )
 
   }
 

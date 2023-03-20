@@ -5,7 +5,6 @@ export class GeneratorService{
 
   urlToken(): string {
 
-
     return this.generateStroke( 50 ) 
 
   }

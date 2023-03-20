@@ -12,6 +12,7 @@ import { ResponseModule } from './response/response.module.ts';
 import { AppController } from "./app.controller.ts";
 import { SecureModule } from './secure/secure.module.ts';
 import { ConfigModule } from './config/config.module.ts';
+import { HashModule } from './hash/hash.module.ts';
 import { Client } from "https://deno.land/x/mysql@v2.11.0/src/client.ts";
 
 
@@ -31,10 +32,11 @@ export class AppModule{
     const cookieModule = new CookieModule()
     const generatorModule = new GeneratorModule()
     const mailerModule = new MailerModule( config )
+    const hashModule = new HashModule(  )
 
     const mysqlModule = new MySQLModule( router, this.mysqlClient, cookieModule, config )
     const profileModule = new ProfileModule( router, cookieModule, mysqlModule )
-    const uploadModule = new UploadModule( router, mysqlModule )
+    const uploadModule = new UploadModule( router, mysqlModule, config, hashModule )
     const homeModule = new HomeModule( router, responseModule )
     const authModule = new AuthNodule( router, mysqlModule, mailerModule, generatorModule, responseModule )
     this.secure = new SecureModule( router, mysqlModule, responseModule )

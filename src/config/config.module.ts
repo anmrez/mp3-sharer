@@ -39,8 +39,12 @@ export class ConfigModule{
   public readonly smtp: ISMTPConfig
   public readonly mysql: IMySQLConfig
   public readonly users: IUser[] = []
+  static iSinited = false
 
   constructor( env: Record<string, string> ){
+
+    if ( ConfigModule.iSinited ) throw '[ConfigModule] - is exist'
+    ConfigModule.iSinited = true
 
     this.service = new ConfigService( env )
 

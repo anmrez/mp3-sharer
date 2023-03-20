@@ -33,7 +33,8 @@ export class MySQLServiceSoundtrack{
       title varchar(60) NOT NULL,
       author varchar(60) NOT NULL,
       createdAt varchar(5) NOT NULL,
-      is_archived boolean DEFAULT false
+      is_archived boolean DEFAULT false,
+      hash varchar(40)
     );` )
 
   }
@@ -71,6 +72,33 @@ export class MySQLServiceSoundtrack{
   }
 
 
+  async findByHash( hash: string ): Promise< soundtrackDTO | null > {
+
+    const result = await this.client.execute( `SELECT * FROM sounds WHERE hash='` + hash + `';` )
+    const sounds: soundtrackDTO[] | undefined = result.rows
+
+    if ( sounds === undefined || sounds.length === 0 ) return null
+
+    const sound = sounds[0]
+    return sound
+
+  }
+
+
+  async findByTitleAndAuthor( title: string, author: string ): Promise< soundtrackDTO | null > {
+
+    const result = await this.client.execute( `SELECT * FROM sounds 
+    WHERE title='` + title + `' AND author='` + author + `'` )
+
+    const sounds: soundtrackDTO[] | undefined = result.rows
+    if ( sounds === undefined || sounds.length === 0 ) return null
+
+    const sound = sounds[0]
+    return sound
+
+  }
+
+
   async getAllSoundsInArchive(): Promise< Response > {
     
     const allSound = await this.client.execute( 'SELECT * FROM sounds WHERE is_archived = 1;' )
@@ -99,7 +127,7 @@ export class MySQLServiceSoundtrack{
   }
 
 
-  async setSound( title: string, author: string, duration: number ){
+  async setSound( title: string, author: string, duration: number, hash: string ){
 
     let day = String( new Date().getDate() )
     let month = String( new Date().getMonth() + 1 )
@@ -111,9 +139,9 @@ export class MySQLServiceSoundtrack{
 
     const result = await this.client.execute( `
     INSERT INTO sounds 
-    ( duration, title, author, createdAt ) 
+    ( duration, title, author, createdAt, hash ) 
     VALUES 
-    ( '${ duration }', '${ title }', '${ author }', '${ createdAt }' )
+    ( '${ duration }', '${ title }', '${ author }', '${ createdAt }', '${ hash }' )
     `)
 
     if ( result.lastInsertId !== undefined ) return result.lastInsertId
