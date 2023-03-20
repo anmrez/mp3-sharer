@@ -79,22 +79,7 @@ export class Upload{
       this.statusErr.classList.add( 'opacity_0' )
       this.statusLoad.classList.remove( 'opacity_0' )
       
-      await fetch( '/upload', {
-        
-        method: 'POST',
-        body: body
-        
-      }).then( () => {
-        
-        this.closeWindow()
-        document.querySelector( '#tableMusick' ).update()
-        
-      } ).catch( ( ) => {
-        
-        this.statusLoad.classList.add( 'opacity_0' ),
-        this.statusErr.classList.remove( 'opacity_0' )
-
-      } )
+      await this._responseFile( body )
 
     }
 
@@ -103,6 +88,41 @@ export class Upload{
 
   }
 
+
+  async _responseFile( body ){
+
+    const response = await fetch( '/upload', {
+      
+      method: 'POST',
+      body: body
+      
+    })
+
+    const responseBody = await response.text()
+
+    if ( response.status === 402 ) {
+
+      this.statusLoad.classList.add( 'opacity_0' ),
+      this.statusErr.classList.remove( 'opacity_0' )
+      this.statusErr.innerHTML = responseBody
+      return;
+      
+    }
+    
+    if ( response.status === 500 ) {
+      
+      this.statusLoad.classList.add( 'opacity_0' ),
+      this.statusErr.classList.remove( 'opacity_0' )
+      this.statusErr.innerHTML = responseBody
+      return;
+
+    }
+
+
+    this.closeWindow()
+    document.querySelector( '#tableMusick' ).update()
+
+  }
 
 
   _fromStingToBinary( string ){
