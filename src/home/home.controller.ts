@@ -15,6 +15,14 @@ export class HomeController{
       return homeService.gethomepage( req )
     })
 
+    // this.router.get( '/search/**', function( req: Request ){
+    //   return homeService.searchHandler( req )
+    // } )
+
+    this.router.post( '/search', function( req: Request ){
+      return homeService.searchHandler( req )
+    } )
+
   }
 
 }

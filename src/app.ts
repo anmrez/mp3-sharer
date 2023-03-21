@@ -37,7 +37,7 @@ export class AppModule{
     const mysqlModule = new MySQLModule( router, this.mysqlClient, cookieModule, config )
     const profileModule = new ProfileModule( router, cookieModule, mysqlModule )
     const uploadModule = new UploadModule( router, mysqlModule, config, hashModule )
-    const homeModule = new HomeModule( router, responseModule )
+    const homeModule = new HomeModule( router, responseModule, mysqlModule )
     const authModule = new AuthNodule( router, mysqlModule, mailerModule, generatorModule, responseModule )
     this.secure = new SecureModule( router, mysqlModule, responseModule )
     
@@ -57,7 +57,6 @@ export class AppModule{
     serveTls( ( req ) => { 
 
       return this.secure.use( req )
-      // return this.router.use( req )
 
     }, serverOption )
 

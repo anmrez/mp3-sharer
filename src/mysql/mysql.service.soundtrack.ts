@@ -40,6 +40,7 @@ export class MySQLServiceSoundtrack{
   }
 
 
+  // GET --- ---
   async responseAllSounds(): Promise< Response > {
 
     const sounds = await this.getAllSounds()
@@ -61,6 +62,27 @@ export class MySQLServiceSoundtrack{
   }
 
 
+  async getAllSoundsInArchive(): Promise< Response > {
+    
+    const allSound = await this.client.execute( 'SELECT * FROM sounds WHERE is_archived = 1;' )
+    const sounds = allSound.rows
+
+    if ( sounds === undefined ) return new Response( null, {
+      status: 404
+    } )
+
+    const jsonData = JSON.stringify( sounds )
+
+    return new Response( jsonData, {
+      status: 200,
+      headers: {
+        'content-type': 'application/json'
+      }
+    } )
+    
+  }
+
+
   async getAllSounds(): Promise< soundtrackDTO[] | null > {
 
     const allSound = await this.client.execute( 'SELECT * FROM sounds WHERE is_archived = 0;' )
@@ -71,7 +93,7 @@ export class MySQLServiceSoundtrack{
 
   }
 
-
+  // FIND --- ---
   async findByHash( hash: string ): Promise< soundtrackDTO | null > {
 
     const result = await this.client.execute( `SELECT * FROM sounds WHERE hash='` + hash + `';` )
@@ -99,27 +121,34 @@ export class MySQLServiceSoundtrack{
   }
 
 
-  async getAllSoundsInArchive(): Promise< Response > {
-    
-    const allSound = await this.client.execute( 'SELECT * FROM sounds WHERE is_archived = 1;' )
-    const sounds = allSound.rows
+  async findByID( soundID: number ): Promise< soundtrackDTO[] | null > {
 
-    if ( sounds === undefined ) return new Response( null, {
-      status: 404
-    } )
+    const result = await this.client.execute( `SELECT id, title, author, is_archived FROM sounds 
+    WHERE id LIKE '` + soundID + `%';` )
 
-    const jsonData = JSON.stringify( sounds )
+    const sounds: soundtrackDTO[] | undefined = result.rows
 
-    return new Response( jsonData, {
-      status: 200,
-      headers: {
-        'content-type': 'application/json'
-      }
-    } )
-    
+    if ( sounds === undefined ) return null
+    return sounds
+
   }
 
 
+  async searchByTitleORAuthorORID( search: string ): Promise< soundtrackDTO[] | null > {
+
+    const result = await this.client.execute( `SELECT * FROM sounds 
+    WHERE title LIKE '%` + search + `%' 
+    OR author LIKE '%` + search + `%'
+    OR id LIKE '%` + search + `%';` )
+
+    const sounds: soundtrackDTO[] | undefined = result.rows
+
+    if ( sounds === undefined ) return null
+    return sounds
+
+  }
+
+  // REMOVE --- ---
   async removeSoundtrack( soundID: number ){
 
     await this.client.execute( `UPDATE sounds SET is_archived=true WHERE id=${ soundID }` )
@@ -127,6 +156,7 @@ export class MySQLServiceSoundtrack{
   }
 
 
+  // SET --- ---
   async setSound( title: string, author: string, duration: number, hash: string ){
 
     let day = String( new Date().getDate() )
@@ -150,7 +180,7 @@ export class MySQLServiceSoundtrack{
   }
 
 
-  // async renameSoundrack( soundID: number, title: string, author: string ): Promise< Response >{
+  // RENAME --- ---
   async renameSoundrack( req: Request ): Promise< Response > {
 
     const data: {

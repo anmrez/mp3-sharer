@@ -5,6 +5,7 @@ config.ts
 deno.lock
 dev.env
 test.ts
+bincan
 
 cert/cert.crt
 cert/key.key

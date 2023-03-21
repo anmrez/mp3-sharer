@@ -1,4 +1,6 @@
 import { ResponseService } from '../response/response.service.ts';
+import { MySQLServiceSoundtrack } from '../mysql/mysql.service.soundtrack.ts';
+import { soundtrackDTO } from "../mysql/dto/soundtrack.dto.ts";
 
 
 
@@ -7,9 +9,21 @@ export class HomeService{
 
 
   constructor(
-    private readonly responseService: ResponseService
+    private readonly responseService: ResponseService,
+    private readonly mySQLServiceSoundtrack: MySQLServiceSoundtrack
   ){}
 
+
+  async searchHandler( req: Request ): Promise< Response > {
+
+    const search = await req.text()
+
+    const searchResult = await this.mySQLServiceSoundtrack.searchByTitleORAuthorORID( search )
+    
+    if ( searchResult === null ) return new Response( null, { status: 404 } )
+    return new Response( JSON.stringify( searchResult ) )
+
+  }
 
   gethomepage( req: Request ): Promise< Response > {
 
@@ -21,6 +35,7 @@ export class HomeService{
   }
 
 
+  // PRIVATE --- ---
   private getDeviceType( req: Request ): 'mobile' | 'pc' {
 
     const useragent = req.headers.get( 'user-agent' )
