@@ -1,276 +1,184 @@
-
-
 export class Upload{
 
+  uploadWindow = document.querySelector('#uploadWindow')
+  inputUpload = document.querySelector('#inputUpload')
+  esc = this.uploadWindow.querySelector('#esc')
+  title = this.uploadWindow.querySelector('#SongTitle')
+  author = this.uploadWindow.querySelector('#SongAuthor')
+  status = this.uploadWindow.querySelector('#status')
+  statusErr = this.status.querySelector('#err')
+  statusLoad = this.status.querySelector('#load')
 
-  uploadWindow = document.querySelector( '#uploadWindow' )
-  esc = this.uploadWindow.querySelector( '#esc' )
-
-  title = this.uploadWindow.querySelector( '#SongTitle' )
-  author = this.uploadWindow.querySelector( '#SongAuthor' )
-  status = this.uploadWindow.querySelector( '#status' )
-  statusErr = this.status.querySelector( '#err' )
-  statusLoad = this.status.querySelector( '#load' )
-
-  constructor( player, getMusick, windows1251 ){
-
+  
+  constructor(player, getMusic, windows1251){
     this.playerService = player
-    this.getMusickSercise = getMusick
-    this.windows1251Service = windows1251
-    
+    this.getMusicSercise = getMusic
+    this.windows1251Service = windows1251    
   }
   
   
   init(){
-    
-    this._addEventEsc()
-    this._addEvent()
+
+    this.esc.addEventListener('click', this.closeWindow.bind(this))
+
+    this.inputUpload.addEventListener('change', this._changeFile.bind( this ))
+
+    document.querySelector('#upload').addEventListener( 'click', function() { 
+      this.inputUpload.click()
+    }.bind( this ) )
+
+    document.querySelector('#windowButtonUpload').addEventListener('click', this._sendFile.bind(this))
 
   }
+  
 
-
-  // ESC === ===
-  _addEventEsc(){
-
-    this.esc.addEventListener( 'click', this.closeWindow.bind( this ) )
-
-  }
-
-
-  _addEvent(){
-
-    const homeButtonUpload = document.querySelector( '#upload' )
-    const input = document.querySelector( '#inputUpload' )
-
-    homeButtonUpload.addEventListener( 'click', function(){
-
-      input.click()
-
-    })
-
-    input.addEventListener( 'change', this._changeFile.bind( this ) )
-
-    const windowButtonUpload = document.querySelector( '#windowButtonUpload' )
-
-    windowButtonUpload.addEventListener( 'click', this._sendFile.bind( this ))
-
-  }
-
-
-  _sendFile(  ){
-
-    const input = document.querySelector( '#inputUpload' )
-    const file = input.files[0]
-
-    if ( file.type !== 'audio/mpeg' ) throw 'ERROR: this is not an MP3 file'
-
-    const dataTitle = this._fromStingToBinary( this.title.value )
-    const dataAuthor = this._fromStingToBinary( this.author.value )
-
-    const separator = [45, 45, 45, 45 ] // ----
-    const titleWithAuthor = [ ...dataTitle, ...separator, ...dataAuthor, ...separator ]
-
-    const reader = new FileReader();
-    reader.onload = async ( event ) => {
-
-      const arr = new Uint8Array( event.target.result )
-      const body = new Uint8Array( [ ...titleWithAuthor, ...arr,  ] )
-      
-      this.statusErr.classList.add( 'opacity_0' )
-      this.statusLoad.classList.remove( 'opacity_0' )
-      
-      await this._responseFile( body )
-
-    }
-
-    reader.readAsArrayBuffer( file )
-
-
-  }
-
-
-  async _responseFile( body ){
-
-    const response = await fetch( '/upload', {
-      
-      method: 'POST',
-      body: body
-      
-    })
-
-    const responseBody = await response.text()
-
-    if ( response.status === 402 ) {
-
-      this.statusLoad.classList.add( 'opacity_0' ),
-      this.statusErr.classList.remove( 'opacity_0' )
-      this.statusErr.innerHTML = responseBody
-      return;
-      
-    }
-    
-    if ( response.status === 500 ) {
-      
-      this.statusLoad.classList.add( 'opacity_0' ),
-      this.statusErr.classList.remove( 'opacity_0' )
-      this.statusErr.innerHTML = responseBody
-      return;
-
-    }
-
-
-    this.closeWindow()
-    document.querySelector( '#tableMusick' ).update()
-
-  }
-
-
-  _fromStingToBinary( string ){
-
-    let arr = []
-    let index = 0
-
-    while( string.length > index ){
-
-      const hex = string.charCodeAt( index ).toString(16)
-      
-      if ( hex.length <= 2 ){
-        arr.push( parseInt( hex, 16 ) )
-        arr.push( 0 )
-      }
-
-      if ( hex.length >= 3 ){
-
-        arr.push( parseInt( hex.substring( 2,4 ), 16 ) )
-        arr.push( parseInt( hex.substring( 0,2 ), 16 ) )
-
-      }
-
-      index++
-
-    }
-
-    return arr
-
-  }
-
-
-  _changeFile(  ){
-
-    this.playerService.removeEventOnSpace()
-
-    let file = document.querySelector( '#inputUpload' ).files[0]
+  _changeFile(){
+    let file = this.inputUpload.files[0]
     this.title.value = ''
     this.author.value = ''
     
-    if ( file.type === 'audio/mpeg' ) {
-      
-      this.openWindow()
-      this._reader( file )
-
-    } else {
+    if (file.type !== 'audio/mpeg') throw 'ERROR: it is not MP3 file!'
     
-      throw 'ERROR: it is not MP3 file!'
-  
-    }
-      
-
-  }
-
-
-
-  _reader( file ){
+    this.openWindow()
 
     const reader = new FileReader();
-    reader.addEventListener( 'load', this._readerData.bind( this ) )
-    reader.readAsArrayBuffer( file )
-
-  }
-
-
-  _readerData( e ){
-
-    const sound = new Uint8Array( e.target.result )
-
-    const title = this._readData( 'TIT2', sound )
-    if ( title === null ) this.title.value = 'undefined'
-    else this.title.value = title
+    reader.readAsArrayBuffer(file)
+    reader.onload = (event) => {
+      const sound = new Uint8Array(event.target.result)
     
-    const author = this._readData( 'TPE1', sound )
-    if ( author === null ) this.author.value = 'undefined'
-    else this.author.value = author
-
+      const title = this._readData('TIT2', sound)
+      if (title === null) this.title.value = 'undefined'
+      else this.title.value = title
+      
+      const author = this._readData('TPE1', sound)
+      if (author === null) this.author.value = 'undefined'
+      else this.author.value = author
+    }
   }
 
-  
-  _readData( header, soundArr ) {
 
-    if ( header !== 'TIT2' && header !== 'TPE1' ) throw 'ERROR: Incorrect header'
+  _sendFile(){
+    const file = this.inputUpload.files[0]
+    
+    if (file.type !== 'audio/mpeg') throw 'ERROR: this is not an MP3 file'
 
-    let HEAD = 0
-    let isExistHeader = false
+    const dataTitle = this._fromStingToBinary(this.title.value)
+    const dataAuthor = this._fromStingToBinary(this.author.value)
+    const separator = [45, 45, 45, 45] // ----
+    const titleWithAuthor = [...dataTitle, ...separator, ...dataAuthor, ...separator]
 
-    const codeChar1 = header[0].charCodeAt()
-    const codeChar2 = header[1].charCodeAt()
-    const codeChar3 = header[2].charCodeAt()
-    const codeChar4 = header[3].charCodeAt()
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(file)
+    reader.onload = async (event) => {
 
-    while( soundArr.length > HEAD ){
+      this.statusErr.classList.add('opacity_0')
+      this.statusLoad.classList.remove('opacity_0')
+      
+      const arr = new Uint8Array(event.target.result) 
+      const body = new Uint8Array([...titleWithAuthor, ...arr])
+      
+      await this._responseFile(body)
+    }
+  }
 
-      if ( soundArr[HEAD] === codeChar1 )
-      if ( soundArr[HEAD + 1] === codeChar2 )
-      if ( soundArr[HEAD + 2] === codeChar3 )
-      if ( soundArr[HEAD + 3] === codeChar4 ){
-        isExistHeader = true
-        break;
+
+  async _responseFile(body){
+    const response = await fetch('/upload', {method: 'POST', body: body})
+    const responseBody = await response.text()
+
+    if (response.status === 402) {
+      this.statusLoad.classList.add('opacity_0'),
+      this.statusErr.classList.remove('opacity_0')
+      this.statusErr.innerHTML = responseBody
+      return;
+    }
+    
+    if (response.status === 500) {
+      this.statusLoad.classList.add('opacity_0'),
+      this.statusErr.classList.remove('opacity_0')
+      this.statusErr.innerHTML = responseBody
+      return;
+    }
+
+    this.closeWindow()
+    document.querySelector('#tableMusick').update()
+  }
+
+
+  _fromStingToBinary(string){
+    let arr = []
+    let index = 0
+
+    while(string.length > index){
+      const hex = string.charCodeAt( index ).toString(16)
+      
+      if (hex.length <= 2){
+        arr.push(parseInt(hex, 16))
+        arr.push(0)
       }
 
-      HEAD++
-      
+      if (hex.length >= 3){
+        arr.push(parseInt(hex.substring(2, 4), 16))
+        arr.push(parseInt(hex.substring(0, 2), 16))
+      }
+
+      index++
     }
 
-    if ( isExistHeader === false ) return null;
-
-
-    // skip 4 byte: [TIT2] || [TPE1] 
-    HEAD += 4
-    let arrSize = []
-    const sizeLength = HEAD + 4
-
-
-    // get size
-    while ( sizeLength > HEAD ){
-
-      arrSize.push( soundArr[ HEAD ] )
-      HEAD++
-
-    }
+    return arr
+  }
 
   
-    //skip 2 byte [00 00]
+  _readData(header, soundArr) {
+
+    if (header !== 'TIT2' && header !== 'TPE1') throw 'ERROR: Incorrect header'
+
+    let HEAD = 0
+    let headerExists = false
+
+    while(soundArr.length > HEAD){
+
+      if (soundArr[HEAD] === header.charCodeAt(0) 
+        && soundArr[HEAD + 1] === header.charCodeAt(1) 
+        && soundArr[HEAD + 2] === header.charCodeAt(2) 
+        && soundArr[HEAD + 3] === header.charCodeAt(3)) {
+          headerExists = true
+          break;
+      }
+
+      HEAD++ 
+
+    }
+
+    if (headerExists === false) return null;
+
+    // skip 4 bytes: [TIT2] || [TPE1] 
+    HEAD += 4
+
+    const headerLength = soundArr[HEAD + 3]
+
+    // skip headerLength
+    HEAD += 4
+
+    //skip 2 bytes [00 00]
     HEAD += 2
-    const dataHeaderLength = arrSize[3] + HEAD
+
+    const dataHeaderLength = headerLength + HEAD
     const dataHeaderArr = []
     let itIsUTF = false
 
-
     // skip 3 byte [00 FF FE] 
-    if ( soundArr[HEAD] === 1 )
+    if (soundArr[HEAD] === 1)
     if ( soundArr[HEAD + 1] === 255 )
-    if ( soundArr[HEAD + 2] === 254 ) {
-
+    if ( soundArr[HEAD + 2] === 254) {
       itIsUTF = true
-      HEAD +=3
-
+      HEAD += 3
     } 
 
-
     // save data of header in array
-    while ( dataHeaderLength > HEAD ){
-
-      dataHeaderArr.push( soundArr[HEAD] )
+    while (dataHeaderLength > HEAD){
+      dataHeaderArr.push(soundArr[HEAD])
       HEAD++
-
     }
 
 
@@ -278,48 +186,38 @@ export class Upload{
     let index = 0
     const dataHeader = []
 
-    if ( itIsUTF ) while ( dataHeaderArr.length > index ){
+    if (itIsUTF) while (dataHeaderArr.length > index){
 
-      if ( dataHeaderArr[index] === 0 && dataHeaderArr[index + 1] === 0 ){
+      if (dataHeaderArr[index] === 0 && dataHeaderArr[index + 1] === 0) {
 
-        // nothing
+        // nothink
 
-      } else if ( dataHeaderArr[index + 1] !== 0 ){
+      } else if (dataHeaderArr[index + 1] !== 0) {
 
         const hex1 = dataHeaderArr[index + 1].toString(16)
         let hex2 = dataHeaderArr[index].toString(16)
         if ( hex2.length === 1 ) hex2 = '0' + hex2
 
         const hex = hex1 + hex2
-        dataHeader.push( String.fromCharCode( parseInt( hex, 16) ) )
-
-      } else if ( dataHeaderArr[index + 1] === 0 ){
-
-        dataHeader.push( String.fromCharCode( dataHeaderArr[index] ) )
-
+        dataHeader.push( String.fromCharCode( parseInt( hex, 16)))
       }
+      else if (dataHeaderArr[index + 1] === 0){
 
+        dataHeader.push( String.fromCharCode(dataHeaderArr[index]))
+      }
       index += 2
-
-
-    } else while( dataHeaderArr.length > index ){
-
-
-      dataHeader.push( this.windows1251Service.decode( dataHeaderArr[index] ) )
-
+    } 
+    else while (dataHeaderArr.length > index) { 
+      dataHeader.push(this.windows1251Service.decode(dataHeaderArr[index]))
       index++
-
-
     }
-
     return dataHeader.join('')
-
   }
 
 
 
   // WINDOW === ===
-  // CLOSE === ===
+  // OPEN === ===
   openWindow(){
 
     this._removeKeyboardEvents()
@@ -334,7 +232,7 @@ export class Upload{
     this.playerService.removeEventFastForward()
     this.playerService.removeEventRewind()
 
-    this.getMusickSercise.removeEventReloadOnR()
+    this.getMusicSercise.removeEventReloadOnR()
 
   }
   
@@ -357,7 +255,7 @@ export class Upload{
     this.playerService.addEventFastForward()
     this.playerService.addEventRewind()
 
-    this.getMusickSercise.addEventReloadOnR()
+    this.getMusicSercise.addEventReloadOnR()
 
   }
 
