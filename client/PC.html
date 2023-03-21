@@ -11,7 +11,10 @@
 <body class="height_full background_main color_white relative">
 
   <header class="height_2_5 background_main_2 border_bottom_pink padding_x_2 padding_y flex justify_between" >
-    <h1> MP3 Sharer </h1>
+    <section class="flex">
+      <h1> MP3 Sharer </h1>
+      <h2 class="margin_l_1 color_dark text_1"> V0.5.2 </h2>
+    </section>
     <section class="flex">
       <a id="upload" class="margin_r_1 color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center"> Upload </a>
       <a id="buttonUser" class="color_white background_pink padding_x_1 radius cursor_pointer flex align_center justify_around" >
@@ -22,8 +25,30 @@
   </header>
 
   <section id='switchButton' class="flex justify_center margin_t_1">
-    <a id="music" class="switch_button_active switch_button text_center text_1_25" > Music </a>
-    <a id="archive" class="switch_button text_center text_1_25" > Archive </a>
+    <a id="music" class="flex align_center height_2 switch_button_active switch_button text_center text_1_25" > 
+      <span>
+        Music
+      </span>  
+    </a>
+    <a id="archive" class="flex align_center height_2 switch_button text_center text_1_25" >
+      <span>
+        Archive
+      </span> 
+    </a>
+    <section class="relative">
+      <input id="search" type="search" class="height_2 text_1_25 background_main_3 text_center color_white border_none radius" placeholder="Search">
+      <table id="searchTable" style="top:2em; z-index: 100;" class="none background_main padding_x_1 padding_y_0_5 text_1_25 border_pink transform_x_50 left_50 absolute">
+        <thead>
+          <tr class="height_2">
+            <th class="text_center" > id </th>
+            <th class="min_width_17 padding_x_1 text_center" > title </th>
+            <th class="min_width_13 text_center" > author </th>
+            <th class="text_center" > archived </th>
+          </tr>
+        </thead>
+        <tbody id="searchResult"></tbody>
+      </table>
+    </section>
   </section>
 
 

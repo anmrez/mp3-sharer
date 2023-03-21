@@ -10,7 +10,7 @@ import { Player } from './Player.js'
 import { TableResize } from './TableResize.js';
 import { RenameSoundtrack } from './RenameSoundtrack.js'
 import { Windows1251 } from './Windows1251.js'
-
+import { Search } from './Search.js';
 
 class Init{
   
@@ -22,6 +22,7 @@ class Init{
   getMusick = new GetMusick()
   player = new Player()
   windows1251 = new Windows1251()
+  search = new Search()
   
   renameSoundtrack = new RenameSoundtrack( this.player, this.getMusick )
   upload = new Upload( this.player, this.getMusick, this.windows1251 )
@@ -41,9 +42,9 @@ class Init{
     
     let index = 1
     
-    while( 11 > index ) {
+    while( index !== 12 ) {
 
-      let delay = 100 * index
+      const delay = 75 * index
 
       if ( index === 1 ) setTimeout( this.profile.init.bind( this.profile ), delay ) 
       if ( index === 2 ) setTimeout( this.getUsers.init.bind( this.getUsers ), delay ) 
@@ -59,6 +60,8 @@ class Init{
       if ( index === 9 ) setTimeout( this.upload.init.bind( this.upload ), delay ) 
       
       if ( index === 10 ) setTimeout( this.renameSoundtrack.init.bind( this.renameSoundtrack ), delay ) 
+      
+      if ( index === 11 ) setTimeout( this.search.init.bind( this.search ), delay ) 
 
       index++
 
