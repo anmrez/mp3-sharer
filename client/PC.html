@@ -35,9 +35,9 @@
         Archive
       </span> 
     </a>
-    <section class="relative">
-      <input id="search" type="search" class="height_2 text_1_25 background_main_3 text_center color_white border_none radius" placeholder="Search">
-      <table id="searchTable" style="top:2em; z-index: 100;" class="none background_main padding_x_1 padding_y_0_5 text_1_25 border_pink transform_x_50 left_50 absolute">
+    <section id="search" class="relative">
+      <input id="input" type="search" class="height_2 text_1_25 background_main_3 text_center color_white border_none radius" placeholder="Search">
+      <table id="table" style="top:2em; z-index: 100;" class="none background_main padding_x_1 padding_y_0_5 text_1_25 border_pink transform_x_50 left_50 absolute">
         <thead>
           <tr class="height_2">
             <th class="text_center" > id </th>
@@ -46,7 +46,7 @@
             <th class="text_center" > archived </th>
           </tr>
         </thead>
-        <tbody id="searchResult"></tbody>
+        <tbody id="result"></tbody>
       </table>
     </section>
   </section>

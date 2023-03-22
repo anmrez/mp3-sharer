@@ -44,7 +44,7 @@ class Init{
     
     while( index !== 12 ) {
 
-      const delay = 75 * index
+      const delay = 50 * index
 
       if ( index === 1 ) setTimeout( this.profile.init.bind( this.profile ), delay ) 
       if ( index === 2 ) setTimeout( this.getUsers.init.bind( this.getUsers ), delay ) 

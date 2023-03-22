@@ -13,12 +13,12 @@ export class Profile{
   
   init(){
     
-    this.get()
+    this._get()
     
   }
 
 
-  async get(){
+  async _get(){
 
     const request = await fetch( '/getProfile', {
       method: 'GET',
