@@ -6,6 +6,7 @@ import { HashService } from '../hash/hash.service.ts';
 
 export class UploadService{
 
+  private readonly textDecoder = new TextDecoder()
 
   constructor(
     private readonly mySQLServiceSoundtrack: MySQLServiceSoundtrack,
@@ -41,7 +42,7 @@ export class UploadService{
       await this.mySQLServiceComment.addComment( lastId, user.id )
       await Deno.writeFile( './client/static/mp3/' + lastId + '.mp3', file.sound )
 
-      return new Response( undefined, { status: 200 } ) 
+      return new Response( null, { status: 200 } ) 
 
 
     } catch ( err ) {
@@ -74,14 +75,10 @@ export class UploadService{
   private separateFile( body: Uint8Array )  {
 
     let frame = this.getFrame( body, 0 )
-    let title = this.decoder( frame.data )
-    title = title.substring( 0, 60 )
-    title = title.split(`'`).join('`')
+    const title = this.decoder( frame.data )
 
     frame = this.getFrame( body, frame.index )
-    let author = this.decoder( frame.data )
-    author = author.substring( 0, 60 )
-    author = author.split(`'`).join('`')
+    const author = this.decoder( frame.data )
 
     const sound = body.slice( frame.index, body.length )
 
@@ -124,12 +121,12 @@ export class UploadService{
   private async checkSoundtrackExists( title: string, author: string, hash: string ): Promise< Response | null > {
 
     const soundByHash = await this.mySQLServiceSoundtrack.findByHash( hash )
-    if ( soundByHash !== null ) 
-      return new Response( 'This file has already been uploaded ID: ' + soundByHash.id, { status: 402 } )
+    if ( soundByHash !== null )
+      return new Response( String( soundByHash.id ) , { status: 402 } )
 
     const soundByTitleAndAuthor = await this.mySQLServiceSoundtrack.findByTitleAndAuthor( title, author )
-    if ( soundByTitleAndAuthor !== null ) 
-      return new Response( 'The song with that name already exists ID: ' + soundByTitleAndAuthor.id, { status: 402 } ) 
+    if ( soundByTitleAndAuthor !== null )
+      return new Response( String( soundByTitleAndAuthor.id ) , { status: 402 } ) 
 
     return null
 
@@ -184,50 +181,9 @@ export class UploadService{
 
   private decoder( array: Uint8Array ): string {
 
-    let result = ''
-    let index = 0
-
-    while ( array.length > index ){
-      
-      if ( array[index] === 0 ) {
-
-        const temp = array[index + 1]
-        
-        array[index + 1] = array[index]
-        array[index] = temp
-        
-        const item = array[index].toString()
-        const str = parseInt( item, 10 ).toString(16) + '0'
-        result += String.fromCharCode( parseInt( str, 16 ) )
-        
-      } else {
-
-        if ( array[index + 1] === 0 ) {
-  
-          result += String.fromCharCode( array[index] )
-  
-        }  
-        
-        if ( array[index + 1] !== 0 ) {
-          
-          const item1 = array[index + 1].toString()
-          const str1 = parseInt( item1, 10 ).toString(16)
-          
-          const item2 = array[index].toString()
-          let str2 = parseInt( item2, 10 ).toString(16)
-          if ( str2.length === 1 ) str2 = '0' + str2
-          
-          const str = str1 + str2
-          result += String.fromCharCode( parseInt( str, 16 ) )
-  
-        }
-
-      }
-
-
-      index += 2
-
-    }
+    let result = this.textDecoder.decode( array )
+    result = result.substring( 0, 60 )
+    result = result.split(`'`).join('`')
 
     return result
 

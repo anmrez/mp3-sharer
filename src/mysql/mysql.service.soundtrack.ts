@@ -121,22 +121,22 @@ export class MySQLServiceSoundtrack{
   }
 
 
-  async findByID( soundID: number ): Promise< soundtrackDTO[] | null > {
+  // async findByID( soundID: number ): Promise< soundtrackDTO[] | null > {
 
-    const result = await this.client.execute( `SELECT id, title, author, is_archived FROM sounds 
-    WHERE id LIKE '` + soundID + `%';` )
+  //   const result = await this.client.execute( `SELECT id, title, author, is_archived FROM sounds 
+  //   WHERE id LIKE '` + soundID + `%';` )
 
-    const sounds: soundtrackDTO[] | undefined = result.rows
+  //   const sounds: soundtrackDTO[] | undefined = result.rows
 
-    if ( sounds === undefined ) return null
-    return sounds
+  //   if ( sounds === undefined ) return null
+  //   return sounds
 
-  }
+  // }
 
 
   async searchByTitleORAuthorORID( search: string ): Promise< soundtrackDTO[] | null > {
 
-    const result = await this.client.execute( `SELECT * FROM sounds 
+    const result = await this.client.execute( `SELECT id, title, author, is_archived FROM sounds 
     WHERE title LIKE '%` + search + `%' 
     OR author LIKE '%` + search + `%'
     OR id LIKE '%` + search + `%';` )
