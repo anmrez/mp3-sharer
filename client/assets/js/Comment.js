@@ -3,16 +3,19 @@
 export class Comment{
 
 
+  // in modal window
   window = document.querySelector( '#commentWindow' )
   comment = this.window.querySelector( '#comment' )
   send = this.window.querySelector( '#send' )
   status = this.window.querySelector( '#status' )
   count = this.window.querySelector( '#count' )
 
+  // in player
   player = document.querySelector( '#player' )
   commentIntoPlayer = this.player.querySelector( '#comment' )
   soundID = this.player.querySelector( '#id' )
 
+  // other
   table = document.querySelector( '#tableMusickBody' )
   buttonUser = document.querySelector( '#buttonUser' )
   userID = 0

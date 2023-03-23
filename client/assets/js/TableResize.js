@@ -2,10 +2,15 @@
 
 export class TableResize{
 
-
+  // in document
   player = document.querySelector( '#player' )
-  playerBody = player.querySelector( '#body' )
-  table = document.querySelector( '#table' )
+  mainTable = document.querySelector( '#mainTable' )
+
+  // in player
+  playerBody = this.player.querySelector( '#body' )
+
+  // in mainTable
+  table = this.mainTable.querySelector( '#table' )
 
 
   constructor(){}

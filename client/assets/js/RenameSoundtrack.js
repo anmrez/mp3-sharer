@@ -2,19 +2,21 @@
 
 export class RenameSoundtrack{
 
+  // in player
   player = document.querySelector( '#player' )
   playerTitle = this.player.querySelector( '#title' )
   playerAuthor = this.player.querySelector( '#author' )
   button = this.player.querySelector( '#renameSoundtrack' )
-
+  
+  // in modal window
   window = document.querySelector( '#renameSoundtrackWindow' )
   esc = this.window.querySelector( '#esc' )
   title = this.window.querySelector( '#title' )
   author = this.window.querySelector( '#author' )
   soundID = this.window.querySelector( '#soundID' )
-
   send = this.window.querySelector( '#send' )
 
+  // other
   userID = document.querySelector( '#buttonUser' ).userID
   table = document.querySelector( '#tableMusick' )
 
@@ -39,7 +41,7 @@ export class RenameSoundtrack{
   }
 
 
-  // Event button rename === ===
+  // EVENTS --- ---
   _addEventButtonRename(){
 
     this.button.addEventListener( 'click', this._openWindow.bind( this ) )
@@ -47,14 +49,13 @@ export class RenameSoundtrack{
   }
 
 
-  // Event button esc === ===
   _addEventButtonEsc(){
 
     this.esc.addEventListener( 'click', this.closeWindow.bind( this ) )
 
   }
 
-  // Event send
+
   _addEventSend(){
     
     this.send.addEventListener( 'click', this._eventSend.bind( this ) )  
@@ -99,8 +100,7 @@ export class RenameSoundtrack{
   }
 
 
-  // button
-
+  // BUTTON --- ---
   show(){
 
     this.button.classList.remove( 'none' )
@@ -113,8 +113,9 @@ export class RenameSoundtrack{
 
   }
 
-  // WINDOW === === ===
 
+  // WINDOW === === ===
+  // OPEN === ===
   _openWindow(){
 
     this.window.classList.remove( 'none' )
@@ -138,6 +139,7 @@ export class RenameSoundtrack{
   }
 
 
+  // CLOSE === ===
   closeWindow(){
 
     this.window.classList.add( 'none' )

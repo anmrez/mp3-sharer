@@ -1,7 +1,10 @@
-
+// Player has further properties: 
+// - title - soundtrack title
+// - author - soundtrack author
+// - soundID - soundtrack ID
+// - status - soundtrack playback status (play/pause)
 
 export class Player{
-
 
   player = document.querySelector( '#player' )
   soundtrack = this.player.querySelector( '#soundtrack' )
@@ -10,8 +13,8 @@ export class Player{
     current: this.player.querySelector( '#durationCurrent' ),
     max: this.player.querySelector( '#durationMax' )
   } 
-  button = this.player.querySelector( '#button' )
-  volume = this.player.querySelector( '#volume' )
+  playButton = this.player.querySelector( '#button' )
+  volumeSlider = this.player.querySelector( '#volume' )
 
   timeline = this.player.querySelector( '#timeline' )
   timelineParent = this.player.querySelector( '#timelineParent' )
@@ -23,7 +26,7 @@ export class Player{
   
   constructor(){
     
-    this.soundtrack.volume = volume.value / 100
+    this.soundtrack.volume = this.volumeSlider.value / 100
         
   }
   
@@ -32,7 +35,7 @@ export class Player{
     
     this._addEventButton()
     this._addEventCurrentTime()
-    this._addEventVolume()
+    this._addEventVolumeSlider()
     this._addEventTimeline()
 
     
@@ -49,59 +52,39 @@ export class Player{
     this.addEventFastForward()
     
     // time
-    let time = this.soundtrack.duration
-    let timeStr = this._getTime( time )
-    if ( timeStr === 'NaN:NaN' ) this.duration.max.innerHTML = '00:00'
-    if ( timeStr !== 'NaN:NaN' ) this.duration.max.innerHTML = this._getTime( time )
+    const time = this.soundtrack.duration
+    const timeStr = this._getTime( time )
 
+    if ( timeStr === 'NaN:NaN' ) this.duration.max.innerHTML = '00:00'
+    else this.duration.max.innerHTML = timeStr
+
+    // soundtrack loaded
     this.soundtrack.addEventListener( 'loadeddata', this._eventButtonPlay.bind( this ) );
 
   }
 
 
   // STOP / SPACE === ===
-  addEventOnSpace(){
+  addEventOnSpace() { document.addEventListener( 'keyup', this._linkOnEventOnSpace ) }
 
-    document.addEventListener( 'keyup', this._linkOnEventOnSpace )
+  removeEventOnSpace() { document.removeEventListener( 'keyup', this._linkOnEventOnSpace ) }
 
-  }
-  
-
-  removeEventOnSpace(){
-
-    document.removeEventListener( 'keyup', this._linkOnEventOnSpace )
-    
-  }
-
-  
-  _eventOnSpace( event ){
-    
-    if ( event.keyCode === 32 ) this._eventButtonClick()
-    
-  }
+  _eventOnSpace( event ) { if ( event.keyCode === 32 ) this._eventButtonClick() }
 
 
   // REWIND === ===
-  addEventRewind(){
-
-    document.addEventListener( 'keyup', this._linkOnEventRewind )
-    
-  }
+  addEventRewind(){ document.addEventListener( 'keyup', this._linkOnEventRewind ) }
   
-  
-  removeEventRewind(){
-    
-    document.removeEventListener( 'keyup', this._linkOnEventRewind )
-
-  }
-
+  removeEventRewind(){ document.removeEventListener( 'keyup', this._linkOnEventRewind ) }
 
   _eventRewind( event ){
 
-    if ( event.keyCode === 37 ) this._rewind()
+    if ( event.keyCode === 37 ){
+      this._rewind() 
+      this._eventCurrentTime()
+    } 
 
   }
-
 
   _rewind(){
 
@@ -128,7 +111,10 @@ export class Player{
 
   _eventFastForward( event ){
 
-    if ( event.keyCode === 39 ) this._fastForward()
+    if ( event.keyCode === 39 ) {
+      this._fastForward()
+      this._eventCurrentTime()
+    } 
 
   }
 
@@ -145,35 +131,36 @@ export class Player{
   // BUTTON PLAY === ===
   _addEventButton(){
 
-    this.button.status = 'pause'
-    this.button.play = this._eventButtonPlay.bind( this )
-    this.button.pause = this._eventButtonPause.bind( this )
+    this.playButton.status = 'pause'
+    this.playButton.play = this._eventButtonPlay.bind( this )
+    this.playButton.pause = this._eventButtonPause.bind( this )
 
-    this.button.addEventListener( 'click', this._eventButtonClick.bind( this ) )
+    this.playButton.addEventListener( 'click', this._eventButtonClick.bind( this ) )
 
   }
 
 
   _eventButtonClick(){
 
-    const id = this.soundID.innerHTML
+    this.player.soundID = this.soundID.innerHTML
 
-    const bouttonIntoTable = document.querySelector( '[sound="' + id + '"]' )
+    const bouttonIntoTable = document.querySelector( `[sound="${this.player.soundID}"]` )   
     const playIntoTable = bouttonIntoTable.querySelector( '#play' )
     const pauseIntoTable = bouttonIntoTable.querySelector( '#pause' )
     
-    if ( this.button.status === 'pause' ) {
+
+    if ( this.playButton.status === 'pause' ) {
       
-      this.button.status = 'play'
-      this.button.play()
+      this.playButton.status = 'play'
+      this.playButton.play()
       
       playIntoTable.classList.add( 'none' )
       pauseIntoTable.classList.remove( 'none' )
       
     } else {
       
-      this.button.status = 'pause'
-      this.button.pause()
+      this.playButton.status = 'pause'
+      this.playButton.pause()
 
       playIntoTable.classList.remove( 'none' )
       pauseIntoTable.classList.add( 'none' )
@@ -186,72 +173,60 @@ export class Player{
 
   _eventButtonPlay(){
 
-    this.button.status = 'play'
+    this.player.status = 'play'
+    this.playButton.status = 'play'
     this.soundtrack.play()
 
-    this.button.querySelector( '#play' ).classList.add( 'none' )
-    this.button.querySelector( '#pause' ).classList.remove( 'none' )
+    this.playButton.querySelector( '#play' ).classList.add( 'none' )
+    this.playButton.querySelector( '#pause' ).classList.remove( 'none' )
     
   }
   
   
   _eventButtonPause(){
     
-    this.button.status = 'pause'
+    this.player.status = 'pause'
+    this.playButton.status = 'pause'
     this.soundtrack.pause()
 
-    this.button.querySelector( '#play' ).classList.remove( 'none' )
-    this.button.querySelector( '#pause' ).classList.add( 'none' )
+    this.playButton.querySelector( '#play' ).classList.remove( 'none' )
+    this.playButton.querySelector( '#pause' ).classList.add( 'none' )
 
   }
 
 
-  _addEventCurrentTime(){
-
-    setInterval( this._eventCurrentTime.bind( this ), 100 )
-    
-
-  }
+  _addEventCurrentTime(){ setInterval( this._eventCurrentTime.bind( this ), 500 ) }
 
 
   _eventCurrentTime(){
 
-    let time = this.soundtrack.currentTime
+    const time = this.soundtrack.currentTime
     this.duration.current.innerHTML = this._getTime( time )
 
   }
 
 
-  _addEventVolume(){
-
-    let volume = this.player.querySelector( '#volume' )
-    volume.addEventListener( 'input', this._eventVolume.bind( this, volume ) )
-
-  }
+  _addEventVolumeSlider(){ this.volumeSlider.addEventListener( 'input', this._eventVolumeSlider.bind( this ) ) }
 
 
-  _eventVolume( volume ){
-
-    this.soundtrack.volume = volume.value / 100
-
-  }
+  _eventVolumeSlider(){ this.soundtrack.volume = this.volumeSlider.value / 100 }
 
 
   _addEventTimeline(){
 
     setInterval( this._eventTimeline.bind( this ), 100 )
 
-    timelineParent.addEventListener( 'mousemove', this._eventTimelineMove.bind( this ) )
-    timelineParent.addEventListener( 'mouseout', this._eventTimelineOut.bind( this ) )
-    timelineParent.addEventListener( 'click', this._eventTimelineClick.bind( this ) )
+    this.timelineParent.addEventListener( 'mousemove', this._eventTimelineMove.bind( this ) )
+    this.timelineParent.addEventListener( 'mouseout', this._eventTimelineOut.bind( this ) )
+    this.timelineParent.addEventListener( 'click', this._eventTimelineClick.bind( this ) )
 
     
   }
   
   _eventTimeline(  ){
     
-    let duration = this.soundtrack.duration
-    let currentTime = this.soundtrack.currentTime
+    const duration = this.soundtrack.duration
+    const currentTime = this.soundtrack.currentTime
   
     if ( currentTime === duration ) this._eventButtonPause()
     this.timeline.style.width = currentTime * 100 / duration + '%'
@@ -261,13 +236,13 @@ export class Player{
 
   _eventTimelineMove( event ){
 
-    tooltipTimeline.classList.remove( 'none' )
+    this.tooltipTimeline.classList.remove( 'none' )
 
-    const maxWidth = this.timelineParent.offsetWidth
+    const maxWidth = this.timelineParent.clientWidth
     const currentWidth = event.clientX
 
     const width = currentWidth * 100 / maxWidth
-    tooltipTimeline.style.left = width + '%'
+    this.tooltipTimeline.style.left = width + '%'
 
     const duration = this.soundtrack.duration
     const time = duration * width / 100
@@ -277,18 +252,16 @@ export class Player{
   }
 
 
-  _eventTimelineOut(  ){
+  _eventTimelineOut(  ){ 
 
-    this.tooltipTimeline.classList.add( 'none' )
+    this.tooltipTimeline.classList.add( 'none' ) 
 
   }
 
 
   _eventTimelineClick(){
-
     const time = this.tooltipTimeline.time
     this.soundtrack.currentTime = time
-
   }
 
 

@@ -159,7 +159,7 @@ export class GetMusick{
   }
 
 
-  async _addItem( item, index ){
+  _addItem( item, index ){
 
     const tr = document.createElement( 'tr' );
 
@@ -178,7 +178,7 @@ export class GetMusick{
     const arrayTDUsers = this._createTDUsers()
     arrayTDUsers.getCommets = this._eventGetCommentsInTDUsers.bind( arrayTDUsers, item )
 
-    const delay = 50 + index * 15
+    const delay = 40 + index * 10
     setTimeout( arrayTDUsers.getCommets, delay )
 
     tr.append( tdID )

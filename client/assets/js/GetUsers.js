@@ -5,7 +5,7 @@
 export class GetUsers{
 
 
-  users = document.querySelectorAll( '[data-user]' )
+  usersIntoTable = document.querySelectorAll( '[data-user]' )
   tooltip = document.querySelector( '#tooltip' )
   responseData
 
@@ -27,29 +27,27 @@ export class GetUsers{
 
     this.responseData = await response.json()
 
-    this.users.forEach( ( item, index ) => {
-      
+    let index = 0
+    while ( this.usersIntoTable.length !== index ) {
+
+      const item = this.usersIntoTable[index]
       const image = item.firstElementChild
       
-      if ( this.responseData[index] !== undefined ){
+      if ( this.responseData[index] === undefined ) break;
 
-        let item = this.responseData[index]
+      const user = this.responseData[index]
 
-        image.src = './static/profile/' + item.image
-        image.style.background = 'none'
+      image.src = './static/profile/' + user.image
+      image.style.background = 'none'
 
-        image.addEventListener( 'mousemove', this._mousemoveUser.bind( this, item.username ) )
-        image.addEventListener( 'mouseout', this._mouseoverUser.bind( this ) )
+      image.addEventListener( 'mousemove', this._mousemoveUser.bind( this, user.username ) )
+      image.addEventListener( 'mouseout', this._mouseoverUser.bind( this ) )
 
-      } else {
-        
-        // image.src = './static/profile/default.png'
+      index++
 
-      }
+    }
 
-    });
-
-    return 
+    return;
 
   }
 

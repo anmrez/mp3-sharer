@@ -3,13 +3,11 @@
 export class Download{
 
   
-  buttonDownload = document.querySelector( '#download' )
   player = document.querySelector( '#player' )
+  buttonDownload = this.player.querySelector( '#download' )
 
   
-  constructor(){
-
-  }
+  constructor(){}
 
 
   init(){
