@@ -1,14 +1,21 @@
-.vscode
-todo.txt
 
-config.ts
-deno.lock
+# config
 dev.env
-test.ts
-bincan
 
+# certificates
 cert/cert.crt
 cert/key.key
 
+# client
 client/static/profile/**
 client/static/mp3/**
+
+# log file
+error.log
+
+# other
+deno.lock
+test.ts
+bincan
+.vscode
+todo.txt

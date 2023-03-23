@@ -1,4 +1,5 @@
 import { ResponseService } from '../response/response.service.ts';
+import { LoggerService } from '../logger/logger.service.ts';
 
 
 type callback = ( req: Request ) => Response | Promise< Response >
@@ -12,7 +13,8 @@ export class Router{
 
 
   constructor(
-    private readonly responseService: ResponseService
+    private readonly responseService: ResponseService,
+    private readonly LoggerService: LoggerService
   ){}
 
 
@@ -42,7 +44,8 @@ export class Router{
     const path = new URL( req.url ).pathname
     const method = req.method
     const key = path + ' | ' + method
-    console.log( '[Router] - request on: ' + key )
+    // console.log( '[Router] - request on: ' + key )
+
 
     const callback = this.getRouting( key )
     if ( callback ) return callback( req )
@@ -65,7 +68,8 @@ export class Router{
     if ( this.checkRoute( key ) ) throw '[Router] - key - (' + key + ') is exist'
 
     this.routes.set( key, callback )
-    console.log( '[Router] - route add (' + key + ')' )
+    this.LoggerService.log( 'Router', 'route add (' + key + ')' )
+    // console.log( '[Router] - route add (' + key + ')' )
 
   }
 
@@ -74,7 +78,8 @@ export class Router{
 
     const key = path.substring( 0, path.length - 2 )
     this.routesStatic.set( key, callback )
-    console.log( '[Router] - static route add (' + key + ')' )
+    this.LoggerService.log( 'Router', 'static route add (' + key + ')' )
+    // console.log( '[Router] - static route add (' + key + ')' )
 
   }
 

@@ -8,7 +8,6 @@ export class HashService{
 
   generateHash( data: Uint8Array ): string {
 
-    // const shortData = data.slice( 2048, data.length - 2048 )
     const stringData = data.join('')
     const hashResult = hash.sha1( stringData )
     

@@ -3,6 +3,7 @@ import { MySQLServiceComment } from '../mysql/mysql.service.comment.ts';
 import { MySQLServiceUser } from '../mysql/mysql.service.user.ts';
 import { ConfigModule } from '../config/config.module.ts';
 import { HashService } from '../hash/hash.service.ts';
+import { LoggerService } from '../logger/logger.service.ts';
 
 export class UploadService{
 
@@ -13,7 +14,8 @@ export class UploadService{
     private readonly mySQLServiceComment: MySQLServiceComment,
     private readonly mySQLServiceUser: MySQLServiceUser,
     private readonly config: ConfigModule,
-    private readonly hashService: HashService
+    private readonly hashService: HashService,
+    private readonly loggerService: LoggerService
   ){}
 
 
@@ -48,21 +50,8 @@ export class UploadService{
     } catch ( err ) {
 
 
-      const currentdate = new Date();
-      const datetime = "Error: " 
-        + currentdate.getDate() + "/"
-        + (currentdate.getMonth()+1)  + "/"
-        + currentdate.getFullYear() + " @ "
-        + currentdate.getHours() + ":"
-        + currentdate.getMinutes() + ":"
-        + currentdate.getSeconds();
-
-      console.log( '\n' )
-      console.log( datetime )
-      console.log( err )
-      console.log( '\n' )
-
-      return new Response( 'Error writing/reading file', { status: 500 } ) 
+      return this.loggerService.logError( err, 'Error writing/reading file' )
+      // return new Response( 'Error writing/reading file', { status: 500 } ) 
 
       
     }

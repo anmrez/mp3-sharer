@@ -4,6 +4,7 @@ import { MySQLModule } from '../mysql/mysql.module.ts';
 import { Router } from "../router/router.ts";
 import { ConfigModule } from "../config/config.module.ts";
 import { HashModule } from '../hash/hash.module.ts';
+import { LoggerModule } from '../logger/logger.module.ts';
 
 
 export class UploadModule{
@@ -17,7 +18,8 @@ export class UploadModule{
     private readonly router: Router,
     private readonly mySQLModule: MySQLModule,
     private readonly config: ConfigModule,
-    private readonly hashModule: HashModule
+    private readonly hashModule: HashModule,
+    private readonly loggerModule: LoggerModule
   ){
 
     this.service = new UploadService( 
