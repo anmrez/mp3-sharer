@@ -26,10 +26,17 @@ export class Upload{
   // temp
   titleWithAuthor = []
   
-  constructor(player, getMusic, windows1251){
-    this.playerService = player
-    this.getMusicSercise = getMusic
+  constructor(
+    keyboardService,
+    windows1251
+  ){
+
+    if ( keyboardService === undefined ) throw 'Error [Upload] - keyboardService is undefined'
+    if ( windows1251 === undefined ) throw 'Error [Upload] - windows1251 is undefined'
+
+    this.keyboardService = keyboardService
     this.windows1251Service = windows1251    
+
   }
   
   
@@ -249,27 +256,17 @@ export class Upload{
   // OPEN === ===
   openWindow(){
 
-    this._removeKeyboardEvents()
+    this.keyboardService.removeKeyboardEvents()
     this.uploadWindow.classList.remove( 'none' )
     
-  }
-  
-  
-  _removeKeyboardEvents(){
-    
-    this.playerService.removeEventOnSpace()
-    this.playerService.removeEventFastForward()
-    this.playerService.removeEventRewind()
-
-    this.getMusicSercise.removeEventReloadOnR()
-
   }
   
 
   // CLOSE === ===
   closeWindow(){
 
-    this._addKeyboardEvents()
+    // this._addKeyboardEvents()
+    this.keyboardService.addKeyboardEvents()
     this.uploadWindow.classList.add( 'none' )
 
     this.statusLoad.classList.add( 'opacity_0' )
@@ -277,16 +274,5 @@ export class Upload{
     
   }
   
-  
-  _addKeyboardEvents(){
-    
-    this.playerService.addEventOnSpace()
-    this.playerService.addEventFastForward()
-    this.playerService.addEventRewind()
-
-    this.getMusicSercise.addEventReloadOnR()
-
-  }
-
 
 }

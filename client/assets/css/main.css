@@ -100,6 +100,11 @@ body{
   border-bottom: 1px solid #cb0637;
 }
 
+.border_x_pink{
+  border-left: 1px solid #cb0637;
+  border-right: 1px solid #cb0637;
+}
+
 .border_pink{
   border: 1px solid #cb0637;
 }
@@ -236,6 +241,9 @@ body{
   padding-right: 0.5em;
   padding-top: 0.5em;
   padding-bottom: 0.5em;
+}
+.padding_l_1{
+  padding-left: 1em;
 }
 
 .padding_r_1{
@@ -420,6 +428,10 @@ body{
 
 .text_center{
   text-align: center;
+}
+
+.nowrap{
+  white-space: nowrap
 }
 
 

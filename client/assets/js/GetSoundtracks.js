@@ -1,6 +1,7 @@
+import { RenameSoundtrack } from './RenameSoundtrack.js'
 
 
-export class GetMusick{
+export class GetSoundtracks{
 
   player = document.querySelector( '#player' )
 
@@ -27,7 +28,7 @@ export class GetMusick{
   
   init( renameSoundtrack ){
     
-    if ( renameSoundtrack === undefined ) throw 'RenameSoundtrack Service is undefined'
+    if ( ! renameSoundtrack instanceof RenameSoundtrack ) throw 'Error [GetSoundtracks] - RenameSoundtrack Service is undefined'
     this.renameSoundtrackService = renameSoundtrack
 
     this.get()
@@ -47,7 +48,7 @@ export class GetMusick{
 
   }
 
-  // RELOAD === ===
+  // RELOAD --- ---
   addEventReloadOnR(){
 
     document.addEventListener( 'keyup', this.linkOnReload )
@@ -64,7 +65,8 @@ export class GetMusick{
 
   _eventReloadOnR( event ){
 
-    if ( event.keyCode === 82 ){
+    // R
+    if ( event.keyCode === 82 ) {
 
       this.get()
 
@@ -73,7 +75,7 @@ export class GetMusick{
   }
 
 
-  // SWITCH === ===
+  // SWITCH --- ---
   _addEventSwitch(){
 
     this.switchButtonMusic.addEventListener( 'click', 
@@ -484,16 +486,9 @@ export class GetMusick{
 
     // show/hidden renameSoundtrack
     const span = td.querySelector( '[userid="' + this.userID +'"]' )
-    if ( span.code === 10 ) {
-
-      this.renameSoundtrackService.show()
-
-    } else {
-
-      this.renameSoundtrackService.hidden()
-      
-    }
-
+    console.log( span )
+    if ( span === null ) this.renameSoundtrackService.hidden()
+    if ( span.code === 10 ) this.renameSoundtrackService.show()
 
   }
 

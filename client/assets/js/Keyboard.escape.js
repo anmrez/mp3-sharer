@@ -1,6 +1,6 @@
 
 
-export class Keyboard{
+export class KeyboardEscape {
 
   windowUpload = document.querySelector( '#uploadWindow' )
   windowComment = document.querySelector( '#commentWindow' )
@@ -26,6 +26,10 @@ export class Keyboard{
   }
   
   
+
+
+
+  // PRIVATE --- ---
   _disableSpaceScroll(){
 
     window.addEventListener( 'keydown', function( event ) {

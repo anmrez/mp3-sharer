@@ -21,13 +21,10 @@ export class RenameSoundtrack{
   table = document.querySelector( '#tableMusick' )
 
 
-  constructor( player, getMusick ){
+  constructor( keyboardService ){
 
-    if ( player === undefined ) throw 'PlayerService is undefined'
-    if ( getMusick === undefined ) throw 'GetMusickService is undefined'
-
-    this.playerService = player
-    this.getMusickService = getMusick
+    if ( keyboardService === undefined ) throw 'Error [Upload] - keyboardService is undefined'
+    this.keyboardService = keyboardService
 
   }
 
@@ -123,19 +120,8 @@ export class RenameSoundtrack{
     this.author.value = this.player.author
     this.soundID.value = this.player.soundID
 
-    this._removeKeyboardEvents()
+    this.keyboardService.removeKeyboardEvents()
 
-  }
-
-
-  _removeKeyboardEvents(){
-
-    this.playerService.removeEventOnSpace()
-    this.playerService.removeEventFastForward()
-    this.playerService.removeEventRewind()
-
-    this.getMusickService.removeEventReloadOnR()
-    
   }
 
 
@@ -143,17 +129,7 @@ export class RenameSoundtrack{
   closeWindow(){
 
     this.window.classList.add( 'none' )
-    this._addKeyboardEvents()
-
-  }
-
-  _addKeyboardEvents(){
-    
-    this.playerService.addEventOnSpace()
-    this.playerService.addEventFastForward()
-    this.playerService.addEventRewind()
-
-    this.getMusickService.addEventReloadOnR()
+    this.keyboardService.addKeyboardEvents()
 
   }
 

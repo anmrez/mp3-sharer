@@ -26,13 +26,13 @@ export class Comment{
     comment: ''
   }
 
-  constructor( player, getMusick ){
+  constructor( keyboardService, getSoundtrackService ){
 
-    if ( player === undefined ) throw 'PlayerService is undefined'
-    if ( getMusick === undefined ) throw 'GetMusickService is undefined'
+    if ( keyboardService === undefined ) throw 'Error [Comment] - keyboardService is undefined'
+    if ( getSoundtrackService === undefined ) throw 'Error [Comment] - getSoundtrackService is undefined'
 
-    this.playerService = player
-    this.getMusickService = getMusick
+    this.keyboardService = keyboardService
+    this.getSoundtrackService = getSoundtrackService
 
   }
 
@@ -50,7 +50,7 @@ export class Comment{
 
   }
 
-  // TEXTAREA === ===
+  // TEXTAREA --- ---
   _addEventInputTextarea(){
 
     this.comment.addEventListener( 'input', this._eventInputTextarea.bind( this ) )
@@ -69,7 +69,7 @@ export class Comment{
 
 
 
-  // STATUS === ===
+  // STATUS --- ---
   _addEventStatus(){
 
     let childrens = this.status.children
@@ -117,7 +117,7 @@ export class Comment{
   }
 
 
-  // Button into player === ===
+  // Button into player --- ---
   _addEventButtonCommentIntoPlayer(){
 
     this.commentIntoPlayer.addEventListener( 'click', this._eventButtonCommentIntoPlayer.bind( this ) )
@@ -137,6 +137,7 @@ export class Comment{
   }
 
 
+  // SEND --- ---
   _addEventSend(){
 
     this.send.addEventListener( 'click', this._eventSend.bind( this ) )
@@ -163,7 +164,7 @@ export class Comment{
 
     if ( response.status === 200 ) {
 
-      this.getMusickService.get()
+      this.getSoundtrackService.get()
       this.closeWindow()
 
     }
@@ -178,7 +179,7 @@ export class Comment{
   _openWindow(){
 
     this._findCurrentComment()
-    this._removeKeyboardEvents()
+    this.keyboardService.removeKeyboardEvents()
     this.window.classList.remove( 'none' )
 
   }
@@ -202,37 +203,14 @@ export class Comment{
   }
 
 
-
-  _removeKeyboardEvents(){
-
-    this.playerService.removeEventOnSpace()
-    this.playerService.removeEventFastForward()
-    this.playerService.removeEventRewind()
-
-    this.getMusickService.removeEventReloadOnR()
-    
-  }
-  
-
-
   // CLOSE === ===
   closeWindow(){
   
-    this._addKeyboardEvents()
+    this.keyboardService.addKeyboardEvents()
     this.window.classList.add( 'none' )
     
   }
-  
-  
-  _addKeyboardEvents(){
-    
-    this.playerService.addEventOnSpace()
-    this.playerService.addEventFastForward()
-    this.playerService.addEventRewind()
 
-    this.getMusickService.addEventReloadOnR()
-
-  }
 
 
 }
