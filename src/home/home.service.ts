@@ -1,5 +1,6 @@
 import { ResponseService } from '../response/response.service.ts';
 import { MySQLServiceSoundtrack } from '../mysql/mysql.service.soundtrack.ts';
+import { soundtrackDTO } from "../mysql/dto/soundtrack.dto.ts";
 
 
 export class HomeService{
@@ -16,8 +17,17 @@ export class HomeService{
     const search = await req.text()
 
     const searchResult = await this.mySQLServiceSoundtrack.searchByTitleORAuthorORID( search )
-    
     if ( searchResult === null ) return new Response( null, { status: 404 } )
+    
+    if ( searchResult.length > 10 ) {
+      
+      let newSearchResult: any = searchResult.slice( 0,10 )
+      newSearchResult.push( searchResult.length - 10 )
+
+      return new Response( JSON.stringify( newSearchResult ) )
+
+    }
+    
     return new Response( JSON.stringify( searchResult ) )
 
   }

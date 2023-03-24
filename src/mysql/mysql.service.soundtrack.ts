@@ -139,7 +139,8 @@ export class MySQLServiceSoundtrack{
     const result = await this.client.execute( `SELECT id, title, author, is_archived FROM sounds 
     WHERE title LIKE '%` + search + `%' 
     OR author LIKE '%` + search + `%'
-    OR id LIKE '%` + search + `%';` )
+    OR id LIKE '%` + search + `%'
+    ;` )
 
     const sounds: soundtrackDTO[] | undefined = result.rows
 

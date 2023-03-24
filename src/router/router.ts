@@ -20,8 +20,8 @@ export class Router{
 
   get( path: string, callback: callback ): void {
 
-    if ( path.includes( '**' ) ){
-      this.createRouteStatic( path, callback )
+    if ( path.includes( '/**' ) ){
+      this.createRouteStatic( path, callback, 'GET' )
       return
     } 
 
@@ -44,8 +44,7 @@ export class Router{
     const path = new URL( req.url ).pathname
     const method = req.method
     const key = path + ' | ' + method
-    // console.log( '[Router] - request on: ' + key )
-
+    this.LoggerService.log( 'Router', 'request on ' + key )
 
     const callback = this.getRouting( key )
     if ( callback ) return callback( req )
@@ -69,17 +68,15 @@ export class Router{
 
     this.routes.set( key, callback )
     this.LoggerService.log( 'Router', 'route add (' + key + ')' )
-    // console.log( '[Router] - route add (' + key + ')' )
 
   }
 
 
-  private createRouteStatic( path: string, callback: callback ){
+  private createRouteStatic( path: string, callback: callback, method: string ){
 
-    const key = path.substring( 0, path.length - 2 )
+    const key = path.substring( 0, path.length - 2 ) + ' | ' + method
     this.routesStatic.set( key, callback )
     this.LoggerService.log( 'Router', 'static route add (' + key + ')' )
-    // console.log( '[Router] - static route add (' + key + ')' )
 
   }
 
@@ -95,13 +92,24 @@ export class Router{
     while ( this.routesStatic.size !== index ){
 
       const statickKey = staticIterator.next().value
-      if ( key.startsWith( statickKey ) ) callback = this.routesStatic.get( statickKey )
+
+      const statickPath = statickKey.split( ' | ' )[0]
+      const statickMethod = statickKey.split( ' | ' )[1]
+
+      const requestPath = key.split( ' | ' )[0]
+      const requestMethod = key.split( ' | ' )[1]
+
+
+      if ( requestPath.startsWith( statickPath ) )
+      if ( requestMethod === statickMethod )
+        callback = this.routesStatic.get( statickKey )
+
       index++
 
     }
 
-    if ( callback ) return callback
-    return undefined
+    // if ( callback ) return callback
+    return callback
 
   }
 
