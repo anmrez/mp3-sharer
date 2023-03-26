@@ -138,6 +138,9 @@ body{
 .min_width_2{
   min-width: 2em;
 }
+.width_3{
+  width: 3em;
+}
 .min_width_3{
   min-width: 3em;
 }

@@ -176,7 +176,7 @@ export class Search{
     tr.append( document.createElement( 'td' ) )
 
     // add row into table
-    this.tableSearch.append( tr )
+    this.resultSearch.append( tr )
 
   }
 

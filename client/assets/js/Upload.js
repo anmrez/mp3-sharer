@@ -265,7 +265,6 @@ export class Upload{
   // CLOSE === ===
   closeWindow(){
 
-    // this._addKeyboardEvents()
     this.keyboardService.addKeyboardEvents()
     this.uploadWindow.classList.add( 'none' )
 

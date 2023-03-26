@@ -8,13 +8,16 @@ export class GetSoundtracks{
 
   dataArray = []
   table = document.querySelector( '#tableMusick' )
-  tableBody = document.querySelector( '#tableMusickBody' )
+  // table.update() = this.get()
+  // table.selected = soundtrack id seleccted
+
+  tableBody = this.table.querySelector( '#tableMusickBody' )
 
   switchButton = document.querySelector( '#switchButton' )
-  switchButtonMusic = switchButton.querySelector( '#music' )
-  switchButtonArchive = switchButton.querySelector( '#archive' )
+  switchButtonMusic = this.switchButton.querySelector( '#music' )
+  switchButtonArchive = this.switchButton.querySelector( '#archive' )
 
-  linkOnReload
+  _linkOnReload
 
   timeoutSetList = []
 
@@ -33,7 +36,7 @@ export class GetSoundtracks{
 
     this.get()
     
-    this.linkOnReload = this._eventReloadOnR.bind( this )
+    this._linkOnReload = this._eventReloadOnR.bind( this )
     this.addEventReloadOnR()
     
     this._addEventSwitch()
@@ -51,14 +54,14 @@ export class GetSoundtracks{
   // RELOAD --- ---
   addEventReloadOnR(){
 
-    document.addEventListener( 'keyup', this.linkOnReload )
+    document.addEventListener( 'keyup', this._linkOnReload )
 
   }
 
 
   removeEventReloadOnR(){
 
-    document.removeEventListener( 'keyup', this.linkOnReload )
+    document.removeEventListener( 'keyup', this._linkOnReload )
 
   }
 
@@ -98,7 +101,7 @@ export class GetSoundtracks{
   }
 
 
-  // GET DATA
+  // GET SOUNDTRACKS --- ---
   async get(){
 
     let response
@@ -296,18 +299,13 @@ export class GetSoundtracks{
   _createTDTitle( item ){
 
     const td = document.createElement( 'td' );
-
     td.classList.add( 'padding_x_1' )
 
     if ( item.title.length > 30 ) {
-
-      let sub = item.title.substring( 0, 30 )
+      const sub = item.title.substring( 0, 30 )
       td.innerHTML = sub + '...'
-      return td
-      
-    }
-    
-    td.innerHTML = item.title
+    } else td.innerHTML = item.title
+
     return td
 
   }
@@ -316,9 +314,12 @@ export class GetSoundtracks{
   _createTDAuthor( item ){
 
     const td = document.createElement( 'td' );
-
     td.classList.add( 'padding_x_1' )
-    td.innerHTML = item.author
+
+    if ( item.author.length > 15 ) {
+      const sub = item.author.substring( 0, 14 )
+      td.innerHTML = sub + '...'
+    } else td.innerHTML = item.author
 
     return td
 

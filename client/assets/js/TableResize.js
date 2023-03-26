@@ -4,16 +4,17 @@ export class TableResize{
 
   // in document
   player = document.querySelector( '#player' )
-  mainTable = document.querySelector( '#mainTable' )
 
   // in player
   playerBody = this.player.querySelector( '#body' )
 
-  // in mainTable
-  table = this.mainTable.querySelector( '#table' )
+  // tableSoundtrack
+  table = document.querySelector( '#tableSoundtrack' )
 
 
-  constructor(){}
+  constructor(){
+    console.log( this.table )
+  }
 
 
   init(){
@@ -31,12 +32,12 @@ export class TableResize{
   }
 
 
-  _evnetResizeWindow(){
+  _evnetResizeWindow(  ){
 
     const positionTable = this.table.offsetTop
     const positionPlayer = this.playerBody.offsetTop
 
-    this.table.style.maxHeight = positionPlayer - 20 - positionTable + 'px'
+    this.table.style.maxHeight = positionPlayer - 5 - positionTable + 'px'
 
   }
 

@@ -146,7 +146,6 @@ textarea:focus{
 
   padding-right: 1em;
   padding-left: 1em;
-  padding-bottom: 0.5em;
 
   cursor: pointer;
   transition: 0.2s;
@@ -162,10 +161,10 @@ textarea:focus{
 
   padding-right: 1em;
   padding-left: 1em;
-  padding-bottom: 0.5em;
+  /* padding-bottom: 0.5em; */
 
   cursor: pointer;
-  border-bottom: 1px solid #8f0527;
+  /* border-bottom: 1px solid #8f0527; */
 }
 
 

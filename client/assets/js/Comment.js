@@ -16,7 +16,8 @@ export class Comment{
   soundID = this.player.querySelector( '#id' )
 
   // other
-  table = document.querySelector( '#tableMusickBody' )
+  table = document.querySelector( '#tableMusick' )
+  tableBody = this.table.querySelector( '#tableMusickBody' )
   buttonUser = document.querySelector( '#buttonUser' )
   userID = 0
 
@@ -26,13 +27,11 @@ export class Comment{
     comment: ''
   }
 
-  constructor( keyboardService, getSoundtrackService ){
+  constructor( keyboardService ){
 
     if ( keyboardService === undefined ) throw 'Error [Comment] - keyboardService is undefined'
-    if ( getSoundtrackService === undefined ) throw 'Error [Comment] - getSoundtrackService is undefined'
 
     this.keyboardService = keyboardService
-    this.getSoundtrackService = getSoundtrackService
 
   }
 
@@ -164,7 +163,8 @@ export class Comment{
 
     if ( response.status === 200 ) {
 
-      this.getSoundtrackService.get()
+      // this.getSoundtrackService.get()
+      this.table.update()
       this.closeWindow()
 
     }
@@ -188,7 +188,7 @@ export class Comment{
   _findCurrentComment(){
 
     const soundID = this.soundID.innerHTML
-    const row = this.table.querySelector( '[soundid="' + soundID + '"]' )
+    const row = this.tableBody.querySelector( '[soundid="' + soundID + '"]' )
     
     const status = row.querySelector( '[userid="' + this.userID + '"]' )
     const buttonsStatus = this.status.children

@@ -15,6 +15,34 @@
       <h1> MP3 Sharer </h1>
       <h2 class="margin_l_1 color_dark text_1"> V0.5.2 </h2>
     </section>
+
+    <section id='switchButton' class="flex justify_center align_center">
+      <a id="music" class="flex align_center height_1 switch_button_active switch_button text_center text_1_25" >
+        <span>
+          Music
+        </span>
+      </a>
+      <a id="archive" class="flex align_center height_1 switch_button text_center text_1_25" >
+        <span>
+          Archive
+        </span>
+      </a>
+      <section id="search" class="relative">
+        <input id="input" type="search" class="height_2 text_1_25 background_main_3 text_center color_white border_none radius" placeholder="Search">
+        <table id="table" style="top:2em; z-index: 5;" class="none background_main padding_x_1 padding_y_0_5 text_1_25 border_pink transform_x_50 left_50 absolute">
+          <thead>
+            <tr class="height_2">
+              <th class="text_center padding_l_1" > id </th>
+              <th class="min_width_17 padding_x_1 text_center" > title </th>
+              <th class="min_width_13 text_center" > author </th>
+              <th class="text_center padding_r_1" > archived </th>
+            </tr>
+          </thead>
+          <tbody id="result"></tbody>
+        </table>
+      </section>
+    </section>
+    
     <section class="flex">
       <a id="upload" class="margin_r_1 color_white text_1_25 background_pink padding_x_2 radius cursor_pointer flex align_center"> Upload </a>
       <a id="buttonUser" class="color_white background_pink padding_x_1 radius cursor_pointer flex align_center justify_around" >
@@ -24,73 +52,39 @@
     </section>
   </header>
 
-  <section id='switchButton' class="flex justify_center margin_t_1">
-    <a id="music" class="flex align_center height_2 switch_button_active switch_button text_center text_1_25" >
-      <span>
-        Music
-      </span>
-    </a>
-    <a id="archive" class="flex align_center height_2 switch_button text_center text_1_25" >
-      <span>
-        Archive
-      </span>
-    </a>
-    <section id="search" class="relative">
-      <input id="input" type="search" class="height_2 text_1_25 background_main_3 text_center color_white border_none radius" placeholder="Search">
-      <table id="table" style="top:2em; z-index: 5;" class="none background_main padding_x_1 padding_y_0_5 text_1_25 border_pink transform_x_50 left_50 absolute">
-        <thead>
-          <tr class="height_2">
-            <th class="text_center padding_l_1" > id </th>
-            <th class="min_width_17 padding_x_1 text_center" > title </th>
-            <th class="min_width_13 text_center" > author </th>
-            <th class="text_center padding_r_1" > archived </th>
-          </tr>
-        </thead>
-        <tbody id="result"></tbody>
-        <!-- <span id="more" style="top: 23em;" class="background_main padding_y_0_5 padding_x_1 border_x_pink border_bottom_pink nowrap absolute"></span> -->
-      </table>
-    </section>
-  </section>
 
+  <!-- Table -->
+  <section id="tableSoundtrack" style="overflow-y: scroll; top: 5px;" class="flex justify_center relative">
+    <table id="tableMusick" class="text_1_25 background_main_2">
+      <thead class="height_2 " align="center">
+        <td class="color_dark"> № </td>
+        <td class="width_5"> date </td>
+        <td class="width_5"> duration </td>
+        <td class="width_5">  </td>
+        <td class="width_30"> Song title </td>
+        <td class="min_width_13 padding_y"> Author </td>
+        <td class="width_3" data-user="0">
+          <img class="table_users"></section>
+        </td>
+        <td class="min_width_3" data-user="1">
+          <img class="table_users"></section>
+        </td>
+        <td class="min_width_3" data-user="2">
+          <img class="table_users"></section>
+        </td>
+        <td class="min_width_3" data-user="3">
+          <img class="table_users"></section>
+        </td>
+        <td class="min_width_3" data-user="4">
+          <img class="table_users"></section>
+        </td>
+        <td class="min_width_3" data-user="5">
+          <img class="table_users"></section>
+        </td>
 
-  <!-- Body -->
-  <section id="mainTable" class="flex justify_center padding_x_2 margin_t_1"  >
-
-    <!-- Table -->
-    <section id="table" class="background_main_2">
-      <table id="tableMusick" class="text_1_25">
-        <thead class="height_2 " align="center">
-          <td class="color_dark"> № </td>
-          <td class="min_width_5"> date </td>
-          <td class="min_width_5"> duration </td>
-          <td class="min_width_5">  </td>
-          <td class="width_30"> Song title </td>
-          <td class="width_15 padding_y"> Author </td>
-          <td class="min_width_3" data-user="0">
-            <img class="table_users"></section>
-          </td>
-          <td class="min_width_3" data-user="1">
-            <img class="table_users"></section>
-          </td>
-          <td class="min_width_3" data-user="2">
-            <img class="table_users"></section>
-          </td>
-          <td class="min_width_3" data-user="3">
-            <img class="table_users"></section>
-          </td>
-          <td class="min_width_3" data-user="4">
-            <img class="table_users"></section>
-          </td>
-          <td class="min_width_3" data-user="5">
-            <img class="table_users"></section>
-          </td>
-
-        </thead>
-        <tbody id="tableMusickBody">
-        </tbody>
-      </table>
-    </section>
-
+      </thead>
+      <tbody id="tableMusickBody"></tbody>
+    </table>
   </section>
 
 
