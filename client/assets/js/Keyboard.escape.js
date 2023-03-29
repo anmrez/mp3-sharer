@@ -1,15 +1,24 @@
+import { Comment } from './Comment.js';
+import { RenameSoundtrack } from './RenameSoundtrack.js'
+import { Upload } from './Upload.js';
 
 
 export class KeyboardEscape {
 
+
   windowUpload = document.querySelector( '#uploadWindow' )
   windowComment = document.querySelector( '#commentWindow' )
   
-  constructor( upload, comment, renameSoundtrack ){
 
-    if ( player === undefined ) throw 'Player service is undefined'
-    if ( comment === undefined ) throw 'comment service is undefined'
-    if ( renameSoundtrack === undefined ) throw 'renameSoundtrack service is undefined'
+  constructor( 
+    upload, 
+    comment, 
+    renameSoundtrack 
+  ){
+
+    if ( upload instanceof Upload === false ) throw 'Error [Keyboard escape] - upload not Upload'
+    if ( comment instanceof Comment === false ) throw 'Error [Keyboard escape] - comment not Comment'
+    if ( renameSoundtrack instanceof RenameSoundtrack === false ) throw 'Error [Keyboard escape] - renameSoundtrack not RenameSoundtrack'
     
     this.uploadService = upload
     this.commentService = comment
@@ -20,28 +29,12 @@ export class KeyboardEscape {
 
   init(){
 
-    this._disableSpaceScroll()
     this._addEventsESC()
     
   }
   
-  
-
-
 
   // PRIVATE --- ---
-  _disableSpaceScroll(){
-
-    window.addEventListener( 'keydown', function( event ) {
-
-      if ( event.keyCode === 32 )
-        if ( event.target === document.body ) event.preventDefault()
-
-    });
-
-  }
-
-
   _addEventsESC(){
 
     window.addEventListener( 'keydown', this._eventESC.bind( this ) )

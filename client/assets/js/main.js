@@ -47,7 +47,7 @@ class Init{
     
     let index = 1
     
-    while( index !== 12 ) {
+    while( index !== 13 ) {
 
       const delay = 50 * index
 
@@ -67,6 +67,7 @@ class Init{
       if ( index === 10 ) setTimeout( this.renameSoundtrack.init.bind( this.renameSoundtrack ), delay ) 
       
       if ( index === 11 ) setTimeout( this.search.init.bind( this.search ), delay ) 
+      if ( index === 12 ) setTimeout( this.keyboardService.init.bind( this.keyboardService ), delay ) 
 
       index++
 

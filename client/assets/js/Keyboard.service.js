@@ -11,11 +11,18 @@ export class KeyboardService {
     getMusicSercise
   ){
 
-    if ( ! playerService instanceof Player ) throw 'Error [Keyboard service] - playerService not Player'
-    if ( ! getMusicSercise instanceof GetSoundtracks ) throw 'Error [Keyboard service] - getMusicSercise not GetSoundtracks'
+    if ( playerService instanceof Player === false ) throw 'Error [Keyboard service] - playerService not Player'
+    if ( getMusicSercise instanceof GetSoundtracks === false  ) throw 'Error [Keyboard service] - getMusicSercise not GetSoundtracks'
 
     this.playerService = playerService
     this.getMusicSercise = getMusicSercise
+
+  }
+
+
+  init(){
+
+    this._disableSpaceScroll()
 
   }
 
@@ -42,5 +49,16 @@ export class KeyboardService {
   }
 
 
+  // PRIVATE --- ---
+  _disableSpaceScroll(){
+
+    window.addEventListener( 'keydown', function( event ) {
+
+      if ( event.keyCode === 32 )
+        if ( event.target === document.body ) event.preventDefault()
+
+    });
+
+  }
 
 }
