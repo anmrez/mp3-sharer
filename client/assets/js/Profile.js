@@ -20,18 +20,27 @@ export class Profile{
 
   async _get(){
 
-    const request = await fetch( '/getProfile', {
+    const response = await fetch( '/getProfile', {
       method: 'GET',
     })
 
-    if ( request.status !== 200 ) return;
-    
-    const user = await request.json()
+    if ( response.status === 200 ) {
 
-    this.buttonUser.userID = user.id
-    this.username.innerHTML = user.username
-    this.image.src = '/static/profile/' + user.image
-    this.image.alt = user.image
+      const user = await response.json()
+      
+      this.buttonUser.userID = user.id
+      this.username.innerHTML = user.username
+      this.image.src = '/static/profile/' + user.image
+      this.image.alt = user.image
+      
+      return;
+      
+    }
+    
+    this.buttonUser.userID = -1
+    this.image.src = '/static/profile/default.png'
+    this.image.alt = 'default.png'
+    this.username.innerHTML = '404'
 
   }
 
