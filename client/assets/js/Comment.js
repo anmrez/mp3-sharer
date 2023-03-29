@@ -27,6 +27,7 @@ export class Comment{
     comment: ''
   }
 
+
   constructor( keyboardService ){
 
     if ( keyboardService === undefined ) throw 'Error [Comment] - keyboardService is undefined'
@@ -39,19 +40,21 @@ export class Comment{
   init(){
 
     this._addEventInputTextarea()
-    this._eventInputTextarea()
 
     this._addEventStatus()
     this._addEventButtonCommentIntoPlayer()
     this._addEventSend()
 
     this.userID = Number( this.buttonUser.userID )
+    
 
   }
+
 
   // TEXTAREA --- ---
   _addEventInputTextarea(){
 
+    this._eventInputTextarea()
     this.comment.addEventListener( 'input', this._eventInputTextarea.bind( this ) )
 
   }
@@ -59,24 +62,21 @@ export class Comment{
 
   _eventInputTextarea(){
 
-    if ( this.comment.value.length > 100 )
-      this.comment.value = this.comment.value.substring( 0, 100 )
-    else
-      this.count.innerHTML = this.comment.value.length + ''
+    if ( this.comment.value.length > 100 ) this.comment.value = this.comment.value.substring( 0, 100 )
+    else this.count.innerHTML = this.comment.value.length + ''
 
   }
-
 
 
   // STATUS --- ---
   _addEventStatus(){
 
-    let childrens = this.status.children
-    let index = 0
+    const childrens = this.status.children
 
+    let index = 0
     while( childrens.length > index ){
 
-      let item = childrens[index]
+      const item = childrens[index]
       item.addEventListener( 'click', this._eventStatus.bind( this ) )
 
       index++
@@ -88,12 +88,12 @@ export class Comment{
 
   _eventStatus( event ){
 
-    let childrens = this.status.children
-    let index = 0
+    const childrens = this.status.children
 
+    let index = 0
     while( childrens.length > index ){
 
-      let item = childrens[index]
+      const item = childrens[index]
 
       if ( item === event.target ) {
 
@@ -102,12 +102,7 @@ export class Comment{
         const status = index + 1
         this.sendData.status = status
         
-      } else {
-        
-        item.style.border = '2px solid transparent'
-        
-      }
-      
+      } else item.style.border = '2px solid transparent'
       
       index++
       
@@ -126,12 +121,10 @@ export class Comment{
 
   _eventButtonCommentIntoPlayer(){
 
-    let isHidden = this.window.classList.contains( 'none' )
+    const isHidden = this.window.classList.contains( 'none' )
 
-    if ( isHidden )
-      this._openWindow()
-    else 
-      this.closeWindow()
+    if ( isHidden ) this._openWindow()
+    else this.closeWindow()
 
   }
 
@@ -146,8 +139,7 @@ export class Comment{
 
   async _eventSend(){
 
-
-    let comment = this.comment.value.substring( 0, 100 )
+    const comment = this.comment.value.substring( 0, 100 )
     this.sendData.comment = comment
 
     this.sendData.soundID = Number( this.soundID.innerHTML )
@@ -163,14 +155,12 @@ export class Comment{
 
     if ( response.status === 200 ) {
 
-      // this.getSoundtrackService.get()
       this.table.update()
       this.closeWindow()
 
     }
 
   }
-
 
 
   // WINDOW === === ===
@@ -182,9 +172,10 @@ export class Comment{
     this.keyboardService.removeKeyboardEvents()
     this.window.classList.remove( 'none' )
 
+    
   }
-
-
+  
+  
   _findCurrentComment(){
 
     const soundID = this.soundID.innerHTML
@@ -198,7 +189,6 @@ export class Comment{
 
     this.comment.value = ''
     if ( status.comment ) this.comment.value = status.comment
-
 
   }
 
