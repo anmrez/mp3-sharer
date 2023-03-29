@@ -43,18 +43,26 @@ export class MySQLServiceSoundtrack{
   // GET --- ---
   async responseAllSounds(): Promise< Response > {
 
-    const sounds = await this.getAllSounds()
-    if ( sounds === null ) return new Response( null, {
+    const soundtracks = await this.getAllSounds()
+    if ( soundtracks === null ) return new Response( null, {
       status: 404
     } ) 
 
 
-    const jsonData = JSON.stringify( sounds )
+    // const jsonData = JSON.stringify( sounds )
+    // const jsonData = JSON.stringify( 1 )
 
-    return new Response( jsonData, {
+    // return new Response( jsonData, {
+    //   status: 200,
+    //   headers: {
+    //     'content-type': 'application/json'
+    //   }
+    // } )
+
+    return new Response( this.intoBinary( soundtracks ) , {
       status: 200,
       headers: {
-        'content-type': 'application/json'
+        'content-type': 'text/plain',
       }
     } )
 
@@ -64,19 +72,17 @@ export class MySQLServiceSoundtrack{
 
   async getAllSoundsInArchive(): Promise< Response > {
     
-    const allSound = await this.client.execute( 'SELECT * FROM sounds WHERE is_archived = 1;' )
-    const sounds = allSound.rows
+    const allSound = await this.client.execute( 'SELECT id, duration, title, author, createdAt FROM sounds WHERE is_archived = 1;' )
+    const soundtracks = allSound.rows
 
-    if ( sounds === undefined ) return new Response( null, {
+    if ( soundtracks === undefined ) return new Response( null, {
       status: 404
     } )
 
-    const jsonData = JSON.stringify( sounds )
-
-    return new Response( jsonData, {
+    return new Response( this.intoBinary( soundtracks ) , {
       status: 200,
       headers: {
-        'content-type': 'application/json'
+        'content-type': 'text/plain',
       }
     } )
     
@@ -85,7 +91,7 @@ export class MySQLServiceSoundtrack{
 
   async getAllSounds(): Promise< soundtrackDTO[] | null > {
 
-    const allSound = await this.client.execute( 'SELECT * FROM sounds WHERE is_archived = 0;' )
+    const allSound = await this.client.execute( 'SELECT id, duration, title, author, createdAt FROM sounds WHERE is_archived = 0;' )
     const sounds: soundtrackDTO[] | undefined = allSound.rows
     
     if ( sounds === undefined ) return null
@@ -240,6 +246,84 @@ export class MySQLServiceSoundtrack{
 
 
     }
+
+  }
+
+
+
+  // PRIVATE --- ---
+
+  private intoBinary( arraySoundtracks: soundtrackDTO[] ): Uint8Array {
+
+    const encoder = new TextEncoder()
+    const length = arraySoundtracks.length
+
+    const responseArray: number[] = []
+
+    let index = 0
+    while( index !== length ) {
+
+      const item = arraySoundtracks[index]
+      const lengthID = Math.ceil( item.id / 255 )
+
+      // add length byte ID
+      responseArray.push( ...this.converterTo16( lengthID, 1 ) )
+
+      // add ID
+      responseArray.push( ...this.converterTo16( item.id, lengthID ) )
+
+      // add duration - 2 byte
+      responseArray.push( ...this.converterTo16( item.duration, 2 ) )
+
+      // add length title - 1 byte
+      const titleEncode = encoder.encode( item.title )
+      responseArray.push( ...this.converterTo16( titleEncode.length, 1 ) )
+      
+      // add title - title length byte
+      responseArray.push( ...titleEncode )
+      
+      // add length author - 1 byte
+      const authorEncode = encoder.encode( item.author )
+      responseArray.push( ...this.converterTo16( authorEncode.length, 1 ) )
+      
+      // add author - author length byte
+      responseArray.push( ...authorEncode )
+      
+      // add created at - 2 byte
+      const created = item.createdAt.split('.')
+      responseArray.push( Number( created[0] ) )
+      responseArray.push( Number( created[1] ) )
+
+      index++
+
+    }
+
+    return new Uint8Array( responseArray )
+
+  }
+
+
+  private converterTo16( data: number, length: number ) {
+
+    const result = new Array( length )
+
+    let index = result.length - 1
+    while ( index !== -1 ) {
+
+      if ( index === result.length - 1 ) {
+        result[index - 1] = Math.floor( data / 255 )
+        result[index] = data - 255 * result[index - 1]
+      } else {
+        
+        result[index - 1] = Math.floor( result[index] / 255 )
+        result[index] = result[index] - 255 * result[index - 1]
+
+      }
+
+      index--
+    }
+
+    return result
 
   }
 

@@ -34,12 +34,12 @@ export class MySQLController{
 
   addRoutingSoundtrack( mySQLServiceSoundtrack: MySQLServiceSoundtrack ) {
 
-    this.router.get( '/getSounds', function() {
+    this.router.get( '/getSoundtracks', function() {
       return mySQLServiceSoundtrack.responseAllSounds()
     } )
 
 
-    this.router.get( '/getSoundsInArchive', function() {
+    this.router.get( '/getSoundtracksInArchive', function() {
       return mySQLServiceSoundtrack.getAllSoundsInArchive()
     } )
     

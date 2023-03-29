@@ -1,6 +1,7 @@
 
 # config
-dev.env
+.dev.env
+.prod.env
 
 # certificates
 cert/cert.crt

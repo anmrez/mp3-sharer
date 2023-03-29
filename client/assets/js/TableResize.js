@@ -12,9 +12,7 @@ export class TableResize{
   table = document.querySelector( '#tableSoundtrack' )
 
 
-  constructor(){
-    console.log( this.table )
-  }
+  constructor(){}
 
 
   init(){

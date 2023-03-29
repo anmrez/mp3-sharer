@@ -146,12 +146,12 @@ export class Search{
     if ( clickRow.archived === 0 ) {
 
       // find into not archived
-      console.log( 'not archived' )
+      // console.log( 'not archived' )
       
     } else {
       
       // find into archived
-      console.log( 'archived' )
+      // console.log( 'archived' )
 
     }
 
@@ -185,7 +185,6 @@ export class Search{
   // TABLE --- ---
   _showTable(){
 
-    console.log( 'show' )
     this.tableSearch.classList.remove( 'none' )
 
   }
@@ -193,7 +192,6 @@ export class Search{
   
   _hiddenTable(){
 
-    console.log( 'hidden' )
     this.tableSearch.classList.add( 'none' )
     
   }

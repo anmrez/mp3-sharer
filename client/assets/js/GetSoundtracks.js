@@ -8,9 +8,11 @@ export class GetSoundtracks{
 
   dataArray = []
   table = document.querySelector( '#tableMusick' )
-  // table.update() = this.get()
-  // table.selected = soundtrack id seleccted
+  // this class added:
+  // - table.update() = this.get()
+  // - table.selected = soundtrack id seleccted
 
+  sectionTable = document.querySelector( '#tableSoundtrack' )
   tableBody = this.table.querySelector( '#tableMusickBody' )
 
   switchButton = document.querySelector( '#switchButton' )
@@ -38,6 +40,7 @@ export class GetSoundtracks{
     
     this._linkOnReload = this._eventReloadOnR.bind( this )
     this.addEventReloadOnR()
+    this._addEventScrollTable()
     
     this._addEventSwitch()
     this._getUserID()
@@ -78,6 +81,27 @@ export class GetSoundtracks{
   }
 
 
+  _addEventScrollTable(  ){
+
+    this.sectionTable.addEventListener( 'scroll', function( event ) {
+
+      const target = event.target
+      if ( target.clientHeight + target.scrollTop > target.scrollHeight - 100 ) {
+
+        if ( this.dataArray.length - this.sectionTable.lastLoadIndex <= 0 ) return;
+        
+        const item = this.dataArray[ this.dataArray.length - this.sectionTable.lastLoadIndex - 1 ]
+        this.sectionTable.lastLoadIndex ++
+        if ( ! item ) throw 'Error: item is undefined';
+        this._addItem( item, this.sectionTable.lastLoadIndex )
+        
+      } 
+
+    }.bind( this ) )
+
+  }
+
+
   // SWITCH --- ---
   _addEventSwitch(){
 
@@ -108,28 +132,89 @@ export class GetSoundtracks{
 
     if ( this.switchButtonArchive.classList.contains( 'switch_button_active' ) ) {
       
-      response = await fetch( '/getSoundsInArchive', {
+      response = await fetch( '/getSoundtracksInArchive', {
         method: 'GET'
       } ) 
 
     } else {
 
-      response = await fetch( '/getSounds', {
+      response = await fetch( '/getSoundtracks', {
         method: 'GET'
       } )
 
     }
 
-    this.dataArray = await response.json()
+    if ( response.status !== 200 ) return;
+
+    this.dataArray = []
+    const responseBuffer = await response.arrayBuffer()
+
+    let soundtracksBinary = new Uint8Array( responseBuffer )
+    const decoder = new TextDecoder()
+
+    while ( soundtracksBinary.length > 0 ){
+
+      let HEAD = 0
+
+      // length ID - 1 byte
+      const lengthSoundID = this._decoderBynary( soundtracksBinary.slice( HEAD, HEAD + 1 ) )
+      HEAD++
+
+      // sound ID - length ID byte
+      const soundID = this._decoderBynary( soundtracksBinary.slice( HEAD, HEAD + lengthSoundID ) )
+      HEAD += lengthSoundID
+
+      // duration - 2 byte
+      const duration = this._decoderBynary( soundtracksBinary.slice( HEAD, HEAD + 2 ) )
+      HEAD += 2
+
+      // title - 1 byte + title length byte
+      const titleLength = soundtracksBinary[HEAD]
+      HEAD++
+      
+      const title = decoder.decode( soundtracksBinary.slice( HEAD, titleLength + HEAD ) )
+      HEAD += titleLength
+      
+      // author - 1 byte + author length byte
+      const authorLength = soundtracksBinary[HEAD]
+      HEAD++
+      
+      const author = decoder.decode( soundtracksBinary.slice( HEAD, authorLength + HEAD ) )
+      HEAD += authorLength
+
+      // created at - 2 byte
+      let createdAT = ''
+      if ( soundtracksBinary[HEAD] < 10 ) createdAT = '0' + soundtracksBinary[HEAD] + '.'
+      else createdAT =  soundtracksBinary[HEAD] + '.'
+
+      if ( soundtracksBinary[HEAD + 1] < 10 ) createdAT += '0' + soundtracksBinary[HEAD + 1]
+      else createdAT += soundtracksBinary[HEAD + 1]
+      HEAD += 2
+
+      // 
+      soundtracksBinary = soundtracksBinary.slice( HEAD )
+
+      this.dataArray.push({
+        id: soundID,
+        duration: duration,
+        title: title,
+        author: author,
+        createdAT: createdAT
+      })
+
+    }
 
     if ( this.dataArray.length === 0 ) throw 'ERROR: Soundtracks not found'
 
-    this.set()
+    this._set()
 
   }
 
 
-  set(){
+
+
+
+  _set(){
 
     this.tableBody.replaceChildren()
     this._cleatTimeoutSetList()
@@ -165,6 +250,10 @@ export class GetSoundtracks{
 
 
   _addItem( item, index ){
+
+    if ( this.sectionTable.clientHeight + this.sectionTable.scrollTop < this.sectionTable.scrollHeight - 100 )return; 
+    
+    this.sectionTable.lastLoadIndex = index;
 
     const tr = document.createElement( 'tr' );
 
@@ -222,7 +311,7 @@ export class GetSoundtracks{
 
     const td = document.createElement( 'td' );
 
-    td.innerHTML = item.createdAt
+    td.innerHTML = item.createdAT
 
     return td
 
@@ -470,7 +559,7 @@ export class GetSoundtracks{
 
     this.table.selected = item.id
     
-    // set all 'pause'
+    // _set all 'pause'
     this.table.querySelectorAll('[sound]').forEach( item => {
       item.querySelector( '#play' ).classList.remove( 'none' )
       item.querySelector( '#pause' ).classList.add( 'none' )
@@ -508,6 +597,31 @@ export class GetSoundtracks{
     if ( minute < 10 ) minute = '0' + minute
 
     return minute + ':' + second
+
+  }
+
+
+  _decoderBynary( array = [0] ) {
+
+    const basicArray = []
+
+    array.forEach( item => {
+      basicArray.push( item )
+    } )
+
+    let result = 0
+    let index = 0
+    while ( index !== basicArray.length ){
+
+      if ( index === basicArray.length - 1 ) result += basicArray[index]
+      else 
+        if ( basicArray[index] > 0 ) basicArray[index + 1] += basicArray[index] * 255
+
+      index++
+
+    }
+
+    return result
 
   }
 
