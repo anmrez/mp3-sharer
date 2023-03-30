@@ -6,6 +6,7 @@ export class Download{
   player = document.querySelector( '#player' )
   buttonDownload = this.player.querySelector( '#download' )
 
+  _download = document.createElement( 'a' )
   
   constructor(){}
 
@@ -25,19 +26,13 @@ export class Download{
 
   _eventClick(){
 
-    const title = player.querySelector( '#title' ).innerHTML
-    const author = player.querySelector( '#author' ).innerHTML
-    const soundtrack = player.querySelector( '#soundtrack' )
-
-    const a = document.createElement( 'a' )
-    a.setAttribute( 'href', soundtrack.src )
-    a.setAttribute( 'download', author + ' – ' + title + '.mp3' )
-
-    document.body.append( a )
-
-    a.click()
-
-    document.body.removeChild( a );
+    const title = this.player.title
+    const author = this.player.author
+    const soundtrack = this.player.querySelector( '#soundtrack' )
+    
+    this._download.setAttribute( 'href', soundtrack.src )
+    this._download.setAttribute( 'download', author + ' – ' + title + '.mp3' )
+    this._download.click()
 
   }
 
