@@ -114,6 +114,11 @@ body{
   outline: none;
 }
 
+.border_transparent{
+  border: 1px solid transparent;
+  outline: none;
+}
+
 
 /* Collor */
 
