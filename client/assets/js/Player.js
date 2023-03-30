@@ -3,6 +3,7 @@
 // - author - soundtrack author
 // - soundID - soundtrack ID
 // - status - soundtrack playback status (play/pause)
+// - file - file
 
 export class Player{
 
@@ -59,7 +60,7 @@ export class Player{
     else this.duration.max.innerHTML = timeStr
 
     // soundtrack loaded
-    this.soundtrack.addEventListener( 'loadeddata', this._eventButtonPlay.bind( this ) );
+    this.soundtrack.addEventListener( 'canplay', this._eventButtonPlay.bind( this ) );
 
   }
 
@@ -206,6 +207,7 @@ export class Player{
   }
 
 
+  // VOLUME SLIDER --- ---
   _addEventVolumeSlider(){ this.volumeSlider.addEventListener( 'input', this._eventVolumeSlider.bind( this ) ) }
 
 
@@ -223,7 +225,7 @@ export class Player{
     
   }
   
-  _eventTimeline(  ){
+  _eventTimeline(  ) {
     
     const duration = this.soundtrack.duration
     const currentTime = this.soundtrack.currentTime
@@ -234,7 +236,7 @@ export class Player{
   }
 
 
-  _eventTimelineMove( event ){
+  _eventTimelineMove( event ) {
 
     this.tooltipTimeline.classList.remove( 'none' )
 

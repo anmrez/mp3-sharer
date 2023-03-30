@@ -355,9 +355,9 @@ export class GetSoundtracks{
     path.setAttribute( 'd', 'M0 0 L14 7 L0 14' )
     path.id = 'play'
 
-    const g = document.createElementNS("http://www.w3.org/2000/svg", "g")
-    g.classList.add( 'none' )
-    g.id = 'pause'
+    const group = document.createElementNS("http://www.w3.org/2000/svg", "g")
+    group.classList.add( 'none' )
+    group.id = 'pause'
 
     const line1 = document.createElementNS("http://www.w3.org/2000/svg", "line")
     line1.setAttribute( 'x1', '3' )
@@ -373,11 +373,11 @@ export class GetSoundtracks{
     line2.setAttribute( 'y2', '14' )
     line2.setAttribute( 'stroke-width', '2' )
 
-    g.append( line1 )
-    g.append( line2 )
+    group.append( line1 )
+    group.append( line2 )
 
     svg.append( path )
-    svg.append( g )
+    svg.append( group )
 
     td.append( svg )
     return td
@@ -415,7 +415,7 @@ export class GetSoundtracks{
   }
 
 
-  _createTDUsers( ){
+  _createTDUsers( ) {
 
     const tdUsers = []
 
@@ -439,7 +439,7 @@ export class GetSoundtracks{
   }
 
 
-  async _eventGetCommentsInTDUsers( item ){
+  async _eventGetCommentsInTDUsers( item ) {
 
     const responseComments = await fetch( '/getComment', {
       method: 'POST',
@@ -449,7 +449,7 @@ export class GetSoundtracks{
     const data = await responseComments.json()
     
     let index = 0
-    while( index !== this.length ){
+    while( index !== this.length ) {
       
       if ( data ) data.forEach( item => {
         
@@ -529,56 +529,80 @@ export class GetSoundtracks{
   }
 
 
-  _TDPlayEvent( item ){
+  async _TDPlayEvent( item ){
 
     const id = this.player.querySelector( '#id' )
     const title = this.player.querySelector( '#title' )
     const author = this.player.querySelector( '#author' )
     const duration = this.player.querySelector( '#durationMax' )
     const soundtrack = this.player.querySelector( '#soundtrack' )
-    const button = this.player.querySelector( '#button' )
+    const buttonIntoPlayer = this.player.querySelector( '#button' )
     
-    if ( id.innerHTML === String( item.id ) ) {
+    if ( Number( this.player.soundID ) === item.id ) {
 
-      button.click()
-      return;
+      buttonIntoPlayer.click(); return;
 
-    }
+    } 
+
+    const response = await fetch( './static/mp3/' + item.id + '.mp3', {
+      method: 'GET'
+    } )
+
+    const mp3Buffer = await response.arrayBuffer()
+    const mp3 = new File( [mp3Buffer], item.author + ' – ' + item.title + '.mp3', { type: 'audio/mpeg' } )
+
+    this.player.file = mp3
+    const urlmp3 = URL.createObjectURL( mp3 )
 
     id.innerHTML = item.id
-    player.soundID = item.id
-
     title.innerHTML = item.title
-    player.title = item.title
-
     author.innerHTML = item.author
-    player.author = item.author
-
     duration.innerHTML = this._getTime( item.duration )
-    soundtrack.src = './static/mp3/' + item.id + '.mp3'
-
-    this.table.selected = item.id
+    soundtrack.src = urlmp3
     
-    // _set all 'pause'
+    // set all buttons in 'pause' into table
     this.table.querySelectorAll('[sound]').forEach( item => {
+
       item.querySelector( '#play' ).classList.remove( 'none' )
       item.querySelector( '#pause' ).classList.add( 'none' )
+
     })
 
-    // clear all highlight row
+    if ( Number( this.player.soundID ) !== item.id ) {
+
+      const row = this.table.querySelector('[soundid="' + item.id + '"]')
+      row.querySelector( '#play' ).classList.add( 'none' )
+      row.querySelector( '#pause' ).classList.remove( 'none' )
+
+    } 
+
+    // update player data
+    this.player.soundID = item.id
+    this.player.title = item.title
+    this.player.author = item.author
+
+    // update table data
+    this.table.selected = item.id
+
+    // clear all highlight row into table
     this.table.querySelectorAll( '[soundID]' ).forEach( item => {
       item.classList.remove( 'td_play' )
     })
     
-    // add highlight row
-    const td = this.table.querySelector( '[soundID="' + item.id + '"]' )
-    td.classList.add( 'td_play' )
+    // add highlight row into table
+    const row = this.table.querySelector( '[soundID="' + item.id + '"]' )
+    row.classList.add( 'td_play' )
 
-    // show/hidden renameSoundtrack
-    const span = td.querySelector( '[userid="' + this.userID +'"]' )
-    console.log( span )
+    // show/hidden renameSoundtrack into Player
+    if ( this.userID === undefined ) this.userID = document.querySelector( '#buttonUser' ).userID
+    const span = row.querySelector( '[userid="' + this.userID +'"]' )
+    if ( span === null ) {
+      console.log( '[ERROR] - itemID ', item.id, ' userid ', this.userID )
+      console.log( row )
+      console.log( span, '\n\n' )
+    } 
     if ( span === null ) this.renameSoundtrackService.hidden()
-    if ( span.code === 10 ) this.renameSoundtrackService.show()
+    else if ( span.code === 10 ) this.renameSoundtrackService.show()
 
   }
 
