@@ -4,7 +4,14 @@ import { RenameSoundtrack } from './RenameSoundtrack.js'
 export class GetSoundtracks{
 
   player = document.querySelector( '#player' )
-
+  playerElements = {
+    id: this.player.querySelector( '#id' ),
+    title: this.player.querySelector( '#title' ),
+    author: this.player.querySelector( '#author' ),
+    duration: this.player.querySelector( '#durationMax' ),
+    soundtrack: this.player.querySelector( '#soundtrack' ),
+    button: this.player.querySelector( '#button' ),
+  }
 
   dataArray = []
   table = document.querySelector( '#tableMusick' )
@@ -51,6 +58,7 @@ export class GetSoundtracks{
   _getUserID(){
     
     this.userID = document.querySelector( '#buttonUser' ).userID
+    if ( this.userID === undefined ) setTimeout( this._getUserID.bind( this ), 1000 )
 
   }
 
@@ -81,6 +89,7 @@ export class GetSoundtracks{
   }
 
 
+  // SCROLL --- ---
   _addEventScrollTable(  ){
 
     this.sectionTable.addEventListener( 'scroll', function( event ) {
@@ -211,9 +220,6 @@ export class GetSoundtracks{
   }
 
 
-
-
-
   _set(){
 
     this.tableBody.replaceChildren()
@@ -292,6 +298,7 @@ export class GetSoundtracks{
   }
 
 
+  // CREATE TD --- ---
   _createTDID( item ){
 
     const td = document.createElement( 'td' );
@@ -439,6 +446,7 @@ export class GetSoundtracks{
   }
 
 
+  // EVENTS --- ---
   async _eventGetCommentsInTDUsers( item ) {
 
     const responseComments = await fetch( '/getComment', {
@@ -531,34 +539,37 @@ export class GetSoundtracks{
 
   async _TDPlayEvent( item ){
 
-    const id = this.player.querySelector( '#id' )
-    const title = this.player.querySelector( '#title' )
-    const author = this.player.querySelector( '#author' )
-    const duration = this.player.querySelector( '#durationMax' )
-    const soundtrack = this.player.querySelector( '#soundtrack' )
-    const buttonIntoPlayer = this.player.querySelector( '#button' )
-    
-    if ( Number( this.player.soundID ) === item.id ) {
+    if ( this.player.soundID === item.id ) {
 
-      buttonIntoPlayer.click(); return;
+      this.player.switch()
+      return;
 
     } 
 
-    const response = await fetch( './static/mp3/' + item.id + '.mp3', {
+    this.player.querySelector( '#loadingIcon' ).classList.remove( 'none' )
+    this.player.querySelector( '#play' ).classList.add( 'none' )
+    this.player.querySelector( '#pause' ).classList.add( 'none' )
+
+    const response = await fetch( 'static/mp3/' + item.id + '.mp3', {
       method: 'GET'
     } )
+
+    if ( response.status !== 200 ) {
+      // view undefined sound
+      throw 'Sound undefined'
+    }
 
     const mp3Buffer = await response.arrayBuffer()
     const mp3 = new File( [mp3Buffer], item.author + ' – ' + item.title + '.mp3', { type: 'audio/mpeg' } )
 
     this.player.file = mp3
     const urlmp3 = URL.createObjectURL( mp3 )
-
-    id.innerHTML = item.id
-    title.innerHTML = item.title
-    author.innerHTML = item.author
-    duration.innerHTML = this._getTime( item.duration )
-    soundtrack.src = urlmp3
+    
+    this.playerElements.id.innerHTML = item.id
+    this.playerElements.title.innerHTML = item.title
+    this.playerElements.author.innerHTML = item.author
+    this.playerElements.duration.innerHTML = this._getTime( item.duration )
+    this.playerElements.soundtrack.src = urlmp3
     
     // set all buttons in 'pause' into table
     this.table.querySelectorAll('[sound]').forEach( item => {
@@ -594,19 +605,14 @@ export class GetSoundtracks{
     row.classList.add( 'td_play' )
 
     // show/hidden renameSoundtrack into Player
-    if ( this.userID === undefined ) this.userID = document.querySelector( '#buttonUser' ).userID
     const span = row.querySelector( '[userid="' + this.userID +'"]' )
-    if ( span === null ) {
-      console.log( '[ERROR] - itemID ', item.id, ' userid ', this.userID )
-      console.log( row )
-      console.log( span, '\n\n' )
-    } 
     if ( span === null ) this.renameSoundtrackService.hidden()
     else if ( span.code === 10 ) this.renameSoundtrackService.show()
 
   }
 
 
+  // OTHER --- ---
   _getTime( totalSecond ){
 
     totalSecond = Math.floor( totalSecond )

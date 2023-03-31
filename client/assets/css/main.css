@@ -213,6 +213,11 @@ body{
   margin-top: 1em;
 }
 
+.margin_x_1{
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
 .margin_b_1{
   margin-bottom: 1em;
 }

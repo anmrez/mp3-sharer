@@ -4,6 +4,7 @@
 // - soundID - soundtrack ID
 // - status - soundtrack playback status (play/pause)
 // - file - file
+// - switch - switch audio # developmend
 
 export class Player{
 
@@ -16,6 +17,7 @@ export class Player{
   } 
   playButton = this.player.querySelector( '#button' )
   volumeSlider = this.player.querySelector( '#volume' )
+  loadingIcon = this.player.querySelector( '#loadingIcon' )
 
   timeline = this.player.querySelector( '#timeline' )
   timelineParent = this.player.querySelector( '#timelineParent' )
@@ -34,11 +36,12 @@ export class Player{
   
   init(){
     
-    this._addEventButton()
     this._addEventCurrentTime()
     this._addEventVolumeSlider()
     this._addEventTimeline()
 
+    // play button
+    this.playButton.addEventListener( 'click', this._switch.bind( this ) )
     
     // space
     this._linkOnEventOnSpace = this._eventOnSpace.bind( this )
@@ -59,8 +62,12 @@ export class Player{
     if ( timeStr === 'NaN:NaN' ) this.duration.max.innerHTML = '00:00'
     else this.duration.max.innerHTML = timeStr
 
-    // soundtrack loaded
+    // soundtrack listeners
     this.soundtrack.addEventListener( 'canplay', this._eventButtonPlay.bind( this ) );
+    this.soundtrack.addEventListener( 'play', this._eventButtonPlay.bind( this ) )
+    this.soundtrack.addEventListener( 'pause', this._eventButtonPause.bind( this ) )
+    this.soundtrack.addEventListener( 'ended', this._eventButtonPause.bind( this ) )
+    this.player.switch = this._switch.bind( this )
 
   }
 
@@ -70,7 +77,7 @@ export class Player{
 
   removeEventOnSpace() { document.removeEventListener( 'keyup', this._linkOnEventOnSpace ) }
 
-  _eventOnSpace( event ) { if ( event.keyCode === 32 ) this._eventButtonClick() }
+  _eventOnSpace( event ) { if ( event.keyCode === 32 ) this._switch() }
 
 
   // REWIND === ===
@@ -129,50 +136,10 @@ export class Player{
   }
 
 
-  // BUTTON PLAY === ===
-  _addEventButton(){
-
-    this.playButton.status = 'pause'
-    this.playButton.play = this._eventButtonPlay.bind( this )
-    this.playButton.pause = this._eventButtonPause.bind( this )
-
-    this.playButton.addEventListener( 'click', this._eventButtonClick.bind( this ) )
-
-  }
-
-
-  _eventButtonClick(){
-
-    this.player.soundID = this.soundID.innerHTML
-
-    const bouttonIntoTable = document.querySelector( `[sound="${this.player.soundID}"]` )   
-    const playIntoTable = bouttonIntoTable.querySelector( '#play' )
-    const pauseIntoTable = bouttonIntoTable.querySelector( '#pause' )
-    
-
-    if ( this.playButton.status === 'pause' ) {
-      
-      this.playButton.status = 'play'
-      this.playButton.play()
-      
-      playIntoTable.classList.add( 'none' )
-      pauseIntoTable.classList.remove( 'none' )
-      
-    } else {
-      
-      this.playButton.status = 'pause'
-      this.playButton.pause()
-
-      playIntoTable.classList.remove( 'none' )
-      pauseIntoTable.classList.add( 'none' )
-
-
-    }
-
-  }
-
-
+  // BUTTON PLAY --- ---
   _eventButtonPlay(){
+
+    this.loadingIcon.classList.add( 'none' )
 
     this.player.status = 'play'
     this.playButton.status = 'play'
@@ -180,6 +147,14 @@ export class Player{
 
     this.playButton.querySelector( '#play' ).classList.add( 'none' )
     this.playButton.querySelector( '#pause' ).classList.remove( 'none' )
+
+    // into table
+    const bouttonIntoTable = document.querySelector( `[sound="${this.player.soundID}"]` )   
+    const playIntoTable = bouttonIntoTable.querySelector( '#play' )
+    const pauseIntoTable = bouttonIntoTable.querySelector( '#pause' )
+
+    playIntoTable.classList.add( 'none' )
+    pauseIntoTable.classList.remove( 'none' )
     
   }
   
@@ -193,9 +168,18 @@ export class Player{
     this.playButton.querySelector( '#play' ).classList.remove( 'none' )
     this.playButton.querySelector( '#pause' ).classList.add( 'none' )
 
+    // into table
+    const bouttonIntoTable = document.querySelector( `[sound="${this.player.soundID}"]` )   
+    const playIntoTable = bouttonIntoTable.querySelector( '#play' )
+    const pauseIntoTable = bouttonIntoTable.querySelector( '#pause' )
+
+    playIntoTable.classList.remove( 'none' )
+    pauseIntoTable.classList.add( 'none' )
+
   }
 
 
+  // UPDATE TIME INTO PLAYER --- ---
   _addEventCurrentTime(){ setInterval( this._eventCurrentTime.bind( this ), 500 ) }
 
 
@@ -214,6 +198,7 @@ export class Player{
   _eventVolumeSlider(){ this.soundtrack.volume = this.volumeSlider.value / 100 }
 
 
+  // TIMELINE --- ---
   _addEventTimeline(){
 
     setInterval( this._eventTimeline.bind( this ), 100 )
@@ -229,8 +214,7 @@ export class Player{
     
     const duration = this.soundtrack.duration
     const currentTime = this.soundtrack.currentTime
-  
-    if ( currentTime === duration ) this._eventButtonPause()
+
     this.timeline.style.width = currentTime * 100 / duration + '%'
 
   }
@@ -267,8 +251,8 @@ export class Player{
   }
 
 
-
-  _getTime( totalSecond ){
+  // OTHER --- ---
+  _getTime( totalSecond ) {
 
     totalSecond = Math.floor( totalSecond )
 
@@ -282,6 +266,14 @@ export class Player{
     if ( minute < 10 ) minute = '0' + minute
 
     return minute + ':' + second
+
+  }
+
+
+  _switch() { 
+
+    if ( this.soundtrack.paused ) this.soundtrack.play()
+    else this.soundtrack.pause()
 
   }
 
