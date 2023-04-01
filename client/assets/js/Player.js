@@ -1,3 +1,5 @@
+import { Binary } from './Binary.js';
+
 // Player has further properties: 
 // - title - soundtrack title
 // - author - soundtrack author
@@ -16,6 +18,8 @@ export class Player{
     max: this.player.querySelector( '#durationMax' )
   } 
   playButton = this.player.querySelector( '#button' )
+  cover = this.player.querySelector( '#cover' )
+  coverEmpty = this.player.querySelector( '#coverEmpty' )
   volumeSlider = this.player.querySelector( '#volume' )
   loadingIcon = this.player.querySelector( '#loadingIcon' )
 
@@ -27,8 +31,13 @@ export class Player{
   _linkOnEventRewind
   _linkOnEventFastForward
   
-  constructor(){
+  constructor(
+    binaryService
+  ){
     
+    if ( binaryService instanceof Binary === false ) throw '[GetSoundtracks] - binaryService not Binary'
+    this.binaryService = binaryService
+
     this.soundtrack.volume = this.volumeSlider.value / 100
         
   }
@@ -64,6 +73,7 @@ export class Player{
 
     // soundtrack listeners
     this.soundtrack.addEventListener( 'canplay', this._eventButtonPlay.bind( this ) );
+    this.soundtrack.addEventListener( 'loadeddata', this._renderCover.bind( this ) );
     this.soundtrack.addEventListener( 'play', this._eventButtonPlay.bind( this ) )
     this.soundtrack.addEventListener( 'pause', this._eventButtonPause.bind( this ) )
     this.soundtrack.addEventListener( 'ended', this._eventButtonPause.bind( this ) )
@@ -248,6 +258,36 @@ export class Player{
   _eventTimelineClick(){
     const time = this.tooltipTimeline.time
     this.soundtrack.currentTime = time
+  }
+
+
+  // RENDER COVER --- ---
+  async _renderCover(){
+    
+    const key = 'cover:' + this.player.soundID
+    const coverFromStorage = sessionStorage.getItem( key )
+
+    if ( coverFromStorage !== null ) {
+      
+      // url rewrite in new variable
+      const ulr = coverFromStorage
+      // cover load into player
+      this.cover.src = ulr
+      return;
+
+    }
+
+    const soundtrackBuffer = await this.player.file.arrayBuffer()
+    const soundtrack = new Uint8Array( soundtrackBuffer )
+    
+    const cover = this.binaryService.readCoverInSoundtrack.apply( this, [soundtrack] )
+    const ulr =  URL.createObjectURL( cover )
+
+    // cover save into sessionStorage
+    sessionStorage.setItem( key, ulr );
+    // cover load into player
+    this.cover.src = ulr
+
   }
 
 

@@ -1,5 +1,5 @@
 import { RenameSoundtrack } from './RenameSoundtrack.js'
-
+import { Binary } from './Binary.js';
 
 export class GetSoundtracks{
 
@@ -31,7 +31,12 @@ export class GetSoundtracks{
   timeoutSetList = []
 
   
-  constructor(){
+  constructor(
+    binaryService
+  ){
+
+    if ( binaryService instanceof Binary === false ) throw '[GetSoundtracks] - binaryService not Binary'
+    this.binaryService = binaryService
 
     this.table.update = this.get.bind( this )
     
@@ -166,15 +171,15 @@ export class GetSoundtracks{
       let HEAD = 0
 
       // length ID - 1 byte
-      const lengthSoundID = this._decoderBynary( soundtracksBinary.slice( HEAD, HEAD + 1 ) )
+      const lengthSoundID = this.binaryService.decodeArrayInValue( soundtracksBinary.slice( HEAD, HEAD + 1 ) )
       HEAD++
 
       // sound ID - length ID byte
-      const soundID = this._decoderBynary( soundtracksBinary.slice( HEAD, HEAD + lengthSoundID ) )
+      const soundID = this.binaryService.decodeArrayInValue( soundtracksBinary.slice( HEAD, HEAD + lengthSoundID ) )
       HEAD += lengthSoundID
 
       // duration - 2 byte
-      const duration = this._decoderBynary( soundtracksBinary.slice( HEAD, HEAD + 2 ) )
+      const duration = this.binaryService.decodeArrayInValue( soundtracksBinary.slice( HEAD, HEAD + 2 ) )
       HEAD += 2
 
       // title - 1 byte + title length byte
@@ -627,31 +632,6 @@ export class GetSoundtracks{
     if ( minute < 10 ) minute = '0' + minute
 
     return minute + ':' + second
-
-  }
-
-
-  _decoderBynary( array = [0] ) {
-
-    const basicArray = []
-
-    array.forEach( item => {
-      basicArray.push( item )
-    } )
-
-    let result = 0
-    let index = 0
-    while ( index !== basicArray.length ){
-
-      if ( index === basicArray.length - 1 ) result += basicArray[index]
-      else 
-        if ( basicArray[index] > 0 ) basicArray[index + 1] += basicArray[index] * 255
-
-      index++
-
-    }
-
-    return result
 
   }
 

@@ -12,6 +12,8 @@ import { Windows1251 } from './Windows1251.js'
 import { Search } from './Search.js';
 import { KeyboardEscape } from './Keyboard.escape.js';
 import { KeyboardService } from './Keyboard.service.js';
+import { Binary } from './Binary.js';
+
 
 class Init{
   
@@ -20,9 +22,10 @@ class Init{
   getUsers = new GetUsers()
   profile = new Profile()
   tableResize = new TableResize()
+  binary = new Binary()
 
-  getSoundtrack = new GetSoundtracks()
-  player = new Player()
+  getSoundtrack = new GetSoundtracks( this.binary )
+  player = new Player( this.binary )
 
   windows1251 = new Windows1251()
   
@@ -44,6 +47,8 @@ class Init{
   
   
   init(){
+
+    sessionStorage.clear()
     
     let index = 1
     
