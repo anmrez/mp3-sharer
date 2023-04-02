@@ -81,6 +81,16 @@ body{
 
 /* Fill */
 
+.fill_main_2{
+  fill: #181818;
+}
+.fill_main_3{
+  fill: #222222;
+}
+.fill_dark{
+  fill: #cccccc66 ;
+}
+
 .fill_pink{
   fill: #8f0527;
   stroke: #8f0527;

@@ -23,6 +23,9 @@ export class GetSoundtracks{
   tableBody = this.table.querySelector( '#tableMusickBody' )
 
   switchButton = document.querySelector( '#switchButton' )
+  // status - status table music/archive
+  // archive() - choose archive
+  // music() - choose music
   switchButtonMusic = this.switchButton.querySelector( '#music' )
   switchButtonArchive = this.switchButton.querySelector( '#archive' )
 
@@ -54,9 +57,11 @@ export class GetSoundtracks{
     this.addEventReloadOnR()
     this._addEventScrollTable()
     
-    this._addEventSwitch()
     this._getUserID()
     
+    this.switchButton.status = 'music'
+    this._addEventSwitch()
+   
   }  
   
   
@@ -119,19 +124,18 @@ export class GetSoundtracks{
   // SWITCH --- ---
   _addEventSwitch(){
 
-    this.switchButtonMusic.addEventListener( 'click', 
-      this._eventSwitch.bind( this, this.switchButtonMusic, this.switchButtonArchive ) 
-    )
+    this.switchButton.music = this._eventSwitch.bind( this, this.switchButtonMusic, this.switchButtonArchive, 'music' )
+    this.switchButton.archive = this._eventSwitch.bind( this, this.switchButtonArchive, this.switchButtonMusic, 'archive' )
 
-    this.switchButtonArchive.addEventListener( 'click', 
-      this._eventSwitch.bind( this, this.switchButtonArchive, this.switchButtonMusic ) 
-    )
+    this.switchButtonMusic.addEventListener( 'click', this.switchButton.music.bind( this ) )
+    this.switchButtonArchive.addEventListener( 'click', this.switchButton.archive.bind( this ) )
 
   }
 
 
-  _eventSwitch( button, reverceButton ){
+  _eventSwitch( button, reverceButton, status ) {
 
+    this.switchButton.status = status
     button.classList.add( 'switch_button_active' )
     reverceButton.classList.remove( 'switch_button_active' )
     this.get()
@@ -260,7 +264,7 @@ export class GetSoundtracks{
   }
 
 
-  _addItem( item, index ){
+  _addItem( item, index ) {
 
     if ( this.sectionTable.clientHeight + this.sectionTable.scrollTop < this.sectionTable.scrollHeight - 100 )return; 
     
@@ -276,7 +280,11 @@ export class GetSoundtracks{
     const tdID = this._createTDID( item )
     const tdDate = this._createTDDate( item )
     const tdDuration = this._createTDDuration( item )
-    const tdPlay = this._createTDPlay( item )
+
+    let tdShow, tdPlay
+    if ( this.switchButton.status === 'archive' ) tdShow = this._createTDShow( item )
+    else tdPlay = this._createTDPlay( item )
+
     const tdTitle = this._createTDTitle( item )
     const tdAuthor = this._createTDAuthor( item )
 
@@ -289,7 +297,9 @@ export class GetSoundtracks{
     tr.append( tdID )
     tr.append( tdDate )
     tr.append( tdDuration )
-    tr.append( tdPlay )
+    if ( tdPlay !== undefined ) tr.append( tdPlay )
+    if ( tdShow !== undefined ) tr.append( tdShow )
+
     tr.append( tdTitle )
     tr.append( tdAuthor )
 
@@ -304,7 +314,7 @@ export class GetSoundtracks{
 
 
   // CREATE TD --- ---
-  _createTDID( item ){
+  _createTDID( item ) {
 
     const td = document.createElement( 'td' );
 
@@ -319,7 +329,7 @@ export class GetSoundtracks{
   }
 
 
-  _createTDDate( item ){
+  _createTDDate( item ) {
 
     const td = document.createElement( 'td' );
 
@@ -330,7 +340,7 @@ export class GetSoundtracks{
   }
   
 
-  _createTDDuration( item ){
+  _createTDDuration( item ) {
 
     const td = document.createElement( 'td' );
 
@@ -348,7 +358,31 @@ export class GetSoundtracks{
   }
 
 
-  _createTDPlay( item ){
+  _createTDShow( item ) {
+
+    const td = document.createElement( 'td' );
+    td.classList.add( 'pointer' )
+    td.classList.add( 'fill_pink' )
+    td.setAttribute( 'sound', item.id )
+    td.addEventListener( 'click', this._TDShowEvent.bind( this, item ) )
+
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+    svg.setAttribute( 'height', '14px' )
+    svg.setAttribute( 'width', '14px' )
+    svg.setAttribute( 'viewBox', '0 0 24 24' )
+    svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink")
+    
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path")
+    path.setAttribute( 'd', 'M1.5 12c0-2.25 3.75-7.5 10.5-7.5S22.5 9.75 22.5 12s-3.75 7.5-10.5 7.5S1.5 14.25 1.5 12zM12 16.75a4.75 4.75 0 1 0 0-9.5 4.75 4.75 0 0 0 0 9.5zM14.7 12a2.7 2.7 0 1 1-5.4 0 2.7 2.7 0 0 1 5.4 0z' )
+
+    svg.append( path )
+    td.append( svg )
+    return td
+
+  }
+
+
+  _createTDPlay( item ) {
 
     const td = document.createElement( 'td' );
     td.classList.add( 'pointer' )
@@ -397,7 +431,7 @@ export class GetSoundtracks{
   }
 
 
-  _createTDTitle( item ){
+  _createTDTitle( item ) {
 
     const td = document.createElement( 'td' );
     td.classList.add( 'padding_x_1' )
@@ -412,7 +446,7 @@ export class GetSoundtracks{
   }
 
 
-  _createTDAuthor( item ){
+  _createTDAuthor( item ) {
 
     const td = document.createElement( 'td' );
     td.classList.add( 'padding_x_1' )
@@ -542,7 +576,32 @@ export class GetSoundtracks{
   }
 
 
-  async _TDPlayEvent( item ){
+  _TDShowEvent( item ) {
+
+    this.player.pause()
+
+    // hidden icons
+    this.player.querySelector( '#loadingIcon' ).classList.add( 'none' )
+    this.player.querySelector( '#play' ).classList.add( 'none' )
+    this.player.querySelector( '#pause' ).classList.add( 'none' )
+
+    // hidden cover
+    this.player.querySelector( '#cover' ).classList.add( 'none' )
+    this.player.querySelector( '#coverEmpty' ).classList.add( 'none' )
+    
+    // show icon archive
+    this.player.querySelector( '#archive' ).classList.remove( 'none' )
+
+    this._writingDataIntoPlayer( undefined, undefined, item )
+
+    // update table data
+    this.table.selected = item.id
+    this._addHighlightInTable( item.id )
+
+  }
+
+
+  async _TDPlayEvent( item ) {
 
     if ( this.player.soundID === item.id ) {
 
@@ -554,71 +613,46 @@ export class GetSoundtracks{
     this.player.querySelector( '#loadingIcon' ).classList.remove( 'none' )
     this.player.querySelector( '#play' ).classList.add( 'none' )
     this.player.querySelector( '#pause' ).classList.add( 'none' )
+    this.player.querySelector( '#archive' ).classList.add( 'none' )
 
-    const response = await fetch( 'static/mp3/' + item.id + '.mp3', {
-      method: 'GET'
-    } )
 
-    if ( response.status !== 200 ) {
-      // view undefined sound
-      throw 'Sound undefined'
+    const key = 'soundtrack:' + item.id
+    let mp3 = undefined
+    let blobURL = undefined
+    const soundFromStorage = sessionStorage.getItem( key )
+
+    if ( soundFromStorage !== null ) blobURL = soundFromStorage
+    else {
+
+
+      const response = await fetch( 'static/mp3/' + item.id + '.mp3', {
+        method: 'GET'
+      } )
+  
+      if ( response.status !== 200 ) throw 'Sound undefined'
+
+      this.player.querySelector( '#archive' ).classList.add( 'none' )
+      const mp3Buffer = await response.arrayBuffer()
+      mp3 = new File( [mp3Buffer], item.author + ' – ' + item.title + '.mp3', { type: 'audio/mpeg' } )
+      blobURL = URL.createObjectURL( mp3 )
+      sessionStorage.setItem( key, blobURL )
+
     }
 
-    const mp3Buffer = await response.arrayBuffer()
-    const mp3 = new File( [mp3Buffer], item.author + ' – ' + item.title + '.mp3', { type: 'audio/mpeg' } )
-
-    this.player.file = mp3
-    const urlmp3 = URL.createObjectURL( mp3 )
-    
-    this.playerElements.id.innerHTML = item.id
-    this.playerElements.title.innerHTML = item.title
-    this.playerElements.author.innerHTML = item.author
-    this.playerElements.duration.innerHTML = this._getTime( item.duration )
-    this.playerElements.soundtrack.src = urlmp3
-    
-    // set all buttons in 'pause' into table
-    this.table.querySelectorAll('[sound]').forEach( item => {
-
-      item.querySelector( '#play' ).classList.remove( 'none' )
-      item.querySelector( '#pause' ).classList.add( 'none' )
-
-    })
-
-    if ( Number( this.player.soundID ) !== item.id ) {
-
-      const row = this.table.querySelector('[soundid="' + item.id + '"]')
-      row.querySelector( '#play' ).classList.add( 'none' )
-      row.querySelector( '#pause' ).classList.remove( 'none' )
-
-    } 
-
-    // update player data
-    this.player.soundID = item.id
-    this.player.title = item.title
-    this.player.author = item.author
+    this._writingDataIntoPlayer( mp3, blobURL, item )
+    this._resetAllButtonsIntoTable()
+    this._changeButtonPlayIntoTable( item.id )
 
     // update table data
     this.table.selected = item.id
 
-    // clear all highlight row into table
-    this.table.querySelectorAll( '[soundID]' ).forEach( item => {
-      item.classList.remove( 'td_play' )
-    })
-    
-    // add highlight row into table
-    const row = this.table.querySelector( '[soundID="' + item.id + '"]' )
-    row.classList.add( 'td_play' )
-
-    // show/hidden renameSoundtrack into Player
-    const span = row.querySelector( '[userid="' + this.userID +'"]' )
-    if ( span === null ) this.renameSoundtrackService.hidden()
-    else if ( span.code === 10 ) this.renameSoundtrackService.show()
+    this._addHighlightInTable( item.id )
 
   }
 
 
   // OTHER --- ---
-  _getTime( totalSecond ){
+  _getTime( totalSecond ) {
 
     totalSecond = Math.floor( totalSecond )
 
@@ -632,6 +666,70 @@ export class GetSoundtracks{
     if ( minute < 10 ) minute = '0' + minute
 
     return minute + ':' + second
+
+  }
+
+  _resetAllButtonsIntoTable(){
+
+    this.table.querySelectorAll('[sound]').forEach( item => {
+
+      item.querySelector( '#play' ).classList.remove( 'none' )
+      item.querySelector( '#pause' ).classList.add( 'none' )
+
+    })
+
+  }
+
+
+  _changeButtonPlayIntoTable( soundID ){
+
+    if ( ! soundID ) throw 'ERROR - soundID in undefined'
+
+    if ( Number( this.player.soundID ) !== soundID ) {
+
+      const row = this.table.querySelector('[soundid="' + soundID + '"]')
+      row.querySelector( '#play' ).classList.add( 'none' )
+      row.querySelector( '#pause' ).classList.remove( 'none' )
+
+    } 
+
+  }
+
+
+  _addHighlightInTable( soundID ){
+
+    if ( ! soundID ) throw 'ERROR - soundID in undefined'
+
+    // clear all highlight row into table
+    this.table.querySelectorAll( '[soundID]' ).forEach( item => {
+      item.classList.remove( 'td_play' )
+    })
+    
+    // add highlight row into table
+    const row = this.table.querySelector( '[soundID="' + soundID + '"]' )
+    row.classList.add( 'td_play' )
+
+    // add rename button
+    const span = row.querySelector( '[userid="' + this.userID +'"]' )
+    if ( span === null ) this.renameSoundtrackService.hidden()
+    else if ( span.code === 10 ) this.renameSoundtrackService.show()
+
+  }
+
+
+  _writingDataIntoPlayer( mp3File, blobURL, item ){
+
+    if ( mp3File !== undefined ) this.player.file = mp3File
+    if ( blobURL !== undefined ) this.playerElements.soundtrack.src = blobURL
+
+    this.playerElements.id.innerHTML = item.id
+    this.playerElements.title.innerHTML = item.title
+    this.playerElements.author.innerHTML = item.author
+    this.playerElements.duration.innerHTML = this._getTime( item.duration )
+
+    this.player.soundID = item.id
+    this.player.title = item.title
+    this.player.author = item.author
 
   }
 

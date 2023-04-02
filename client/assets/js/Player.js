@@ -6,7 +6,8 @@ import { Binary } from './Binary.js';
 // - soundID - soundtrack ID
 // - status - soundtrack playback status (play/pause)
 // - file - file
-// - switch - switch audio # developmend
+// - switch() - switch audio
+// - pause() - pause audio
 
 export class Player{
 
@@ -21,11 +22,14 @@ export class Player{
   cover = this.player.querySelector( '#cover' )
   coverEmpty = this.player.querySelector( '#coverEmpty' )
   volumeSlider = this.player.querySelector( '#volume' )
+  archiveIcon = this.player.querySelector( '#archive' )
   loadingIcon = this.player.querySelector( '#loadingIcon' )
 
   timeline = this.player.querySelector( '#timeline' )
   timelineParent = this.player.querySelector( '#timelineParent' )
   tooltipTimeline = this.player.querySelector( '#tooltipTimeline' )
+
+  switchButton = document.querySelector( '#switchButton' )
 
   _linkOnEventOnSpace
   _linkOnEventRewind
@@ -78,6 +82,7 @@ export class Player{
     this.soundtrack.addEventListener( 'pause', this._eventButtonPause.bind( this ) )
     this.soundtrack.addEventListener( 'ended', this._eventButtonPause.bind( this ) )
     this.player.switch = this._switch.bind( this )
+    this.player.pause = this._eventButtonPause.bind( this )
 
   }
 
@@ -150,10 +155,18 @@ export class Player{
   _eventButtonPlay(){
 
     this.loadingIcon.classList.add( 'none' )
+    this.archiveIcon.classList.add( 'none' )
 
     this.player.status = 'play'
     this.playButton.status = 'play'
     this.soundtrack.play()
+
+    if ( this.switchButton.status === 'music' ) {
+
+      this.cover.classList.remove( 'none' )
+      this.coverEmpty.classList.add( 'none' )
+
+    }
 
     this.playButton.querySelector( '#play' ).classList.add( 'none' )
     this.playButton.querySelector( '#pause' ).classList.remove( 'none' )
@@ -175,13 +188,15 @@ export class Player{
     this.playButton.status = 'pause'
     this.soundtrack.pause()
 
+    if ( this.switchButton.status === 'archive' ) return;
+
     this.playButton.querySelector( '#play' ).classList.remove( 'none' )
     this.playButton.querySelector( '#pause' ).classList.add( 'none' )
 
     // into table
-    const bouttonIntoTable = document.querySelector( `[sound="${this.player.soundID}"]` )   
-    const playIntoTable = bouttonIntoTable.querySelector( '#play' )
-    const pauseIntoTable = bouttonIntoTable.querySelector( '#pause' )
+    const buttonIntoTable = document.querySelector( `[sound="${this.player.soundID}"]` )   
+    const playIntoTable = buttonIntoTable.querySelector( '#play' )
+    const pauseIntoTable = buttonIntoTable.querySelector( '#pause' )
 
     playIntoTable.classList.remove( 'none' )
     pauseIntoTable.classList.add( 'none' )
@@ -255,14 +270,14 @@ export class Player{
   }
 
 
-  _eventTimelineClick(){
+  _eventTimelineClick() {
     const time = this.tooltipTimeline.time
     this.soundtrack.currentTime = time
   }
 
 
   // RENDER COVER --- ---
-  async _renderCover(){
+  async _renderCover() {
     
     const key = 'cover:' + this.player.soundID
     const coverFromStorage = sessionStorage.getItem( key )

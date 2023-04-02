@@ -40,7 +40,6 @@ export class Binary{
   */
   readCoverInSoundtrack( soundtrack ){
 
-    console.log( 'readCoverInSoundtrack' )
     let HEAD = 0
 
     // find - image/
@@ -78,12 +77,12 @@ export class Binary{
     if ( soundtrack[HEAD] === 106  // is jpg
       && soundtrack[HEAD + 1] === 112
       && soundtrack[HEAD + 2] === 103
-    ) type = 'jpeg'
+    ) type = 'jpg'
     else if ( soundtrack[HEAD] === 106  // is jpeg
       && soundtrack[HEAD + 1] === 112
       && soundtrack[HEAD + 2] === 101
       && soundtrack[HEAD + 3] === 103
-    ) type = 'jpg'
+    ) type = 'jpeg'
 
     // skip type
     HEAD += type.length
@@ -97,15 +96,15 @@ export class Binary{
       endCover = this.binaryService.getIEND( HEAD, soundtrack )
 
     } 
-    if ( type === 'jpeg' ) HEAD += 2 // skip [00 03]
-    if ( type === 'jpg' ) {
+
+    if ( type === 'jpg' || type === 'jpeg' ) {
 
       while( soundtrack[HEAD] !== 255 ) HEAD++ // skip title
       
       endCover = HEAD
       while( endCover !== soundtrack.length ) {
         
-        // find EOI
+        // find EOI - [FF D9]
         if ( soundtrack[endCover] === 255 && soundtrack[endCover + 1] === 217 ) {
           endCover += 2
           break;
