@@ -1,15 +1,18 @@
-
-
+import { Tooltip } from './Tooltip.js';
 
 
 export class GetUsers{
 
 
   usersIntoTable = document.querySelectorAll( '[data-user]' )
-  tooltip = document.querySelector( '#tooltip' )
   responseData
 
-  constructor(){}
+  constructor( tooltip ){
+
+    if ( tooltip instanceof Tooltip === false ) throw 'Error [GetSoundtracks] - tooltip not Tooltip'
+    this.tooltip = tooltip
+
+  }
 
 
   init(){
@@ -19,7 +22,7 @@ export class GetUsers{
   }
 
 
-  async _getUsers(){
+  async _getUsers() {
 
     const response = await fetch( 'getUsers', {
       method: 'GET'
@@ -40,8 +43,8 @@ export class GetUsers{
       image.src = './static/profile/' + user.image
       image.style.background = 'none'
 
-      image.addEventListener( 'mousemove', this._mousemoveUser.bind( this, user.username ) )
-      image.addEventListener( 'mouseout', this._mouseoverUser.bind( this ) )
+      image.addEventListener( 'mousemove', this.tooltip.show.bind( this.tooltip, item, user.username ) )
+      image.addEventListener( 'mouseout', this.tooltip.hidden.bind( this.tooltip ) )
 
       index++
 
@@ -50,25 +53,6 @@ export class GetUsers{
     return;
 
   }
-
-
-
-  _mousemoveUser( username, event ){
-
-    this.tooltip.innerHTML = username
-    this.tooltip.classList.remove( 'none' )
-    this.tooltip.style.left = event.clientX + 'px'
-    this.tooltip.style.top = event.clientY + 'px'
-
-  }
-
-
-  _mouseoverUser(){
-
-    this.tooltip.classList.add( 'none' )
-
-  }
-
 
 
 }

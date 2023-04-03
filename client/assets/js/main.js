@@ -13,18 +13,20 @@ import { Search } from './Search.js';
 import { KeyboardEscape } from './Keyboard.escape.js';
 import { KeyboardService } from './Keyboard.service.js';
 import { Binary } from './Binary.js';
+import { Tooltip } from './Tooltip.js';
 
 
 class Init{
   
   
   download = new Download()
-  getUsers = new GetUsers()
   profile = new Profile()
   tableResize = new TableResize()
   binary = new Binary()
-
-  getSoundtrack = new GetSoundtracks( this.binary )
+  tooltip = new Tooltip()
+  
+  getUsers = new GetUsers( this.tooltip )
+  getSoundtrack = new GetSoundtracks( this.binary, this.tooltip )
   player = new Player( this.binary )
 
   windows1251 = new Windows1251()

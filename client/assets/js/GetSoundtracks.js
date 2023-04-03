@@ -1,5 +1,7 @@
 import { RenameSoundtrack } from './RenameSoundtrack.js'
 import { Binary } from './Binary.js';
+import { Tooltip } from './Tooltip.js';
+
 
 export class GetSoundtracks{
 
@@ -35,11 +37,15 @@ export class GetSoundtracks{
 
   
   constructor(
-    binaryService
+    binaryService,
+    tooltip
   ){
 
     if ( binaryService instanceof Binary === false ) throw '[GetSoundtracks] - binaryService not Binary'
     this.binaryService = binaryService
+
+    if ( tooltip instanceof Tooltip === false ) throw 'Error [GetSoundtracks] - tooltip not Tooltip'
+    this.tooltip = tooltip
 
     this.table.update = this.get.bind( this )
     
@@ -48,7 +54,7 @@ export class GetSoundtracks{
   
   init( renameSoundtrack ){
     
-    if ( ! renameSoundtrack instanceof RenameSoundtrack ) throw 'Error [GetSoundtracks] - RenameSoundtrack Service is undefined'
+    if ( renameSoundtrack instanceof RenameSoundtrack === false ) throw 'Error [GetSoundtracks] - RenameSoundtrack Service not RenameSoundtrack'
     this.renameSoundtrackService = renameSoundtrack
 
     this.get()
@@ -289,7 +295,7 @@ export class GetSoundtracks{
     const tdAuthor = this._createTDAuthor( item )
 
     const arrayTDUsers = this._createTDUsers()
-    arrayTDUsers.getCommets = this._eventGetCommentsInTDUsers.bind( arrayTDUsers, item )
+    arrayTDUsers.getCommets = this._eventGetCommentsInTDUsers.bind( arrayTDUsers, item, this.tooltip )
 
     const delay = 40 + index * 10
     setTimeout( arrayTDUsers.getCommets, delay )
@@ -486,7 +492,7 @@ export class GetSoundtracks{
 
 
   // EVENTS --- ---
-  async _eventGetCommentsInTDUsers( item ) {
+  async _eventGetCommentsInTDUsers( item, tooltip ) {
 
     const responseComments = await fetch( '/getComment', {
       method: 'POST',
@@ -542,25 +548,8 @@ export class GetSoundtracks{
             point.classList.add( 'point' )
             span.append( point )
 
-            span.addEventListener( 'mousemove', function( event ){
-
-              let tooltip = document.querySelector( '#tooltip' )
-              let X = event.clientX
-              let Y = event.clientY
-              let text = event.target.comment
-          
-              tooltip.classList.remove( 'none' )
-              tooltip.style.left = X + 'px'
-              tooltip.style.top = Y + 'px'
-              tooltip.innerHTML = text
-
-            } )
-
-            span.addEventListener( 'mouseout', function(){
-
-              document.querySelector( '#tooltip' ).classList.add( 'none' )
-
-            } )
+            span.addEventListener( 'mousemove', tooltip.show.bind( tooltip ) )
+            span.addEventListener( 'mouseout', tooltip.hidden.bind( tooltip ) )
   
           }
 
