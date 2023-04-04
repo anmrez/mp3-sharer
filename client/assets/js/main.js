@@ -34,7 +34,7 @@ class Init{
   keyboardService = new KeyboardService( this.player, this.getSoundtrack )
   search = new Search( this.keyboardService )
 
-  comment = new Comment( this.keyboardService )
+  comment = new Comment( this.keyboardService, this.tooltip )
   upload = new Upload( this.keyboardService, this.windows1251 )
   renameSoundtrack = new RenameSoundtrack( this.keyboardService )
   

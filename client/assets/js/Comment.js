@@ -1,83 +1,96 @@
+import { KeyboardService } from './Keyboard.service.js';
+import { Tooltip } from './Tooltip.js';
 
 
 export class Comment{
 
+  // inputs classes
+  #keyboardService
+  #tooltip
 
   // in modal window
-  window = document.querySelector( '#commentWindow' )
-  comment = this.window.querySelector( '#comment' )
-  send = this.window.querySelector( '#send' )
-  status = this.window.querySelector( '#status' )
-  count = this.window.querySelector( '#count' )
+  #window = document.querySelector( '#commentWindow' )
+  #comment = this.#window.querySelector( '#comment' )
+  #send = this.#window.querySelector( '#send' )
+  #status = this.#window.querySelector( '#status' )
+  #count = this.#window.querySelector( '#count' )
 
   // in player
-  player = document.querySelector( '#player' )
-  commentIntoPlayer = this.player.querySelector( '#comment' )
-  soundID = this.player.querySelector( '#id' )
+  #player = document.querySelector( '#player' )
+  #commentIntoPlayer = this.#player.querySelector( '#comment' )
 
   // other
-  table = document.querySelector( '#tableMusick' )
-  tableBody = this.table.querySelector( '#tableMusickBody' )
-  buttonUser = document.querySelector( '#buttonUser' )
-  userID = 0
-
-  sendData = {
+  #table = document.querySelector( '#tableMusick' )
+  #tableBody = this.#table.querySelector( '#tableMusickBody' )
+  #buttonUser = document.querySelector( '#buttonUser' )
+  
+  #userID
+  #sendData = {
     soundID: 0,
     status: 0,
     comment: ''
   }
 
 
-  constructor( keyboardService ){
+  constructor( keyboardService, tooltip ){
 
-    if ( keyboardService === undefined ) throw 'Error [Comment] - keyboardService is undefined'
+    if ( keyboardService instanceof KeyboardService === false ) throw 'Error [Comment] - keyboardService not KeyboardService'
+    this.#keyboardService = keyboardService
 
-    this.keyboardService = keyboardService
+    if ( tooltip instanceof Tooltip === false ) throw 'Error [Comment] - tooltip not Tooltip'
+    this.#tooltip = tooltip
 
   }
 
 
   init(){
 
-    this._addEventInputTextarea()
+    this.#getUserID()
+    this.#addEventInputTextarea()
 
-    this._addEventStatus()
-    this._addEventButtonCommentIntoPlayer()
-    this._addEventSend()
+    this.#addEventStatus()
+    this.#addEventButtonCommentIntoPlayer()
+    this.#addEventSend()
 
-    this.userID = Number( this.buttonUser.userID )
-    
+  }
+
+
+  #getUserID(){
+
+    this.#userID = Number( this.#buttonUser.userID )
+    console.log( 'user id: ', this.#userID )
+    if ( this.#userID === undefined ) setTimeout( this.#getUserID.bind( this ), 2000 ) 
 
   }
 
 
   // TEXTAREA --- ---
-  _addEventInputTextarea(){
+  #addEventInputTextarea(){
 
-    this._eventInputTextarea()
-    this.comment.addEventListener( 'input', this._eventInputTextarea.bind( this ) )
+    this.#eventInputTextarea()
+    this.#comment.addEventListener( 'input', this.#eventInputTextarea.bind( this ) )
 
   }
 
 
-  _eventInputTextarea(){
+  #eventInputTextarea(){
 
-    if ( this.comment.value.length > 100 ) this.comment.value = this.comment.value.substring( 0, 100 )
-    else this.count.innerHTML = this.comment.value.length + ''
+    if ( this.#comment.value.length > 100 ) this.#comment.value = this.#comment.value.substring( 0, 100 )
+    else this.#count.innerHTML = this.#comment.value.length + ''
 
   }
 
 
   // STATUS --- ---
-  _addEventStatus(){
+  #addEventStatus(){
 
-    const childrens = this.status.children
+    const childrens = this.#status.children
 
     let index = 0
     while( childrens.length > index ){
 
       const item = childrens[index]
-      item.addEventListener( 'click', this._eventStatus.bind( this ) )
+      item.addEventListener( 'click', this.#eventStatus.bind( this ) )
 
       index++
 
@@ -86,9 +99,9 @@ export class Comment{
   }
 
 
-  _eventStatus( event ){
+  #eventStatus( event ){
 
-    const childrens = this.status.children
+    const childrens = this.#status.children
 
     let index = 0
     while( childrens.length > index ){
@@ -100,7 +113,7 @@ export class Comment{
         event.target.style.border = '2px solid #ccc'
 
         const status = index + 1
-        this.sendData.status = status
+        this.#sendData.status = status
         
       } else item.style.border = '2px solid transparent'
       
@@ -112,39 +125,44 @@ export class Comment{
 
 
   // Button into player --- ---
-  _addEventButtonCommentIntoPlayer(){
+  #addEventButtonCommentIntoPlayer(){
 
-    this.commentIntoPlayer.addEventListener( 'click', this._eventButtonCommentIntoPlayer.bind( this ) )
+    this.#commentIntoPlayer.addEventListener( 'click', this.#eventButtonCommentIntoPlayer.bind( this ) )
+
+    const tooltipShow = this.#tooltip.showTop.bind( this.#tooltip, this.#commentIntoPlayer, 'comment' )
+
+    this.#commentIntoPlayer.addEventListener( 'mousemove', tooltipShow )
+    this.#commentIntoPlayer.addEventListener( 'mouseout', this.#tooltip.hidden.bind( this.#tooltip ) )
 
   }
 
 
-  _eventButtonCommentIntoPlayer(){
+  #eventButtonCommentIntoPlayer(){
 
-    const isHidden = this.window.classList.contains( 'none' )
+    const isHidden = this.#window.classList.contains( 'none' )
 
-    if ( isHidden ) this._openWindow()
+    if ( isHidden ) this.#openWindow()
     else this.closeWindow()
 
   }
 
 
   // SEND --- ---
-  _addEventSend(){
+  #addEventSend(){
 
-    this.send.addEventListener( 'click', this._eventSend.bind( this ) )
+    this.#send.addEventListener( 'click', this.#eventSend.bind( this ) )
 
   }
 
 
-  async _eventSend(){
+  async #eventSend(){
 
-    const comment = this.comment.value.substring( 0, 100 )
-    this.sendData.comment = comment
+    const comment = this.#comment.value.substring( 0, 100 )
+    this.#sendData.comment = comment
 
-    this.sendData.soundID = Number( this.soundID.innerHTML )
+    this.#sendData.soundID = this.#player.soundID
 
-    const bodyJson = JSON.stringify( this.sendData )
+    const bodyJson = JSON.stringify( this.#sendData )
     const response = await fetch( '/setComment', {
       method: 'POST',
       headers: {
@@ -155,7 +173,7 @@ export class Comment{
 
     if ( response.status === 200 ) {
 
-      this.table.update()
+      this.#table.update()
       this.closeWindow()
 
     }
@@ -166,29 +184,29 @@ export class Comment{
   // WINDOW === === ===
   // OPEN === ===
 
-  _openWindow(){
+  #openWindow(){
 
-    this._findCurrentComment()
-    this.keyboardService.removeKeyboardEvents()
-    this.window.classList.remove( 'none' )
+    this.#findCurrentComment()
+    this.#keyboardService.removeKeyboardEvents()
+    this.#window.classList.remove( 'none' )
 
     
   }
   
   
-  _findCurrentComment(){
+  #findCurrentComment(){
 
-    const soundID = this.soundID.innerHTML
-    const row = this.tableBody.querySelector( '[soundid="' + soundID + '"]' )
+    const soundID = this.#player.soundID 
+    const row = this.#tableBody.querySelector( '[soundid="' + soundID + '"]' )
     
-    const status = row.querySelector( '[userid="' + this.userID + '"]' )
-    const buttonsStatus = this.status.children
+    const status = row.querySelector( '[userid="' + this.#userID + '"]' )
+    const buttonsStatus = this.#status.children
     if ( status.code === 1 ) buttonsStatus[0].click()
     if ( status.code === 2 ) buttonsStatus[1].click()
     if ( status.code === 3 ) buttonsStatus[2].click()
 
-    this.comment.value = ''
-    if ( status.comment ) this.comment.value = status.comment
+    this.#comment.value = ''
+    if ( status.comment ) this.#comment.value = status.comment
 
   }
 
@@ -196,8 +214,8 @@ export class Comment{
   // CLOSE === ===
   closeWindow(){
   
-    this.keyboardService.addKeyboardEvents()
-    this.window.classList.add( 'none' )
+    this.#keyboardService.addKeyboardEvents()
+    this.#window.classList.add( 'none' )
     
   }
 
