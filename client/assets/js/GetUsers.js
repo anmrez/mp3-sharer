@@ -43,7 +43,7 @@ export class GetUsers{
       image.src = './static/profile/' + user.image
       image.style.background = 'none'
 
-      image.addEventListener( 'mousemove', this.tooltip.show.bind( this.tooltip, item, user.username ) )
+      image.addEventListener( 'mousemove', this.tooltip.showBottom.bind( this.tooltip, item, user.username ) )
       image.addEventListener( 'mouseout', this.tooltip.hidden.bind( this.tooltip ) )
 
       index++
