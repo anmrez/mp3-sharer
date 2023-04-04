@@ -3,6 +3,16 @@
 export class ResponseService{
 
 
+  response( message: string | null | undefined, status = 200, headers = new Headers() ){
+
+    return new Response( message, {
+      status: status,
+      headers: headers
+    } )
+
+  }
+
+
   async readFile( filePath: string, status: number = 200 ): Promise< Response > {
 
     let file: Deno.FsFile | undefined
@@ -64,13 +74,13 @@ export class ResponseService{
   }
 
 
-  redirect( path: string ): Response {
+  redirect( path: string, headers = new Headers() ): Response {
+
+    headers.set( 'Location', path )
 
     return new Response( null, {
       status: 301,
-      headers: {
-        'Location' : path
-      }
+      headers: headers
     } )
 
   }

@@ -4,17 +4,18 @@ import { MySQLServiceUser } from '../mysql/mysql.service.user.ts';
 import { ResponseService } from '../response/response.service.ts';
 
 
-interface IListTokens{
+interface ITokenMap_key{
   username: string
-  token: string
   dateCreate: number
 }
+
+type Token = string
 
 
 export class AuthService{
 
 
-  urlTokens: IListTokens[] = []
+  private tokenMap = new Map<Token, ITokenMap_key>()
 
 
   constructor(
@@ -24,147 +25,89 @@ export class AuthService{
     private readonly responseService: ResponseService
   ){
 
-    setInterval( this.clearOldUrlTokens.bind( this ), 30_000 )
+    setInterval( this.clearOldTokens.bind( this ), 30_000 )
 
   }
 
 
   async sendEmail( req: Request ): Promise< Response > {
 
-    const body: { username: string } = await req.json()
+    const body: { username: string | undefined } = await req.json()
+
+    if ( typeof body.username !== 'string' ) return this.responseService.response( 'Username is invalid', 404 )
     const username = body.username
 
     // ищем пользователя в БД
     const user = await this.mySQLServiceUser.getUserByName( username )
-    if ( user === null ) return this.sendNotFound()
+    if ( user === null ) return this.responseService.response( 'User not found!', 404 )
 
     // генерируем токен и сохраняем его 
     const urlToken = this.generatorService.urlToken()
-    const save = this.saveUrlToken( user.username, urlToken )
+    const isSave = this.isSaveUrlToken( user.username, urlToken )
 
-    // Если письмо уже отправленно то оповещаем пользователя
-    if ( save === false ) return this.alreadyBeenSent()
+    // Если письмо уже отправленно, то оповещаем пользователя
+    if ( isSave === false ) return this.responseService.response( 'The email has already been sent!', 400 )
 
     // Отправляем пользователю на почту ссылку для входа
     this.mailerService.send( user.email, urlToken )
-    return this.sendOK()
+    return this.responseService.response( null, 200 )
     
   }
 
 
-  async login( req: Request ): Promise< Response >{
+  async login( req: Request ): Promise< Response > {
 
+    // get token from url
     const urlToken = new URL( req.url ).searchParams.get( 'token' )
     if ( urlToken === null ) return this.responseService.redirect( '/' )
 
-    const username = this.findUrlToken( urlToken )
-    if ( username === null ) return this.responseService.redirect( '/' )
+    // get data
+    const dataToken = this.tokenMap.get( urlToken )
+    if ( dataToken === undefined ) return this.responseService.redirect( '/' )
 
     // Сгенерировать токен, записаеть его в БД
     const token = this.generatorService.token()
-    await this.mySQLServiceUser.setToken( username, token )
+    await this.mySQLServiceUser.setToken( dataToken.username, token )
 
+    // token lifetime
     let maxAge = 999_999_999
-    if ( username === 'Guest' ) maxAge = 600
+    if ( dataToken.username === 'Guest' ) maxAge = 600
 
-    return new Response( undefined, {
-      status: 301,
-      headers: {
-        'Set-cookie': 'token=' + token + '; simesite=strict; Path=/; HttpOnly; max-age=' + maxAge ,
-        'Location': '/'
-      }
-    } ) 
+    // delete token from map
+    this.tokenMap.delete( urlToken )
+
+    // redirect
+    const headers = new Headers()
+    headers.set( 'Set-cookie', 'token=' + token + '; simesite=strict; Path=/; HttpOnly; max-age=' + maxAge )
+    return this.responseService.redirect( '/', headers )
 
   }
-  
 
   
   // PRIVATE === ===
-  private saveUrlToken( username: string, token: string ): boolean {
+  private isSaveUrlToken( username: string, token: string ): boolean {
 
     if ( this.isExistUrlToken( username ) ) return false
 
-    this.urlTokens.push({
+    this.tokenMap.set( token, {
       username: username,
-      token: token,
       dateCreate: new Date().getTime()
-    })
+    } )
 
     return true
 
   }
 
 
-  private findUrlToken( urlToken: string ): string | null {
-
-    let index = 0
-
-    while( this.urlTokens.length > index ){
-
-      const item = this.urlTokens[index]
-      if ( item.token === urlToken ) {
-
-        if ( this.isUrlTokenNotOutdated( item.dateCreate ) ) return item.username
-
-        this.urlTokens.splice( index, 1 )
-        return null
-        
-      } 
-
-      index++
-
-    }
-
-    return null
-
-  }
-
-
-  private sendNotFound(): Response {
-
-    return new Response( 'User not found!', {
-      status: 404,
-      headers: {
-        'content-type': 'text/plain'
-      }
-    } )
-
-  }
-
-
-  private sendOK(): Response {
-
-    return new Response( undefined, {
-      status: 200
-    } )
-
-  }
-
-
-  private alreadyBeenSent(): Response {
-
-    return new Response( 'The email has already been sent!', {
-      status: 400,
-      headers: {
-        'content-type': 'text/plain'
-      }
-    } )
-
-  }
-
-
   private isExistUrlToken( username: string ): boolean {
 
+    const iterator = this.tokenMap.values()
+
     let index = 0
+    while ( index !== this.tokenMap.size ){
 
-    while( this.urlTokens.length > index ){
-
-      const item = this.urlTokens[index]
-      if ( item.username === username ) {
-
-
-        return true
-      } 
+      const item = iterator.next().value
+      if ( item.username === username ) return true
 
       index++
 
@@ -175,38 +118,38 @@ export class AuthService{
   }
 
 
-  private isUrlTokenNotOutdated( dateCreateToken: number ): boolean {
+  private clearOldTokens (): void {
 
-    const nowDate = new Date().getTime()
-    const fiveMinute = 300000
+    const iterator = this.tokenMap.entries()
+    const arrTokenDelete: string[] = []
 
-    if ( nowDate < dateCreateToken + fiveMinute ) return true
-    
-    return false
-
-  }
-
-
-  private clearOldUrlTokens (  ){
-
-    if ( this.urlTokens.length === 0 ) return; 
-    
     let index = 0
+    while ( index !== this.tokenMap.size ) {
 
-    while( this.urlTokens.length > index ) {
-
-      const item = this.urlTokens[index]
-      if ( !this.isUrlTokenNotOutdated( item.dateCreate ) ) {
-
-        this.urlTokens.splice( index, 1 )
-        index--
-
-      }
-
+      const item: [ string, ITokenMap_key ] = iterator.next().value
+      const key = item[0]
+      const data = item[1]
+      if ( this.isUrlTokenOutdated( data.dateCreate ) ) arrTokenDelete.push( key ) 
+      
       index++
       
     }
 
+    arrTokenDelete.forEach( key => {
+      this.tokenMap.delete( key )
+    } )
+
   }
+
+
+  private isUrlTokenOutdated( dateCreateToken: number ): boolean {
+
+    const nowDate = new Date().getTime()
+    const fiveMinute = 300_000
+
+    return nowDate > dateCreateToken + fiveMinute
+
+  }
+
 
 }
