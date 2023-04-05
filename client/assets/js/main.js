@@ -19,12 +19,12 @@ import { Tooltip } from './Tooltip.js';
 class Init{
   
   
-  download = new Download()
   profile = new Profile()
   tableResize = new TableResize()
   binary = new Binary()
   tooltip = new Tooltip()
   
+  download = new Download( this.tooltip )
   getUsers = new GetUsers( this.tooltip )
   getSoundtrack = new GetSoundtracks( this.binary, this.tooltip )
   player = new Player( this.binary )

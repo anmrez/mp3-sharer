@@ -1,39 +1,59 @@
+import { Tooltip } from './Tooltip.js';
 
 
-export class Download{
+export class Download {
 
+  #tooltip
+  #download = document.createElement( 'a' )
   
-  player = document.querySelector( '#player' )
-  buttonDownload = this.player.querySelector( '#download' )
-
-  _download = document.createElement( 'a' )
+  #player = document.querySelector( '#player' )
+  #buttonDownload = this.#player.querySelector( '#download' )
   
-  constructor(){}
+
+  constructor( tooltip ) {
+
+    if ( tooltip instanceof Tooltip === false ) throw 'Error [Download] - tooltip not Tooltip'
+    this.#tooltip = tooltip
+
+  }
 
 
-  init(){
+  init() {
     
-    this._addEventClick()
+    this.#addEventClick()
+    this.#addEventTooltip()
 
   }
 
 
-  _addEventClick(){
+  #addEventClick() {
 
-    this.buttonDownload.addEventListener( 'click', this._eventClick.bind( this ) )
+    this.#buttonDownload.addEventListener( 'click', this.#eventClick.bind( this ) )
 
   }
 
-  _eventClick(){
 
-    const title = this.player.title
-    const author = this.player.author
-    const soundtrack = this.player.querySelector( '#soundtrack' )
+  #addEventTooltip() {
+
+    const tooltipShow = this.#tooltip.showTop.bind( this.#tooltip, this.#buttonDownload, 'Download soundtrack' )
+    this.#buttonDownload.addEventListener( 'mousemove', tooltipShow )
+
+    this.#buttonDownload.addEventListener( 'mouseout', this.#tooltip.hidden.bind( this.#tooltip ) )
+
+  }
+
+
+  #eventClick() {
+
+    const title = this.#player.title
+    const author = this.#player.author
+    const soundtrack = this.#player.querySelector( '#soundtrack' )
     
-    this._download.setAttribute( 'href', soundtrack.src )
-    this._download.setAttribute( 'download', author + ' – ' + title + '.mp3' )
-    this._download.click()
+    this.#download.setAttribute( 'href', soundtrack.src )
+    this.#download.setAttribute( 'download', author + ' – ' + title + '.mp3' )
+    this.#download.click()
 
   }
+
 
 }

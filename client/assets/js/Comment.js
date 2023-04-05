@@ -58,7 +58,6 @@ export class Comment{
   #getUserID(){
 
     this.#userID = Number( this.#buttonUser.userID )
-    console.log( 'user id: ', this.#userID )
     if ( this.#userID === undefined ) setTimeout( this.#getUserID.bind( this ), 2000 ) 
 
   }
@@ -129,7 +128,7 @@ export class Comment{
 
     this.#commentIntoPlayer.addEventListener( 'click', this.#eventButtonCommentIntoPlayer.bind( this ) )
 
-    const tooltipShow = this.#tooltip.showTop.bind( this.#tooltip, this.#commentIntoPlayer, 'comment' )
+    const tooltipShow = this.#tooltip.showTop.bind( this.#tooltip, this.#commentIntoPlayer, 'Add comment' )
 
     this.#commentIntoPlayer.addEventListener( 'mousemove', tooltipShow )
     this.#commentIntoPlayer.addEventListener( 'mouseout', this.#tooltip.hidden.bind( this.#tooltip ) )
