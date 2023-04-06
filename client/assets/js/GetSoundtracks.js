@@ -5,35 +5,34 @@ import { Tooltip } from './Tooltip.js';
 
 export class GetSoundtracks{
 
-  player = document.querySelector( '#player' )
-  playerElements = {
-    id: this.player.querySelector( '#id' ),
-    title: this.player.querySelector( '#title' ),
-    author: this.player.querySelector( '#author' ),
-    duration: this.player.querySelector( '#durationMax' ),
-    soundtrack: this.player.querySelector( '#soundtrack' ),
-    button: this.player.querySelector( '#button' ),
+  #player = document.querySelector( '#player' )
+  #playerElements = {
+    id: this.#player.querySelector( '#id' ),
+    title: this.#player.querySelector( '#title' ),
+    author: this.#player.querySelector( '#author' ),
+    duration: this.#player.querySelector( '#durationMax' ),
+    soundtrack: this.#player.querySelector( '#soundtrack' ),
+    button: this.#player.querySelector( '#button' ),
   }
 
-  dataArray = []
-  table = document.querySelector( '#tableMusick' )
+  #listSoundtracks = new Map()
+  #sectionTable = document.querySelector( '#tableSoundtrack' )
+  #table = document.querySelector( '#tableMusick' )
   // this class added:
   // - table.update() = this.get()
   // - table.selected = soundtrack id seleccted
+  #tableBody = this.#table.querySelector( '#tableMusickBody' )
 
-  sectionTable = document.querySelector( '#tableSoundtrack' )
-  tableBody = this.table.querySelector( '#tableMusickBody' )
-
-  switchButton = document.querySelector( '#switchButton' )
+  #switchButton = document.querySelector( '#switchButton' )
   // status - status table music/archive
   // archive() - choose archive
   // music() - choose music
-  switchButtonMusic = this.switchButton.querySelector( '#music' )
-  switchButtonArchive = this.switchButton.querySelector( '#archive' )
+  #switchButtonMusic = this.#switchButton.querySelector( '#music' )
+  #switchButtonArchive = this.#switchButton.querySelector( '#archive' )
 
-  _linkOnReload
+  #linkOnReload
 
-  timeoutSetList = []
+  #timeoutList = new Map()
 
   
   constructor(
@@ -47,53 +46,53 @@ export class GetSoundtracks{
     if ( tooltip instanceof Tooltip === false ) throw 'Error [GetSoundtracks] - tooltip not Tooltip'
     this.tooltip = tooltip
 
-    this.table.update = this.get.bind( this )
+    this.#table.update = this.get.bind( this )
     
   }
   
   
-  init( renameSoundtrack ){
+  init( renameSoundtrack ) {
     
     if ( renameSoundtrack instanceof RenameSoundtrack === false ) throw 'Error [GetSoundtracks] - RenameSoundtrack Service not RenameSoundtrack'
     this.renameSoundtrackService = renameSoundtrack
 
     this.get()
     
-    this._linkOnReload = this._eventReloadOnR.bind( this )
+    this.#linkOnReload = this.#eventReloadOnR.bind( this )
     this.addEventReloadOnR()
-    this._addEventScrollTable()
+    this.#addEventScrollTable()
     
-    this._getUserID()
+    this.#getUserID()
     
-    this.switchButton.status = 'music'
-    this._addEventSwitch()
+    this.#switchButton.status = 'music'
+    this.#addEventSwitch()
    
   }  
   
   
-  _getUserID(){
+  #getUserID() {
     
     this.userID = document.querySelector( '#buttonUser' ).userID
-    if ( this.userID === undefined ) setTimeout( this._getUserID.bind( this ), 1000 )
+    if ( this.userID === undefined ) setTimeout( this.#getUserID.bind( this ), 1000 )
 
   }
 
   // RELOAD --- ---
-  addEventReloadOnR(){
+  addEventReloadOnR() {
 
-    document.addEventListener( 'keyup', this._linkOnReload )
-
-  }
-
-
-  removeEventReloadOnR(){
-
-    document.removeEventListener( 'keyup', this._linkOnReload )
+    document.addEventListener( 'keyup', this.#linkOnReload )
 
   }
 
 
-  _eventReloadOnR( event ){
+  removeEventReloadOnR() {
+
+    document.removeEventListener( 'keyup', this.#linkOnReload )
+
+  }
+
+
+  #eventReloadOnR( event ) {
 
     // R
     if ( event.keyCode === 82 ) {
@@ -106,19 +105,28 @@ export class GetSoundtracks{
 
 
   // SCROLL --- ---
-  _addEventScrollTable(  ){
+  #addEventScrollTable() {
 
-    this.sectionTable.addEventListener( 'scroll', function( event ) {
+    this.#sectionTable.addEventListener( 'scroll', function( event ) {
 
       const target = event.target
       if ( target.clientHeight + target.scrollTop > target.scrollHeight - 100 ) {
 
-        if ( this.dataArray.length - this.sectionTable.lastLoadIndex <= 0 ) return;
-        
-        const item = this.dataArray[ this.dataArray.length - this.sectionTable.lastLoadIndex - 1 ]
-        this.sectionTable.lastLoadIndex ++
-        if ( ! item ) throw 'Error: item is undefined';
-        this._addItem( item, this.sectionTable.lastLoadIndex )
+        if ( ! this.#listSoundtracks.has( this.#sectionTable.nextSoundtrack ) ) {
+
+          this.#sectionTable.nextSoundtrack--
+          return;
+
+        } 
+
+        const soundID = this.#sectionTable.nextSoundtrack
+        const nextSoundtrack = this.#listSoundtracks.get( soundID )
+        nextSoundtrack.id = soundID
+
+        if ( ! this.#timeoutList.has( soundID ) ) {
+          const timeID = setTimeout( this.#addItem.bind( this ), 20, nextSoundtrack, soundID )
+          this.#timeoutList.set( soundID, timeID )
+        }
         
       } 
 
@@ -128,20 +136,20 @@ export class GetSoundtracks{
 
 
   // SWITCH --- ---
-  _addEventSwitch(){
+  #addEventSwitch() {
 
-    this.switchButton.music = this._eventSwitch.bind( this, this.switchButtonMusic, this.switchButtonArchive, 'music' )
-    this.switchButton.archive = this._eventSwitch.bind( this, this.switchButtonArchive, this.switchButtonMusic, 'archive' )
+    this.#switchButton.music = this.#eventSwitch.bind( this, this.#switchButtonMusic, this.#switchButtonArchive, 'music' )
+    this.#switchButton.archive = this.#eventSwitch.bind( this, this.#switchButtonArchive, this.#switchButtonMusic, 'archive' )
 
-    this.switchButtonMusic.addEventListener( 'click', this.switchButton.music.bind( this ) )
-    this.switchButtonArchive.addEventListener( 'click', this.switchButton.archive.bind( this ) )
+    this.#switchButtonMusic.addEventListener( 'click', this.#switchButton.music.bind( this ) )
+    this.#switchButtonArchive.addEventListener( 'click', this.#switchButton.archive.bind( this ) )
 
   }
 
 
-  _eventSwitch( button, reverceButton, status ) {
+  #eventSwitch( button, reverceButton, status ) {
 
-    this.switchButton.status = status
+    this.#switchButton.status = status
     button.classList.add( 'switch_button_active' )
     reverceButton.classList.remove( 'switch_button_active' )
     this.get()
@@ -150,11 +158,11 @@ export class GetSoundtracks{
 
 
   // GET SOUNDTRACKS --- ---
-  async get(){
+  async get() {
 
     let response
 
-    if ( this.switchButtonArchive.classList.contains( 'switch_button_active' ) ) {
+    if ( this.#switchButtonArchive.classList.contains( 'switch_button_active' ) ) {
       
       response = await fetch( '/getSoundtracksInArchive', {
         method: 'GET'
@@ -170,135 +178,86 @@ export class GetSoundtracks{
 
     if ( response.status !== 200 ) return;
 
-    this.dataArray = []
     const responseBuffer = await response.arrayBuffer()
 
-    let soundtracksBinary = new Uint8Array( responseBuffer )
-    const decoder = new TextDecoder()
+    const soundtracksBinary = new Uint8Array( responseBuffer )
+    this.#listSoundtracks = this.binaryService.decodeArraySoundtracks( soundtracksBinary )
 
-    while ( soundtracksBinary.length > 0 ){
+    if ( this.#listSoundtracks.size === 0 ) throw 'ERROR: Soundtracks not found'
 
-      let HEAD = 0
-
-      // length ID - 1 byte
-      const lengthSoundID = this.binaryService.decodeArrayInValue( soundtracksBinary.slice( HEAD, HEAD + 1 ) )
-      HEAD++
-
-      // sound ID - length ID byte
-      const soundID = this.binaryService.decodeArrayInValue( soundtracksBinary.slice( HEAD, HEAD + lengthSoundID ) )
-      HEAD += lengthSoundID
-
-      // duration - 2 byte
-      const duration = this.binaryService.decodeArrayInValue( soundtracksBinary.slice( HEAD, HEAD + 2 ) )
-      HEAD += 2
-
-      // title - 1 byte + title length byte
-      const titleLength = soundtracksBinary[HEAD]
-      HEAD++
-      
-      const title = decoder.decode( soundtracksBinary.slice( HEAD, titleLength + HEAD ) )
-      HEAD += titleLength
-      
-      // author - 1 byte + author length byte
-      const authorLength = soundtracksBinary[HEAD]
-      HEAD++
-      
-      const author = decoder.decode( soundtracksBinary.slice( HEAD, authorLength + HEAD ) )
-      HEAD += authorLength
-
-      // created at - 2 byte
-      let createdAT = ''
-      if ( soundtracksBinary[HEAD] < 10 ) createdAT = '0' + soundtracksBinary[HEAD] + '.'
-      else createdAT =  soundtracksBinary[HEAD] + '.'
-
-      if ( soundtracksBinary[HEAD + 1] < 10 ) createdAT += '0' + soundtracksBinary[HEAD + 1]
-      else createdAT += soundtracksBinary[HEAD + 1]
-      HEAD += 2
-
-      // 
-      soundtracksBinary = soundtracksBinary.slice( HEAD )
-
-      this.dataArray.push({
-        id: soundID,
-        duration: duration,
-        title: title,
-        author: author,
-        createdAT: createdAT
-      })
-
-    }
-
-    if ( this.dataArray.length === 0 ) throw 'ERROR: Soundtracks not found'
-
-    this._set()
+    this.#set()
 
   }
 
 
-  _set(){
+  #set() {
 
-    this.tableBody.replaceChildren()
-    this._cleatTimeoutSetList()
+    this.#tableBody.replaceChildren()
+    this.#clearTimeouList()
+    this.#sectionTable.nextSoundtrack = undefined
 
+    const iterator = this.#listSoundtracks.keys()
+
+    const keysArray = []
+    for ( const key of iterator ) keysArray.push( key )
+    
+    let timeIndex = 1
     let index = 1
-    const length = this.dataArray.length
 
-    while ( length + 1 > index ){
+    while( index !== keysArray.length + 1 && index !== 20 ) {
 
-      const indexItem = length - index
-      const item = this.dataArray[indexItem]
-      const delay = 50 + index * 25
+      const soundID = keysArray[ keysArray.length - index]
+      const dataSoundtrack = this.#listSoundtracks.get( soundID )
+      dataSoundtrack.id = soundID
+      const delay = timeIndex * 20
 
-      const timeID = setTimeout( this._addItem.bind( this ), delay, item, index )
-      this.timeoutSetList.push( timeID )
+      const timeID = setTimeout( this.#addItem.bind( this ), delay, dataSoundtrack, soundID )
+      this.#timeoutList.set( soundID, timeID )
 
       index++
+      timeIndex++
 
     }
 
   }
 
 
-  _cleatTimeoutSetList(){
+  #clearTimeouList() {
 
-    this.timeoutSetList.forEach( item => {
-      clearTimeout( item )
-    } )
-
-    this.timeoutSetList = []
+    const iterator = this.#timeoutList.values()
+    for ( const value of iterator ) clearTimeout( value ) 
+    
+    this.#timeoutList = new Map()
 
   }
 
 
-  _addItem( item, index ) {
-
-    if ( this.sectionTable.clientHeight + this.sectionTable.scrollTop < this.sectionTable.scrollHeight - 100 )return; 
-    
-    this.sectionTable.lastLoadIndex = index;
+  #addItem( soundtrack ) {
+   
+    this.#sectionTable.nextSoundtrack = soundtrack.id - 1;
 
     const tr = document.createElement( 'tr' );
 
     tr.classList.add( 'table_row' )
-    if ( item.id === this.table.selected ) tr.classList.add( 'td_play' )
+    if ( soundtrack.id === this.#table.selected ) tr.classList.add( 'td_play' )
     tr.align = 'center'
-    tr.setAttribute( 'soundID', item.id )
+    tr.setAttribute( 'soundID', soundtrack.id )
 
-    const tdID = this._createTDID( item )
-    const tdDate = this._createTDDate( item )
-    const tdDuration = this._createTDDuration( item )
+    const tdID = this.#createTDID( soundtrack )
+    const tdDate = this.#createTDDate( soundtrack )
+    const tdDuration = this.#createTDDuration( soundtrack )
 
     let tdShow, tdPlay
-    if ( this.switchButton.status === 'archive' ) tdShow = this._createTDShow( item )
-    else tdPlay = this._createTDPlay( item )
+    if ( this.#switchButton.status === 'archive' ) tdShow = this.#createTDShow( soundtrack )
+    else tdPlay = this.#createTDPlay( soundtrack )
 
-    const tdTitle = this._createTDTitle( item )
-    const tdAuthor = this._createTDAuthor( item )
+    const tdTitle = this.#createTDTitle( soundtrack )
+    const tdAuthor = this.#createTDAuthor( soundtrack )
 
-    const arrayTDUsers = this._createTDUsers()
-    arrayTDUsers.getCommets = this._eventGetCommentsInTDUsers.bind( arrayTDUsers, item, this.tooltip )
+    const arrayTDUsers = this.#createTDUsers()
+    arrayTDUsers.getCommets = this._eventGetCommentsInTDUsers.bind( arrayTDUsers, soundtrack, this.tooltip )
 
-    const delay = 40 + index * 10
-    setTimeout( arrayTDUsers.getCommets, delay )
+    setTimeout( arrayTDUsers.getCommets, 70 )
 
     tr.append( tdID )
     tr.append( tdDate )
@@ -310,21 +269,21 @@ export class GetSoundtracks{
     tr.append( tdAuthor )
 
 
-    arrayTDUsers.forEach( item => {
-      tr.append( item )
+    arrayTDUsers.forEach( soundtrack => {
+      tr.append( soundtrack )
     })
 
-    this.tableBody.append( tr )
+    this.#tableBody.append( tr )
 
   }
 
 
   // CREATE TD --- ---
-  _createTDID( item ) {
+  #createTDID( soundtrack ) {
 
     const td = document.createElement( 'td' );
 
-    td.innerHTML = item.id
+    td.innerHTML = soundtrack.id
 
     td.classList.add( 'padding_x_1' )
     td.classList.add( 'text_0_75' )
@@ -335,23 +294,23 @@ export class GetSoundtracks{
   }
 
 
-  _createTDDate( item ) {
+  #createTDDate( soundtrack ) {
 
     const td = document.createElement( 'td' );
 
-    td.innerHTML = item.createdAT
+    td.innerHTML = soundtrack.createdAT
 
     return td
 
   }
   
 
-  _createTDDuration( item ) {
+  #createTDDuration( soundtrack ) {
 
     const td = document.createElement( 'td' );
 
-    let minute = Math.floor( item.duration / 60 )
-    let sercond = item.duration - minute * 60
+    let minute = Math.floor( soundtrack.duration / 60 )
+    let sercond = soundtrack.duration - minute * 60
 
     if ( minute.toString().length === 1 ) minute = '0' + minute
     if ( sercond.toString().length === 1 ) sercond = '0' + sercond
@@ -364,13 +323,13 @@ export class GetSoundtracks{
   }
 
 
-  _createTDShow( item ) {
+  #createTDShow( soundtrack ) {
 
     const td = document.createElement( 'td' );
     td.classList.add( 'pointer' )
     td.classList.add( 'fill_pink' )
-    td.setAttribute( 'sound', item.id )
-    td.addEventListener( 'click', this._TDShowEvent.bind( this, item ) )
+    td.setAttribute( 'sound', soundtrack.id )
+    td.addEventListener( 'click', this.#TDShowEvent.bind( this, soundtrack ) )
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
     svg.setAttribute( 'height', '14px' )
@@ -388,15 +347,15 @@ export class GetSoundtracks{
   }
 
 
-  _createTDPlay( item ) {
+  #createTDPlay( soundtrack ) {
 
     const td = document.createElement( 'td' );
     td.classList.add( 'pointer' )
     td.classList.add( 'fill_pink' )
-    td.setAttribute( 'sound', item.id )
+    td.setAttribute( 'sound', soundtrack.id )
     td.status = 'pause'
 
-    td.addEventListener( 'click', this._TDPlayEvent.bind( this, item ) )
+    td.addEventListener( 'click', this.#TDPlayEvent.bind( this, soundtrack ) )
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
     svg.setAttribute( 'height', '14px' )
@@ -437,37 +396,37 @@ export class GetSoundtracks{
   }
 
 
-  _createTDTitle( item ) {
+  #createTDTitle( soundtrack ) {
 
     const td = document.createElement( 'td' );
     td.classList.add( 'padding_x_1' )
 
-    if ( item.title.length > 30 ) {
-      const sub = item.title.substring( 0, 30 )
+    if ( soundtrack.title.length > 30 ) {
+      const sub = soundtrack.title.substring( 0, 30 )
       td.innerHTML = sub + '...'
-    } else td.innerHTML = item.title
+    } else td.innerHTML = soundtrack.title
 
     return td
 
   }
 
 
-  _createTDAuthor( item ) {
+  #createTDAuthor( soundtrack ) {
 
     const td = document.createElement( 'td' );
     td.classList.add( 'padding_x_1' )
 
-    if ( item.author.length > 15 ) {
-      const sub = item.author.substring( 0, 14 )
+    if ( soundtrack.author.length > 15 ) {
+      const sub = soundtrack.author.substring( 0, 14 )
       td.innerHTML = sub + '...'
-    } else td.innerHTML = item.author
+    } else td.innerHTML = soundtrack.author
 
     return td
 
   }
 
 
-  _createTDUsers( ) {
+  #createTDUsers( ) {
 
     const tdUsers = []
 
@@ -492,11 +451,11 @@ export class GetSoundtracks{
 
 
   // EVENTS --- ---
-  async _eventGetCommentsInTDUsers( item, tooltip ) {
+  async _eventGetCommentsInTDUsers( soundtrack, tooltip ) {
 
     const responseComments = await fetch( '/getComment', {
       method: 'POST',
-      body: String( item.id )
+      body: String( soundtrack.id )
     } )
 
     const data = await responseComments.json()
@@ -504,44 +463,44 @@ export class GetSoundtracks{
     let index = 0
     while( index !== this.length ) {
       
-      if ( data ) data.forEach( item => {
+      if ( data ) data.forEach( soundtrack => {
         
         const td = this[index]
         const span = td.lastChild
         
-        if ( item.userID === index + 1 ) {
+        if ( soundtrack.userID === index + 1 ) {
           
-          if ( item.status === 1 ) {
+          if ( soundtrack.status === 1 ) {
 
             span.code = 1
             span.style.background = '#ff000077'
           
           } 
 
-          if ( item.status === 2 ) {
+          if ( soundtrack.status === 2 ) {
 
             span.code = 2
             span.style.background = '#ffff0077'
           
           } 
 
-          if ( item.status === 3 ) {
+          if ( soundtrack.status === 3 ) {
 
             span.code = 3
             span.style.background = '#00ff0077'
 
           } 
 
-          if ( item.status === 10 ) {
+          if ( soundtrack.status === 10 ) {
 
             span.code = 10
             span.style.background = '#8b00ff77'
 
           } 
 
-          if ( item.comment ) { 
+          if ( soundtrack.comment ) { 
             
-            span.comment = item.comment
+            span.comment = soundtrack.comment
 
             // add point
             const point = document.createElement( 'span' )
@@ -565,47 +524,47 @@ export class GetSoundtracks{
   }
 
 
-  _TDShowEvent( item ) {
+  #TDShowEvent( soundtrack ) {
 
-    this.player.pause()
+    this.#player.pause()
 
     // hidden icons
-    this.player.querySelector( '#loadingIcon' ).classList.add( 'none' )
-    this.player.querySelector( '#play' ).classList.add( 'none' )
-    this.player.querySelector( '#pause' ).classList.add( 'none' )
+    this.#player.querySelector( '#loadingIcon' ).classList.add( 'none' )
+    this.#player.querySelector( '#play' ).classList.add( 'none' )
+    this.#player.querySelector( '#pause' ).classList.add( 'none' )
 
     // hidden cover
-    this.player.querySelector( '#cover' ).classList.add( 'none' )
-    this.player.querySelector( '#coverEmpty' ).classList.add( 'none' )
+    this.#player.querySelector( '#cover' ).classList.add( 'none' )
+    this.#player.querySelector( '#coverEmpty' ).classList.add( 'none' )
     
     // show icon archive
-    this.player.querySelector( '#archive' ).classList.remove( 'none' )
+    this.#player.querySelector( '#archive' ).classList.remove( 'none' )
 
-    this._writingDataIntoPlayer( undefined, undefined, item )
+    this.#writingDataIntoPlayer( undefined, undefined, soundtrack )
 
     // update table data
-    this.table.selected = item.id
-    this._addHighlightInTable( item.id )
+    this.#table.selected = soundtrack.id
+    this.#addHighlightInTable( soundtrack.id )
 
   }
 
 
-  async _TDPlayEvent( item ) {
+  async #TDPlayEvent( soundtrack ) {
 
-    if ( this.player.soundID === item.id ) {
+    if ( this.#player.soundID === soundtrack.id ) {
 
-      this.player.switch()
+      this.#player.switch()
       return;
 
     } 
 
-    this.player.querySelector( '#loadingIcon' ).classList.remove( 'none' )
-    this.player.querySelector( '#play' ).classList.add( 'none' )
-    this.player.querySelector( '#pause' ).classList.add( 'none' )
-    this.player.querySelector( '#archive' ).classList.add( 'none' )
+    this.#player.querySelector( '#loadingIcon' ).classList.remove( 'none' )
+    this.#player.querySelector( '#play' ).classList.add( 'none' )
+    this.#player.querySelector( '#pause' ).classList.add( 'none' )
+    this.#player.querySelector( '#archive' ).classList.add( 'none' )
 
 
-    const key = 'soundtrack:' + item.id
+    const key = 'soundtrack:' + soundtrack.id
     let mp3 = undefined
     let blobURL = undefined
     const soundFromStorage = sessionStorage.getItem( key )
@@ -614,34 +573,99 @@ export class GetSoundtracks{
     else {
 
 
-      const response = await fetch( 'static/mp3/' + item.id + '.mp3', {
+      const response = await fetch( 'static/mp3/' + soundtrack.id + '.mp3', {
         method: 'GET'
       } )
   
       if ( response.status !== 200 ) throw 'Sound undefined'
 
-      this.player.querySelector( '#archive' ).classList.add( 'none' )
+      this.#player.querySelector( '#archive' ).classList.add( 'none' )
       const mp3Buffer = await response.arrayBuffer()
-      mp3 = new File( [mp3Buffer], item.author + ' – ' + item.title + '.mp3', { type: 'audio/mpeg' } )
+      mp3 = new File( [mp3Buffer], soundtrack.author + ' – ' + soundtrack.title + '.mp3', { type: 'audio/mpeg' } )
       blobURL = URL.createObjectURL( mp3 )
       sessionStorage.setItem( key, blobURL )
 
     }
 
-    this._writingDataIntoPlayer( mp3, blobURL, item )
-    this._resetAllButtonsIntoTable()
-    this._changeButtonPlayIntoTable( item.id )
+    this.#writingDataIntoPlayer( mp3, blobURL, soundtrack )
+    this.#resetAllButtonsIntoTable()
+    this.#changeButtonPlayIntoTable( soundtrack.id )
 
     // update table data
-    this.table.selected = item.id
+    this.#table.selected = soundtrack.id
 
-    this._addHighlightInTable( item.id )
+    this.#addHighlightInTable( soundtrack.id )
 
   }
 
 
   // OTHER --- ---
-  _getTime( totalSecond ) {
+  #resetAllButtonsIntoTable() {
+
+    this.#table.querySelectorAll('[sound]').forEach( soundtrack => {
+
+      soundtrack.querySelector( '#play' ).classList.remove( 'none' )
+      soundtrack.querySelector( '#pause' ).classList.add( 'none' )
+
+    })
+
+  }
+
+
+  #changeButtonPlayIntoTable( soundID ) {
+
+    if ( ! soundID ) throw 'ERROR - soundID in undefined'
+
+    if ( Number( this.#player.soundID ) !== soundID ) {
+
+      const row = this.#table.querySelector('[soundid="' + soundID + '"]')
+      row.querySelector( '#play' ).classList.add( 'none' )
+      row.querySelector( '#pause' ).classList.remove( 'none' )
+
+    } 
+
+  }
+
+
+  #addHighlightInTable( soundID ) {
+
+    if ( ! soundID ) throw 'ERROR - soundID in undefined'
+
+    // clear all highlight row into table
+    this.#table.querySelectorAll( '[soundID]' ).forEach( soundtrack => {
+      soundtrack.classList.remove( 'td_play' )
+    })
+    
+    // add highlight row into table
+    const row = this.#table.querySelector( '[soundID="' + soundID + '"]' )
+    row.classList.add( 'td_play' )
+
+    // block/unblock rename button
+    const span = row.querySelector( '[userid="' + this.userID +'"]' )
+    if ( span.code === 10 ) this.renameSoundtrackService.unblock()
+    else this.renameSoundtrackService.block()
+
+  }
+
+
+  #writingDataIntoPlayer( mp3File, blobURL, soundtrack ) {
+
+    if ( mp3File !== undefined ) this.#player.file = mp3File
+    if ( blobURL !== undefined ) this.#playerElements.soundtrack.src = blobURL
+
+    this.#playerElements.id.innerHTML = soundtrack.id
+    this.#playerElements.title.innerHTML = soundtrack.title
+    this.#playerElements.author.innerHTML = soundtrack.author
+    this.#playerElements.duration.innerHTML = this.#getTime( soundtrack.duration )
+
+    this.#player.soundID = soundtrack.id
+    this.#player.title = soundtrack.title
+    this.#player.author = soundtrack.author
+
+  }
+
+
+  #getTime( totalSecond ) {
 
     totalSecond = Math.floor( totalSecond )
 
@@ -655,70 +679,6 @@ export class GetSoundtracks{
     if ( minute < 10 ) minute = '0' + minute
 
     return minute + ':' + second
-
-  }
-
-  _resetAllButtonsIntoTable(){
-
-    this.table.querySelectorAll('[sound]').forEach( item => {
-
-      item.querySelector( '#play' ).classList.remove( 'none' )
-      item.querySelector( '#pause' ).classList.add( 'none' )
-
-    })
-
-  }
-
-
-  _changeButtonPlayIntoTable( soundID ){
-
-    if ( ! soundID ) throw 'ERROR - soundID in undefined'
-
-    if ( Number( this.player.soundID ) !== soundID ) {
-
-      const row = this.table.querySelector('[soundid="' + soundID + '"]')
-      row.querySelector( '#play' ).classList.add( 'none' )
-      row.querySelector( '#pause' ).classList.remove( 'none' )
-
-    } 
-
-  }
-
-
-  _addHighlightInTable( soundID ){
-
-    if ( ! soundID ) throw 'ERROR - soundID in undefined'
-
-    // clear all highlight row into table
-    this.table.querySelectorAll( '[soundID]' ).forEach( item => {
-      item.classList.remove( 'td_play' )
-    })
-    
-    // add highlight row into table
-    const row = this.table.querySelector( '[soundID="' + soundID + '"]' )
-    row.classList.add( 'td_play' )
-
-    // add rename button
-    const span = row.querySelector( '[userid="' + this.userID +'"]' )
-    if ( span === null ) this.renameSoundtrackService.hidden()
-    else if ( span.code === 10 ) this.renameSoundtrackService.show()
-
-  }
-
-
-  _writingDataIntoPlayer( mp3File, blobURL, item ){
-
-    if ( mp3File !== undefined ) this.player.file = mp3File
-    if ( blobURL !== undefined ) this.playerElements.soundtrack.src = blobURL
-
-    this.playerElements.id.innerHTML = item.id
-    this.playerElements.title.innerHTML = item.title
-    this.playerElements.author.innerHTML = item.author
-    this.playerElements.duration.innerHTML = this._getTime( item.duration )
-
-    this.player.soundID = item.id
-    this.player.title = item.title
-    this.player.author = item.author
 
   }
 

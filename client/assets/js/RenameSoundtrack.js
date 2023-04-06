@@ -3,10 +3,10 @@
 export class RenameSoundtrack{
 
   // in player
-  player = document.querySelector( '#player' )
-  playerTitle = this.player.querySelector( '#title' )
-  playerAuthor = this.player.querySelector( '#author' )
-  button = this.player.querySelector( '#renameSoundtrack' )
+  #player = document.querySelector( '#player' )
+  #playerTitle = this.#player.querySelector( '#title' )
+  #playerAuthor = this.#player.querySelector( '#author' )
+  button = this.#player.querySelector( '#renameSoundtrack' )
   
   // in modal window
   window = document.querySelector( '#renameSoundtrackWindow' )
@@ -81,11 +81,11 @@ export class RenameSoundtrack{
       body: JSON.stringify( body )
     } ).then( () => {
 
-      this.player.title = body.title
-      this.playerTitle.innerHTML = body.title
+      this.#player.title = body.title
+      this.#playerTitle.innerHTML = body.title
 
-      this.player.author = body.author
-      this.playerAuthor.innerHTML = body.author
+      this.#player.author = body.author
+      this.#playerAuthor.innerHTML = body.author
 
       this.closeWindow()
       this.table.update()
@@ -98,15 +98,19 @@ export class RenameSoundtrack{
 
 
   // BUTTON --- ---
-  show(){
+  unblock(){
 
-    this.button.classList.remove( 'none' )
+    this.button.classList.remove( 'pointer_event_none' )
+    this.button.classList.remove( 'fill_dark' )
+    this.button.classList.add( 'fill_white' )
 
   }
   
-  hidden(){
-
-    this.button.classList.add( 'none' )
+  block(){
+    
+    this.button.classList.add( 'pointer_event_none' )
+    this.button.classList.add( 'fill_dark' )
+    this.button.classList.remove( 'fill_white' )
 
   }
 
@@ -116,9 +120,9 @@ export class RenameSoundtrack{
   _openWindow(){
 
     this.window.classList.remove( 'none' )
-    this.title.value = this.player.title
-    this.author.value = this.player.author
-    this.soundID.value = this.player.soundID
+    this.title.value = this.#player.title
+    this.author.value = this.#player.author
+    this.soundID.value = this.#player.soundID
 
     this.keyboardService.removeKeyboardEvents()
 

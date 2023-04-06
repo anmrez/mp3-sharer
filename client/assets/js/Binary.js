@@ -3,6 +3,9 @@
 export class Binary{
 
 
+  #textDecoder = new TextDecoder()
+
+
   constructor(){}
 
 
@@ -23,6 +26,65 @@ export class Binary{
         if ( basicArray[index] > 0 ) basicArray[index + 1] += basicArray[index] * 255
 
       index++
+
+    }
+
+    return result
+
+  }
+
+
+  decodeArraySoundtracks( soundtrackBinary ) {
+
+    const result = new Map()
+
+    while( soundtrackBinary.length > 0 ) {
+      let HEAD = 0
+
+      // length ID - 1 byte
+      const lengthSoundID = this.decodeArrayInValue( soundtrackBinary.slice( HEAD, HEAD + 1 ) )
+      HEAD++
+
+      // sound ID - length ID byte
+      const soundID = this.decodeArrayInValue( soundtrackBinary.slice( HEAD, HEAD + lengthSoundID ) )
+      HEAD += lengthSoundID
+
+      // duration - 2 byte
+      const duration = this.decodeArrayInValue( soundtrackBinary.slice( HEAD, HEAD + 2 ) )
+      HEAD += 2
+
+      // title - 1 byte + title length byte
+      const titleLength = soundtrackBinary[HEAD]
+      HEAD++
+      
+      const title = this.#textDecoder.decode( soundtrackBinary.slice( HEAD, titleLength + HEAD ) )
+      HEAD += titleLength
+      
+      // author - 1 byte + author length byte
+      const authorLength = soundtrackBinary[HEAD]
+      HEAD++
+      
+      const author = this.#textDecoder.decode( soundtrackBinary.slice( HEAD, authorLength + HEAD ) )
+      HEAD += authorLength
+
+      // created at - 2 byte
+      let createdAT = ''
+      if ( soundtrackBinary[HEAD] < 10 ) createdAT = '0' + soundtrackBinary[HEAD] + '.'
+      else createdAT =  soundtrackBinary[HEAD] + '.'
+
+      if ( soundtrackBinary[HEAD + 1] < 10 ) createdAT += '0' + soundtrackBinary[HEAD + 1]
+      else createdAT += soundtrackBinary[HEAD + 1]
+      HEAD += 2
+
+      // 
+      soundtrackBinary = soundtrackBinary.slice( HEAD )
+
+      result.set( soundID, {
+        duration: duration,
+        title: title,
+        author: author,
+        createdAT: createdAT
+      } )
 
     }
 
